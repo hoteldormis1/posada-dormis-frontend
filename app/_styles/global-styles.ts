@@ -1,0 +1,1 @@
+export const pantallaPrincipalEstilos = 'bg-background w-full min-h-screen';
