@@ -1,10 +1,10 @@
 import React from 'react'
-import Footerbar from '../_components/Footerbar'
+import { fuenteDeTitulo, pantallaPrincipalEstilos } from '@/_styles/global-styles'
 
 const page = () => {
   return (
-    <div className='bg-background w-full min-h-screen'>
-        <Footerbar/>
+    <div className={pantallaPrincipalEstilos}>
+          <label className={fuenteDeTitulo}>Usuarios</label>
     </div>
   )
 }

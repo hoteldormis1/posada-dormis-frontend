@@ -2,13 +2,13 @@ import React from "react";
 import Link from "next/link";
 import { LoginIzquierda } from "../_components";
 
-const Page = () => {
+const Login = () => {
 	return (
 		<div
-			className="flex flex-col justify-center items-center h-screen w-full bg-cover bg-center"
+			className="flex flex-col justify-center items-center min-h-screen w-full bg-cover bg-center"
 			style={{ backgroundImage: "url('/carlos_paz.png')" }} // o puede ser una URL externa
 		>
-			<div className="flex">
+			<div className="flex flex-col w-full md:w-auto md:flex-row px-8">
 				{/* Izquierda: información de la posada */}
 				<LoginIzquierda includeDescription={true}/>
 
@@ -41,7 +41,7 @@ const Page = () => {
 						<div className="flex items-center justify-between gap-4 pt-4">
 							<Link
 								href="/dashboard"
-								className="w-1/3 bg-[#43AC6A] hover:bg-[#43AC6A] text-white py-2 px-4 rounded transition duration-200"
+								className="w-1/3 text-center bg-[#43AC6A] hover:bg-[#43AC6A] text-white py-2 px-4 rounded transition duration-200"
 							>
 								Acceder
 							</Link>
@@ -54,4 +54,4 @@ const Page = () => {
 	);
 };
 
-export default Page;
+export default Login;

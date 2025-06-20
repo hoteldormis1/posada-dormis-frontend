@@ -1,11 +1,12 @@
 import React from 'react'
-import { pantallaPrincipalEstilos } from '../_styles/global-styles'
+import { fuenteDeTitulo, pantallaPrincipalEstilos } from '../_styles/global-styles'
 
-const page = () => {
+const Calendario = () => {
   return (
     <div className={pantallaPrincipalEstilos}>
+          <label className={fuenteDeTitulo}>Calendario</label>
     </div>
   )
 }
 
-export default page
+export default Calendario

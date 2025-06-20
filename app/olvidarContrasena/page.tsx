@@ -1,13 +1,13 @@
 import React from "react";
 import { LoginIzquierda } from "../_components";
 
-const Page = () => {
+const OlvidarContrasena = () => {
     return (
         <div
             className="flex flex-col justify-center items-center h-screen w-full bg-cover bg-center"
             style={{ backgroundImage: "url('/carlos_paz.png')" }} // o puede ser una URL externa
         >
-            <div className="flex">
+			<div className="flex flex-col w-full md:w-auto md:flex-row px-8">
                 {/* Izquierda: información de la posada */}
 				<LoginIzquierda includeDescription={false}/>
 
@@ -42,4 +42,4 @@ const Page = () => {
     );
 };
 
-export default Page;
+export default OlvidarContrasena;
