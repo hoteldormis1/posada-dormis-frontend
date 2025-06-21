@@ -5,27 +5,25 @@ import React from "react";
 import TablaHabitaciones from "./Widgets/TablaReservas";
 import GraficoCantidadDeReservas from "./Widgets/GraficoVertical/CantidadDeReservas";
 import GraficoCantidadDeVentas from "./Widgets/GraficoVertical/CantidadDeVentas";
+import GraficoPieEstadoHabitaciones from "./Widgets/GraficoPieEstadoHabitaciones";
 
 // Datos simulados
 const graficosData = [
   {
     titulo: "Cantidad de reservas",
     grafico: <GraficoCantidadDeReservas/>,
-    // contenido: "(acá va lista de cantidad de reservas)",
   },
   {
     titulo: "Ventas",
-    // contenido: "(acá va gráfico de ventas)",
     grafico: <GraficoCantidadDeVentas/>,
   },
   {
     titulo: "Habitaciones hoy",
-    // contenido: "(acá va lista del estado de habitaciones hoy)",
     grafico: <TablaHabitaciones/>,
   },
   {
     titulo: "Estado de habitaciones hoy",
-    contenido: "(acá va un pie chart del estado de habitaciones hoy)",
+    grafico: <GraficoPieEstadoHabitaciones/>
   },
 ];
 
@@ -39,7 +37,7 @@ const Graficos = () => {
             className="flex flex-col p-6 border-1 border-gray-400 shadow-md rounded-xl min-h-[300px] max-h-[500px]"
           >
             <label className={fuenteDeSubtitulo}>{grafico.titulo}</label>
-            <label className="text-sm text-gray-600">{grafico.contenido}</label>
+            {/* {grafico?.contenido && <label className="text-sm text-gray-600">{grafico?.contenido}</label>} */}
             {grafico && grafico.grafico}
           </div>
         ))}

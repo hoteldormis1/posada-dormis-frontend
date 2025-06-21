@@ -16,7 +16,7 @@ const HotelEstadisticas = () => {
 				{estadisticas.map((item, index) => (
 					<div
 						key={index}
-						className="flex gap-8 items-center justify-center p-4"
+						className="bg-tertiary flex gap-8 items-center justify-center px-2 py-4 rounded-xl"
 					>
 						{item.icon}
 						<div className="flex flex-col items-center justify-center">

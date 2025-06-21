@@ -59,6 +59,7 @@ const page = () => {
 				<TableComponent<Reserva>
 					columns={columns}
 					data={reservas}
+					showFormActions={true}
 					onAdd={() => null}
 					onEdit={() => null}
 				/>

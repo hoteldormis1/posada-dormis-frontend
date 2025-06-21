@@ -9,6 +9,8 @@ import GraficoCantidadDeReservas from "./Dashboard/Graficos/Widgets/GraficoVerti
 import GraficoCantidadDeVentas from "./Dashboard/Graficos/Widgets/GraficoVertical/CantidadDeVentas";
 import GraficoVertical from "./Dashboard/Graficos/Components/GraficoVertical";
 import GraficosContent from "./Dashboard/Graficos";
+import GraficoPie from "./Dashboard/Graficos/Components/GraficoPie"
+import GraficoPieEstadoHabitaciones from "./Dashboard/Graficos/Widgets/GraficoPieEstadoHabitaciones";
 
 export {
 	LoginIzquierda,
@@ -21,5 +23,7 @@ export {
 	GraficosContent,
 	GraficoCantidadDeReservas,
     GraficoVertical,
-	GraficoCantidadDeVentas
+	GraficoCantidadDeVentas,
+	GraficoPie,
+	GraficoPieEstadoHabitaciones
 };

@@ -47,6 +47,7 @@ const Habitaciones = () => {
 				<TableComponent<Room>
 					columns={columns}
 					data={rooms}
+					showFormActions={true}
 					onAdd={() => null}
 					onEdit={() => null}
 				/>

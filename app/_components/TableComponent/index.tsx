@@ -15,7 +15,7 @@ interface TableComponentProps<T> {
 	onAdd: () => void;
 	onEdit: (id: string) => void;
 	title?: string;
-	showAction?: boolean;
+	showFormActions?: boolean;
 }
 
 // 👇 Usamos genéricos con restricción mínima: T debe tener un `id: string`
@@ -25,12 +25,12 @@ const TableComponent = <T extends { id: string }>({
 	onEdit,
 	onAdd,
 	title,
-	showAction,
+	showFormActions,
 }: TableComponentProps<T>) => {
 	return (
 		<div className="flex flex-col mx-auto">
 			<div>
-				{showAction && (
+				{showFormActions && (
 					<div className="flex justify-end py-4">
 						<Button
 							onClick={onAdd}
@@ -55,7 +55,7 @@ const TableComponent = <T extends { id: string }>({
 										{column.header}
 									</th>
 								))}
-								{showAction && (
+								{showFormActions && (
 									<th className="py-4 px-4 border-b bg-secondary text-black">
 										Acciones
 									</th>
@@ -78,7 +78,7 @@ const TableComponent = <T extends { id: string }>({
 											)}
 										</td>
 									))}
-									{showAction && (
+									{showFormActions && (
 										<td className="py-2 px-4 border-b text-center">
 											<button
 												onClick={() => onEdit(item.id)}

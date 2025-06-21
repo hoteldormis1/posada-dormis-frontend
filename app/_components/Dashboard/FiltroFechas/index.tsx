@@ -27,7 +27,7 @@ const FiltroFechas = () => {
 						<input
 							id="start-date"
 							type="date"
-							className="bg-[#E9FFF1] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full pl-10 p-2.5"
+							className="bg-tertiary border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full pl-10 p-2.5"
 						/>
 					</div>
 				</div>
@@ -55,7 +55,7 @@ const FiltroFechas = () => {
 						<input
 							id="end-date"
 							type="date"
-							className="bg-[#E9FFF1] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full pl-10 p-2.5"
+							className="bg-tertiary border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full pl-10 p-2.5"
 						/>
 					</div>
 				</div>
