@@ -28,7 +28,7 @@ const Graficos = () => {
         {graficosData.map((grafico, index) => (
           <div
             key={index}
-            className="flex flex-col p-6 border border-black rounded-xl min-h-[300px]"
+            className="flex flex-col p-6 border-1 border-gray-400 shadow-md rounded-xl min-h-[300px]"
           >
             <label className={fuenteDeSubtitulo}>{grafico.titulo}</label>
             <label className="text-sm text-gray-600">{grafico.contenido}</label>

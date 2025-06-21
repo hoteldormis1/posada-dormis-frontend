@@ -12,11 +12,11 @@ const estadisticas = [
 const HotelEstadisticas = () => {
 	return (
 		<div className="pt-8 w-full">
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 w-full rounded-xl shadow-md p-6 border-1 border-black">
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 w-full rounded-xl p-6 border-1 border-gray-400 shadow-md">
 				{estadisticas.map((item, index) => (
 					<div
 						key={index}
-						className="flex gap-8 items-center justify-center p-4 bg-[#E9FFF1] rounded-lg shadow-sm hover:shadow-md transition-shadow"
+						className="flex gap-8 items-center justify-center p-4"
 					>
 						{item.icon}
 						<div className="flex flex-col items-center justify-center">

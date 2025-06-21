@@ -3,7 +3,7 @@ import React from "react";
 const FiltroFechas = () => {
 	return (
 		<div className="pt-8 w-full">
-			<div className="flex flex-col md:flex-row gap-6 w-full rounded-xl shadow-md p-6 border border-black">
+			<div className="flex flex-col md:flex-row gap-6 w-full rounded-xl shadow-md p-6 border-1 border-gray-400">
 				{/* Fecha Desde */}
 				<div className="w-full md:w-1/2 flex items-center gap-4">
 					<label
