@@ -1,10 +1,25 @@
-import LoginIzquierda from "./LoginIzquierda/index"
-import LayoutWrapper from "./LayoutWrapper/index"
-import Navbar from "./Navbar/index"
-import Footerbar from "./Footerbar/index"
-import TableComponent from "./TableComponent/index"
-import FiltroFechas from "./Dashboard/FiltroFechas"
-import HotelEstadisticas from "./Dashboard/HotelEstadisticas"
-import Graficos from "./Dashboard/Graficos"
+import LoginIzquierda from "./LoginIzquierda/index";
+import LayoutWrapper from "./LayoutWrapper/index";
+import Navbar from "./Navbar/index";
+import Footerbar from "./Footerbar/index";
+import TableComponent from "./TableComponent/index";
+import FiltroFechas from "./Dashboard/FiltroFechas";
+import HotelEstadisticas from "./Dashboard/HotelEstadisticas";
+import GraficoCantidadDeReservas from "./Dashboard/Graficos/Widgets/GraficoVertical/CantidadDeReservas";
+import GraficoCantidadDeVentas from "./Dashboard/Graficos/Widgets/GraficoVertical/CantidadDeVentas";
+import GraficoVertical from "./Dashboard/Graficos/Components/GraficoVertical";
+import GraficosContent from "./Dashboard/Graficos";
 
-export {LoginIzquierda, Footerbar, LayoutWrapper, Navbar, TableComponent, FiltroFechas, HotelEstadisticas, Graficos}
+export {
+	LoginIzquierda,
+	Footerbar,
+	LayoutWrapper,
+	Navbar,
+	TableComponent,
+	FiltroFechas,
+	HotelEstadisticas,
+	GraficosContent,
+	GraficoCantidadDeReservas,
+    GraficoVertical,
+	GraficoCantidadDeVentas
+};
