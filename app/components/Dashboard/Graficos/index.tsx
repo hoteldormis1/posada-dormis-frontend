@@ -1,6 +1,6 @@
 "use client"
 
-import { fuenteDeSubtitulo } from "@/_styles/global-styles";
+import { fuenteDeSubtitulo } from "@/styles/global-styles";
 import React from "react";
 import TablaHabitaciones from "./Widgets/TablaReservas";
 import GraficoCantidadDeReservas from "./Widgets/GraficoVertical/CantidadDeReservas";

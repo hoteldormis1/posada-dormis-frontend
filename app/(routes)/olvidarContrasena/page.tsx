@@ -1,5 +1,5 @@
 import React from "react";
-import { LoginIzquierda } from "../_components";
+import { LoginIzquierda } from "../../components";
 
 const OlvidarContrasena = () => {
     return (

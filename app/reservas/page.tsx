@@ -4,9 +4,9 @@ import React from "react";
 import {
 	fuenteDeTitulo,
 	pantallaPrincipalEstilos,
-} from "../_styles/global-styles";
-import { Reserva, TipoReserva } from "@/_models/types";
-import { TableComponent } from "@/_components";
+} from "../styles/global-styles";
+import { Reserva, TipoReserva } from "@/models/types";
+import { TableComponent } from "@/components";
 
 const page = () => {
 	const columns = [

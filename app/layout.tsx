@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import { LayoutWrapper } from "./_components";
+import { LayoutWrapper } from "./components";
+import StoreProvider from "./providers/StoreProvider";
+import { AuthProvider } from "./providers/AuthProvider";
 
 const poppins = Poppins({
 	subsets: ["latin"],
-	weight: ["400", "600", "700", "900"], // Escoge los pesos que necesites
+	weight: ["400", "600", "700", "900"],
 	variable: "--font-poppins",
 });
 
@@ -20,10 +22,14 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<LayoutWrapper>
-			<html lang="en">
-				<body className={poppins.variable}>{children}</body>
-			</html>
-		</LayoutWrapper>
+		<html lang="en">
+			<body className={poppins.variable}>
+				<StoreProvider>
+					<AuthProvider>
+						<LayoutWrapper>{children}</LayoutWrapper>
+					</AuthProvider>
+				</StoreProvider>
+			</body>
+		</html>
 	);
 }

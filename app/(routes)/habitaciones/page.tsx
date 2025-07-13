@@ -4,9 +4,9 @@ import React from "react";
 import {
 	fuenteDeTitulo,
 	pantallaPrincipalEstilos,
-} from "../_styles/global-styles";
-import { TableComponent } from "@/_components";
-import { Room } from "@/_models/types";
+} from "../../styles/global-styles";
+import { TableComponent } from "@/components";
+import { Room } from "@/models/types";
 
 const Habitaciones = () => {
 	const columns = [

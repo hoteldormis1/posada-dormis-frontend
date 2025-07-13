@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { TableComponent } from "@/_components";
-import { Reserva, TipoReserva } from "@/_models/types";
+import { TableComponent } from "@/components";
+import { Reserva, TipoReserva } from "@/models/types";
 
 const TablaReservas = () => {
 	const columns = [

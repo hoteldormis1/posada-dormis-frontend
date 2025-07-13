@@ -1,5 +1,5 @@
 import React from 'react'
-import { fuenteDeTitulo, pantallaPrincipalEstilos } from '@/_styles/global-styles'
+import { fuenteDeTitulo, pantallaPrincipalEstilos } from '@/styles/global-styles'
 
 const page = () => {
   return (
