@@ -12,8 +12,8 @@ type TableColumn = {
 interface TableComponentProps<T> {
 	columns: TableColumn[];
 	data: T[];
-	onAdd: () => void;
-	onEdit: (id: string) => void;
+	onAdd?: () => void;
+	onEdit?: (id: string) => void;
 	title?: string;
 	showFormActions?: boolean;
 }
@@ -33,7 +33,7 @@ const TableComponent = <T extends { id: string }>({
 				{showFormActions && (
 					<div className="flex justify-end py-4">
 						<Button
-							onClick={onAdd}
+							onClick={() => onAdd && onAdd()}
 							className="text-white bg-main hover:bg-tertiary text-fontSecondary"
 							icon={<FaPlus className="text-white text-lg" />}
 						>
@@ -81,7 +81,7 @@ const TableComponent = <T extends { id: string }>({
 									{showFormActions && (
 										<td className="py-2 px-4 border-b text-center">
 											<button
-												onClick={() => onEdit(item.id)}
+												onClick={() => onEdit && onEdit(item.id)}
 												className="text-blue-500 hover:text-blue-700 mr-2"
 											>
 												<FaEdit className="text-black text-base" />

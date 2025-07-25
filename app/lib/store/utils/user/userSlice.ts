@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../axiosConfig";
 import { AxiosError } from "axios";
-import { extractErrorMessage } from "./extractErrorMessage";
+import { extractErrorMessage } from "../extractErrorMessage";
+import { Usuario } from "@/models/types";
 
 interface LoginCredentials {
 	email: string;
@@ -16,12 +17,14 @@ interface UserState {
 	loading: boolean;
 	accessToken: string | null;
 	error: string | null;
+	usuarios: Usuario[]
 }
 
 const initialState: UserState = {
 	loading: false,
 	accessToken: null,
 	error: null,
+	usuarios: []
 };
 
 // 🔐 LOGIN: solo establece la cookie (refreshToken)
@@ -75,10 +78,23 @@ export const logoutUser = createAsyncThunk<
 	}
 });
 
-export async function fetchUsuarios() {
-	const { data } = await api.get("/usuarios");
-	return data;
-}
+export const fetchUsuarios = createAsyncThunk<
+  Usuario[], 
+  void,
+  { rejectValue: string }
+>("user/fetchUsuarios", async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await api.get("/usuarios");
+	console.log(data);
+	
+    return data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    return rejectWithValue(
+      extractErrorMessage(axiosError, "No se pudieron obtener los usuarios")
+    );
+  }
+});
 
 const userSlice = createSlice({
 	name: "user",
@@ -112,7 +128,20 @@ const userSlice = createSlice({
 				state.loading = false;
 				state.accessToken = null;
 				state.error = action.payload ?? "Error al refrescar sesión";
-			});
+			})
+			.addCase(fetchUsuarios.pending, (state) => {
+				state.loading = true;
+				state.error = null;
+			})
+			.addCase(fetchUsuarios.fulfilled, (state, action) => {
+				state.loading = false;
+				state.usuarios = action.payload;
+				state.error = null;
+			})
+			.addCase(fetchUsuarios.rejected, (state, action) => {
+				state.loading = false;
+				state.error = action.payload ?? "Error al obtener los usuarios";
+			})
 	},
 });
 

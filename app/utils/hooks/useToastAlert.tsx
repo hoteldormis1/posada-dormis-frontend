@@ -1,0 +1,57 @@
+import toast, { Toast } from "react-hot-toast";
+import React from "react";
+
+type ToastType = "success" | "error" | "info" | "loading";
+
+const baseStyles =
+  "flex items-center justify-between max-w-sm w-full p-4 rounded-2xl shadow-lg font-medium text-white transition-all duration-300 ease-in-out";
+
+const bgColors: Record<ToastType, string> = {
+  success: "bg-green-600",
+  error: "bg-red-700",
+  info: "bg-blue-700",
+  loading: "bg-yellow-700",
+};
+
+const icons: Record<ToastType, string> = {
+  success: "✅",
+  error: "❌",
+  info: "ℹ️",
+  loading: "⏳",
+};
+
+const createToast = (type: ToastType, message: string) => {
+  toast.custom((t: Toast) => {
+    const visibleStyle = t.visible
+      ? "opacity-100 translate-y-0"
+      : "opacity-0 -translate-y-2";
+
+    return (
+      <div
+        role="alert"
+        className={`${baseStyles} ${bgColors[type]} ${visibleStyle}`}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-xl">{icons[type]}</span>
+          <span>{message}</span>
+        </div>
+        <button
+          onClick={() => toast.dismiss(t.id)}
+          className="ml-4 text-white text-lg font-bold leading-none hover:opacity-80"
+          aria-label="Cerrar"
+        >
+          ×
+        </button>
+      </div>
+    );
+  });
+};
+
+export const useToastAlert = () => {
+  return {
+    successToast: (msg: string) => createToast("success", msg),
+    errorToast: (msg: string) => createToast("error", msg),
+    infoToast: (msg: string) => createToast("info", msg),
+    loadingToast: (msg: string) => createToast("loading", msg),
+  };
+};

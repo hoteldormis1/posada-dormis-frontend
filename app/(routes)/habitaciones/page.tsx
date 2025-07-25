@@ -1,80 +1,68 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import {
 	fuenteDeTitulo,
 	pantallaPrincipalEstilos,
 } from "../../styles/global-styles";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { TableComponent } from "@/components";
-import { Room } from "@/models/types";
+import { useToastAlert } from "@/utils/hooks/useToastAlert";
+import { AppDispatch, RootState } from "@/lib/store/store";
+import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
 
 const Habitaciones = () => {
-	const columns = [
-		{ header: "Número", key: "numero" },
-		{ header: "Tipo", key: "tipo" },
-		{ header: "Precio", key: "precio" },
-		{ header: "Habilitada", key: "habilitada" },
-	];
+	const dispatch = useAppDispatch<AppDispatch>();
+	const { habitaciones, status } = useAppSelector((state: RootState) => state.habitaciones);
+	const { errorToast } = useToastAlert();
 
-	const rooms: Room[] = [
-		{
-			id: "1",
-			numero: 101,
-			tipo: "Individual",
-			precio: 3500,
-			habilitada: true,
-		},
-		{
-			id: "2",
-			numero: 102,
-			tipo: "Doble",
-			precio: 4500,
-			habilitada: true,
-		},
-		{
-			id: "3",
-			numero: 103,
-			tipo: "Suite",
-			precio: 8000,
-			habilitada: false,
-		},
-	];
+	useEffect(() => {
+		if (status === "idle") {
+			dispatch(fetchHabitaciones()).then((action) => {
+				if (fetchHabitaciones.rejected.match(action)) {
+					errorToast(action.payload || "Error al obtener habitaciones");
+				}
+			});
+		}
+	}, [dispatch, status, errorToast]);
+
+	const columns = useMemo(
+		() => [
+			{ header: "Número", key: "numero" },
+			{ header: "Tipo", key: "tipo" },
+			{ header: "Precio", key: "precio" },
+			{ header: "Estado", key: "estado" },
+		],
+		[]
+	);
+
+	const data = useMemo(
+		() =>
+			habitaciones.map((h) => ({
+				id: String(h.idHabitacion),
+				...h,
+			})),
+		[habitaciones]
+	);
 
 	return (
 		<div className={pantallaPrincipalEstilos}>
 			<label className={fuenteDeTitulo}>Habitaciones</label>
 			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
-				<TableComponent<Room>
-					columns={columns}
-					data={rooms}
-					showFormActions={true}
-					onAdd={() => null}
-					onEdit={() => null}
-				/>
+				{status === "loading" ? (
+					<p className="text-center mt-10">Cargando habitaciones...</p>
+				) : data.length === 0 ? (
+					<p className="text-center mt-10">No hay habitaciones disponibles</p>
+				) : (
+					<TableComponent
+						columns={columns}
+						data={data}
+						showFormActions={false}
+						// onAdd={() => console.log("Agregar habitación")}
+						// onEdit={(row) => console.log("Editar habitación:", row)}
+					/>
+				)}
 			</div>
-			{/* <Formulare
-				toggleModal={toggleModal}
-				type={dataFormulare.type}
-				title={dataFormulare.title}
-				data={dataFormulare.data}
-				submitFunction={dataFormulare.submitFunction}
-				submitBtnTitle={dataFormulare.submitBtnTitle}
-				isOpen={isOpen}
-				fields={[
-					{ name: "Número", type: "number", db_name: "number", required: true, min: 1 },
-    			{ name: "Precio", type: "number", db_name: "price", required: true, min: 1 },
-					{
-						name: "Tipo de habitaciones",
-						type: "select",
-						options: roomTypes.map((item: RoomTypes) => ({
-							name: item.name,
-							id: item._id,
-						})),
-						db_name: "typeId",
-					},
-					{ name: "Habilitado", type: "checkbox", db_name: "enabled" }
-				]}
-			/> */}
 		</div>
 	);
 };

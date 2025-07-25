@@ -4,6 +4,7 @@ import "./globals.css";
 import { LayoutWrapper } from "./components";
 import StoreProvider from "./providers/StoreProvider";
 import { AuthProvider } from "./providers/AuthProvider";
+import { Toaster } from "react-hot-toast"; // ✅ Importar Toaster
 
 const poppins = Poppins({
 	subsets: ["latin"],
@@ -26,7 +27,10 @@ export default function RootLayout({
 			<body className={poppins.variable}>
 				<StoreProvider>
 					<AuthProvider>
-						<LayoutWrapper>{children}</LayoutWrapper>
+						<LayoutWrapper>
+							{children}
+							<Toaster position="top-left" toastOptions={{ duration: 3000 }} /> 
+						</LayoutWrapper>
 					</AuthProvider>
 				</StoreProvider>
 			</body>
