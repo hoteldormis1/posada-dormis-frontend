@@ -10,13 +10,17 @@ interface LayoutWrapperProps {
 export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const pathname = usePathname();
 
-  const hideLayout = pathname === '/' || pathname === '/login' || pathname=== '/olvidarContrasena';
+  // Rutas donde ocultar el footer
+  const hideNavbar = pathname === '/' || pathname === '/login' || pathname === '/olvidarContrasena';
+
+  // Rutas donde ocultar el navbar
+  const hideFooter = pathname === '/perfil' || hideNavbar;
 
   return (
     <>
-      {!hideLayout && <Navbar/>}
+      {!hideNavbar && <Navbar />}
       {children}
-      {!hideLayout && <Footerbar />}
+      {!hideFooter && <Footerbar />}
     </>
   );
 }

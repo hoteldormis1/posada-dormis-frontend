@@ -34,17 +34,8 @@ export const fetchHabitaciones = createAsyncThunk<
 >("habitaciones/fetchHabitaciones", async (_, { rejectWithValue }) => {
 	try {
 		const { data } = await api.get("/habitaciones");
-		
-		const formattedData: Habitacion[] = data.map((h) => ({
-			idHabitacion: h.idHabitacion,
-			numero: h.numero,
-			precio: h.TipoHabitacion?.precio || "Sin precio",
-			habilitada: h.habilitada,
-			tipo: h.TipoHabitacion?.tipo || "Sin tipo",
-			estado: h.EstadoHabitacion?.estado || "Sin estado",
-		}));
 
-		return formattedData;
+		return data;
 	} catch (err) {
 		const axiosError = err as AxiosError;
 		return rejectWithValue(

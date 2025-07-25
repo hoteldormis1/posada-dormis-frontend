@@ -16,7 +16,7 @@ const Auditorias = () => {
 		(state: RootState) => state.auditorias
 	);
 
-	const { accessToken } = useAppSelector((state) => state.user); // o como manejes auth
+	const { accessToken } = useAppSelector((state: RootState) => state.user);
 	
 	useEffect(() => {
 		if (accessToken && lista.length === 0 && !loading) {
@@ -29,7 +29,7 @@ const Auditorias = () => {
 			{ header: "Método", key: "metodo" },
 			{ header: "Ruta", key: "ruta" },
 			{ header: "Acción", key: "accion" },
-			{ header: "Usuario", key: "usuarioId" },
+			{ header: "Usuario", key: "emailUsuario" },
 			{ header: "Status", key: "status" },
 			{ header: "Fecha", key: "fecha" },
 		],
@@ -43,7 +43,7 @@ const Auditorias = () => {
 				metodo: a.metodo,
 				ruta: a.ruta,
 				accion: a.accion,
-				usuarioId: a.usuarioId ?? "—",
+				emailUsuario: a.emailUsuario ?? "—",
 				status: a.status ?? "—",
 				fecha: new Date(a.fecha).toLocaleString("es-AR"),
 			})),
@@ -51,7 +51,8 @@ const Auditorias = () => {
 	);
 
 	return (
-		<div className={pantallaPrincipalEstilos}>
+		<div>
+			<div className={pantallaPrincipalEstilos}>
 			<label className={fuenteDeTitulo}>Auditorías</label>
 			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
 				{loading ? (
@@ -64,6 +65,7 @@ const Auditorias = () => {
 					<TableComponent columns={columns} data={data} showFormActions={false} />
 				)}
 			</div>
+		</div>
 		</div>
 	);
 };

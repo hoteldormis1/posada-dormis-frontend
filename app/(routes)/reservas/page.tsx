@@ -44,7 +44,7 @@ const Reservas: React.FC = () => {
 
   // Datos para la tabla
   const data = useMemo(
-    () => reservas.map((r) => ({ id: r.id, ...r })),
+    () => reservas,
     [reservas]
   );
 

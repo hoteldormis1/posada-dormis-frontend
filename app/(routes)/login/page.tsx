@@ -30,7 +30,7 @@ const Login: React.FC = () => {
 	try {
 		await dispatch(loginUser({ email, clave })).unwrap();
 		successToast("Inicio de sesión exitoso");
-		router.push("/dashboard");
+		router.push("/usuarios");
 	} catch (err) {
 		if (typeof err === "string") {
 			errorToast(err);

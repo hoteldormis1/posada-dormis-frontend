@@ -45,20 +45,7 @@ export const fetchReservas = createAsyncThunk<
   try {
     const { data } = await api.get("/reservas");
 
-    // Transformar reservas (fecha formateada + datos planos)
-    const reservasFormateadas = data.map((r) => ({
-      id: r.idReserva,
-      numeroHab: r.Habitacion?.numero ?? "-",
-      ingreso: new Date(r.fechaDesde).toLocaleDateString(),
-      egreso: new Date(r.fechaHasta).toLocaleDateString(),
-      huespedNombre: `${r.Huesped?.nombre} ${r.Huesped?.apellido}`,
-      telefonoHuesped: r.Huesped?.telefono ?? "-",
-      montoPagado: r.montoPagado,
-      total: r.montoTotal,
-      estadoDeReserva: r.idEstadoReserva,
-    }));
-
-    return reservasFormateadas;
+    return data;
   } catch (err) {
     const axiosError = err as AxiosError;
     return rejectWithValue(
