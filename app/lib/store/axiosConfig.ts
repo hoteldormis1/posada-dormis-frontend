@@ -1,10 +1,15 @@
-import { getAuthToken } from "@/lib/store/useAuthToken";
+import { getAuthToken, setAuthToken } from "@/lib/store/useAuthToken";
 import axios from "axios";
-import { helperFetchNewAccessToken, helperPerformLogout } from "./helpers/authHelpers";
 
 let isRedirecting = false;
 
 const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  withCredentials: true,
+});
+
+// Axios limpio para refresh/logout
+const plainAxios = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true,
 });
@@ -26,13 +31,21 @@ api.interceptors.response.use(
     // Token inválido -> Logout
     if (
       error?.response?.status === 401 &&
-      accessToken !== "" &&
+      accessToken &&
       window.location.pathname !== "/login" &&
       !isRedirecting
     ) {
       originalRequest._retry = true;
       isRedirecting = true;
-      await helperPerformLogout(true);
+
+      try {
+        await plainAxios.post("/auth/logout");
+      } catch (e) {
+        console.error("Error en logout", e);
+      }
+
+      setAuthToken("");
+      window.location.href = "/login";
       return Promise.reject(error);
     }
 
@@ -40,14 +53,16 @@ api.interceptors.response.use(
     if (error?.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        const newAccessToken = await helperFetchNewAccessToken();
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        const { data } = await plainAxios.post("/auth/refresh");
+        setAuthToken(data.accessToken);
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(originalRequest);
       } catch (refreshErr) {
         console.error("Error al refrescar token automáticamente", refreshErr);
         if (!isRedirecting) {
           isRedirecting = true;
-          await helperPerformLogout();
+          setAuthToken("");
+          window.location.href = "/login";
         }
       }
     }

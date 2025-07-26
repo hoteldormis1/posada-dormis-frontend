@@ -61,6 +61,7 @@ export const useEntityTable = <
 		[dispatch, fetchAction, search, sortField, sortOrder, state.page, state.pageSize]
 	);
 
+	//fetchData adentro hace que cada cambio en el search se ejecute fetchData, evitar
 	useEffect(() => {
 		fetchData();
 	}, []);
