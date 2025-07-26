@@ -3,6 +3,7 @@ import api from "../../axiosConfig";
 import { AxiosError } from "axios";
 import { extractErrorMessage } from "../extractErrorMessage";
 import { LoginCredentials, UserState, Usuario } from "@/models/types";
+import { getAuthToken, setAuthToken } from "../../useAuthToken";
 
 const initialState: UserState = {
 	loading: false,
@@ -46,6 +47,9 @@ export const refreshSession = createAsyncThunk<
 			{},
 			{ withCredentials: true }
 		);
+		setAuthToken(data.accessToken);
+		console.log(getAuthToken());
+		
 		return { accessToken: data.accessToken };
 	} catch (err) {
 		const axiosError = err as AxiosError;

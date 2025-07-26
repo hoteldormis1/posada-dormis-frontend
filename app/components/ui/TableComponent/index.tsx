@@ -9,9 +9,9 @@ import {
 } from "@tanstack/react-table";
 import { FaCheck, FaTimes, FaEdit, FaSearch } from "react-icons/fa";
 import Paginator from "../Paginator";
-import InputType from "../InputType";
 import { fuenteDeTitulo } from "@/styles/global-styles";
 import { SortOrder } from "@/models/types";
+import InputType from "@/components/forms/formComponents/InputType";
 
 interface TableComponentProps<T> {
   columns: { header: string; key: string }[];
@@ -133,7 +133,7 @@ const TableComponent = <T extends { id: string }>({
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const colKey = header.column.columnDef.accessorKey as string;
+                  const colKey = header.column.id;
                   const isActive = sortField === colKey;
                   return (
                     <th

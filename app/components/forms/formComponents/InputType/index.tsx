@@ -5,8 +5,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 interface InputTypeProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	inputKey?: string;
-	inputType?: string; // puede ser "text", "password", "email", etc.
-	// inputMode?: "text" | "search" | "email" | "tel" | "url" | "none" | "numeric" | "decimal" | ""; // por ejemplo "numeric"
+	inputType?: string;
 	placeholder?: string;
 	labelStyles?: string;
 	children?: React.ReactNode;
@@ -15,11 +14,10 @@ interface InputTypeProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	required?: boolean;
 }
 
-const InputType = (
+const InputTypeComponent = (
 	{
 		inputKey = "",
 		inputType = "text",
-		// inputMode = "",
 		placeholder = "",
 		labelStyles = "",
 		children,
@@ -32,8 +30,7 @@ const InputType = (
 ) => {
 	const [show, setShow] = useState(false);
 
-	const type =
-		inputType === "password" ? (show ? "text" : "password") : inputType;
+	const type = inputType === "password" ? (show ? "text" : "password") : inputType;
 
 	return (
 		<div className="w-full">
@@ -59,7 +56,7 @@ const InputType = (
 						error
 							? "focus:ring-red-500 focus:border-red-500"
 							: "focus:ring-main focus:border-main"
-					} [&::-webkit-search-cancel-button]:hidden`} // <--- agrega esto
+					} [&::-webkit-search-cancel-button]:hidden`}
 					onWheel={(e) => (e.target as HTMLInputElement).blur()}
 					onPaste={(e) => e.preventDefault()}
 					{...rest}
@@ -81,4 +78,5 @@ const InputType = (
 	);
 };
 
-export default forwardRef<HTMLInputElement, InputTypeProps>(InputType);
+// 👇 Usamos export default con forwardRef directamente
+export default forwardRef<HTMLInputElement, InputTypeProps>(InputTypeComponent);
