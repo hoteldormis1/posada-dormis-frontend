@@ -11,6 +11,7 @@ import GraficoVertical from "./Dashboard/Graficos/Components/GraficoVertical";
 import GraficosContent from "./Dashboard/Graficos";
 import GraficoPie from "./Dashboard/Graficos/Components/GraficoPie"
 import GraficoPieEstadoHabitaciones from "./Dashboard/Graficos/Widgets/GraficoPieEstadoHabitaciones";
+import Paginator from "./Paginator";
 
 export {
 	LoginIzquierda,
@@ -25,5 +26,6 @@ export {
     GraficoVertical,
 	GraficoCantidadDeVentas,
 	GraficoPie,
-	GraficoPieEstadoHabitaciones
+	GraficoPieEstadoHabitaciones,
+	Paginator
 };

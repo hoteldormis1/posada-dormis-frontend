@@ -1,3 +1,5 @@
+import { StateStatus } from ".";
+
 export enum TipoReserva {
   CheckIn = "check-in",
   CheckOut = "check-out",
@@ -15,3 +17,9 @@ export type Reserva = {
   telefonoHuesped?: string; // ✅ opcional
   total?: number;           // ✅ opcional
 };
+
+export interface ReservasState {
+  reservas: Reserva[];
+  status: StateStatus;
+  error: string | null;
+}

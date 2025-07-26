@@ -4,22 +4,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import api from "../../axiosConfig";
 import { extractErrorMessage } from "../extractErrorMessage";
-
-export interface Habitacion {
-	idHabitacion: number;
-	numero: number;
-	tipo: string;
-	precio: number;
-	habilitada: boolean;
-}
-
-type Status = "idle" | "loading" | "succeeded" | "failed";
-
-interface HabitacionesState {
-	habitaciones: Habitacion[];
-	status: Status;
-	error: string | null;
-}
+import { Habitacion, HabitacionesState } from "@/models/types";
 
 const initialState: HabitacionesState = {
 	habitaciones: [],

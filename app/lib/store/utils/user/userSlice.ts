@@ -2,23 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../axiosConfig";
 import { AxiosError } from "axios";
 import { extractErrorMessage } from "../extractErrorMessage";
-import { Usuario } from "@/models/types";
-
-interface LoginCredentials {
-	email: string;
-	clave: string;
-}
-
-// interface LoginResponse {
-// 	accessToken: string;
-// }
-
-interface UserState {
-	loading: boolean;
-	accessToken: string | null;
-	error: string | null;
-	usuarios: Usuario[]
-}
+import { LoginCredentials, UserState, Usuario } from "@/models/types";
 
 const initialState: UserState = {
 	loading: false,
@@ -64,7 +48,7 @@ export const refreshSession = createAsyncThunk<
 
 // 🔓 LOGOUT: limpia la cookie del refresh token en backend
 export const logoutUser = createAsyncThunk<
-	void, // No se espera ningún dato
+	void,
 	void,
 	{ rejectValue: string }
 >("user/logout", async (_, { rejectWithValue }) => {

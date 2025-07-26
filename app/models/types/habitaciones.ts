@@ -1,3 +1,4 @@
+import { StateStatus } from ".";
 
 
 // 🛏️ Interfaz
@@ -9,9 +10,8 @@ export interface Habitacion {
 	habilitada: string;
 }
 
-// Estado inicial
 export interface HabitacionesState {
-	loading: boolean;
-	error: string | null;
 	habitaciones: Habitacion[];
+	status: StateStatus;
+	error: string | null;
 }

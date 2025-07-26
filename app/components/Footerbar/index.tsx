@@ -23,13 +23,13 @@ const footerItems = [
     name: "Reservas",
     label: "Reservas",
     icon: <MdArticle size={24} />,
-    link: "/reservas", 
+    link: "/reservas",
   },
   {
     name: "Auditorias",
     label: "Auditorias",
     icon: <MdHistory size={24} />,
-    link: "/auditorias", 
+    link: "/auditorias",
   },
   {
     name: "Calendario",
@@ -59,16 +59,23 @@ export default function Footerbar() {
               key={name}
               href={link}
               aria-label={label}
-              className="w-full flex flex-col items-center justify-center gap-1 text-main px-2 py-3"
+              className="w-full flex flex-col items-center justify-center gap-1 px-2 py-3 text-sm"
             >
               <div
-                className={`flex justify-center items-center w-14 h-14 rounded-full transition-all ${
-                  isActive ? "bg-main scale-95 text-white" : "text-gray-500"
+                className={`flex justify-center items-center w-14 h-14 rounded-full transition-all duration-200 ease-in
+                ${
+                  isActive
+                    ? "bg-main text-white shadow-lg scale-95"
+                    : "text-gray-500 hover:bg-background"
                 }`}
               >
                 {icon}
               </div>
-              <span className={`text-xs ${isActive ? "font-bold text-main" : "text-gray-500"}`}>
+              <span
+                className={`text-xs transition-colors ${
+                  isActive ? "font-bold text-main" : "text-gray-500 hover:text-main"
+                }`}
+              >
                 {label}
               </span>
             </Link>

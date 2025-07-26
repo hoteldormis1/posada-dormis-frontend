@@ -4,32 +4,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import api from "../../axiosConfig";
 import { extractErrorMessage } from "../extractErrorMessage";
-
-export enum TipoReserva {
-  CheckIn = "check-in",
-  CheckOut = "check-out",
-  Reservado = "reservado",
-  Cancelado = "cancelado",
-}
-
-export type Reserva = {
-  id: string;
-  numeroHab: number;
-  ingreso: string;
-  egreso: string;
-  huespedNombre: string;
-  estadoDeReserva: TipoReserva;
-  telefonoHuesped?: string;
-  total?: number;
-};
-
-type Status = "idle" | "loading" | "succeeded" | "failed";
-
-interface ReservasState {
-  reservas: Reserva[];
-  status: Status;
-  error: string | null;
-}
+import { Reserva, ReservasState } from "@/models/types";
 
 const initialState: ReservasState = {
   reservas: [],

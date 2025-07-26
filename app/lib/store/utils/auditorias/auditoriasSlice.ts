@@ -1,51 +1,34 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { extractErrorMessage } from "../extractErrorMessage";
 import api from "../../axiosConfig";
-
-// ---------------------------------------------
-// Tipos
-// ---------------------------------------------
-export interface Auditoria {
-	id: number;
-	idUsuario: number | null;
-	status: number | null;
-	ruta: string;
-	metodo: string;
-	accion: string;
-	fecha: string; 
-	datos: unknown;
-	emailUsuario?: string;
-	nombreUsuario?: string;
-}
-
-export interface AuditoriasState {
-	lista: Auditoria[];
-	loading: boolean;
-	error: string | null;
-}
+import { AuditoriasState, FetchAuditoriasParams, FetchAuditoriasResponse } from "@/models/types";
 
 const initialState: AuditoriasState = {
 	lista: [],
 	loading: false,
 	error: null,
+	page: 1,
+	pageSize: 10,
+	total: 0,
 };
 
 export const fetchAuditorias = createAsyncThunk<
-	Auditoria[], // tipo del resultado si sale bien
-	void, // no recibe argumento
-	{ rejectValue: string } // tipo de error personalizado
->("auditoria/fetchAuditorias", async (_, { rejectWithValue }) => {
+	FetchAuditoriasResponse,
+	FetchAuditoriasParams | undefined,
+	{ rejectValue: string }
+>("auditoria/fetchAuditorias", async (params = { page: 1, size: 10 }, { rejectWithValue }) => {
 	try {
-		const { data } = await api.get(`/auditorias`);
+		const { page = 1, size = 10 } = params;
 
-		const formattedData: Auditoria[] = data.map((h) => ({
-			...h
-		}));
+		const { data } = await api.get(`/auditorias?page=${page}&size=${size}`);
 
-		console.log(formattedData);
-
-		return formattedData;
+		return {
+			data: data.data,
+			page: data.page,
+			pageSize: data.pageSize,
+			total: data.total,
+		};
 	} catch (err) {
 		const axiosError = err as AxiosError;
 		return rejectWithValue(
@@ -61,6 +44,12 @@ const auditoriaSlice = createSlice({
 		resetAuditoriaError: (state) => {
 			state.error = null;
 		},
+		setAuditoriaPage: (state, action: PayloadAction<number>) => {
+			state.page = action.payload;
+		},
+		setAuditoriaPageSize: (state, action: PayloadAction<number>) => {
+			state.pageSize = action.payload;
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -70,9 +59,12 @@ const auditoriaSlice = createSlice({
 			})
 			.addCase(
 				fetchAuditorias.fulfilled,
-				(state, action: PayloadAction<Auditoria[]>) => {
+				(state, action: PayloadAction<FetchAuditoriasResponse>) => {
 					state.loading = false;
-					state.lista = action.payload;
+					state.lista = action.payload.data;
+					state.page = action.payload.page;
+					state.pageSize = action.payload.pageSize;
+					state.total = action.payload.total;
 				}
 			)
 			.addCase(fetchAuditorias.rejected, (state, action) => {
@@ -83,5 +75,10 @@ const auditoriaSlice = createSlice({
 });
 
 // ---------------------------------------------
-export const { resetAuditoriaError } = auditoriaSlice.actions;
+export const {
+	resetAuditoriaError,
+	setAuditoriaPage,
+	setAuditoriaPageSize,
+} = auditoriaSlice.actions;
+
 export default auditoriaSlice.reducer;

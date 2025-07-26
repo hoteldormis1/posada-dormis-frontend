@@ -1,101 +1,109 @@
 "use client";
 
 import React from "react";
-import { FaCheck, FaTimes, FaEdit, FaPlus } from "react-icons/fa";
 import Button from "../Button";
+import Paginator from "../Paginator";
+import { useTablePagination } from "@/utils/hooks/useTablePagination";
+import TableHeader from "./Subcomponents/TableHeader";
+import TableRow from "./Subcomponents/TableRow";
 
-type TableColumn = {
-	header: string;
-	key: string;
-};
+type TableColumn = { header: string; key: string };
 
 interface TableComponentProps<T> {
-	columns: TableColumn[];
-	data: T[];
-	onAdd?: () => void;
-	onEdit?: (id: string) => void;
-	title?: string;
-	showFormActions?: boolean;
+  columns: TableColumn[];
+  data: T[];
+  onAdd?: () => void;
+  onEdit?: (id: string) => void;
+  title?: string;
+  showFormActions?: boolean;
+  showPagination?: boolean;
+
+  currentPage?: number;
+  pageSize?: number;
+  totalItems?: number;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (size: number) => void;
+  rowsPerPage?: number;
 }
 
-// 👇 Usamos genéricos con restricción mínima: T debe tener un `id: string`
 const TableComponent = <T extends { id: string }>({
-	columns,
-	data,
-	onEdit,
-	onAdd,
-	title,
-	showFormActions,
+  columns,
+  data,
+  onEdit,
+  // onAdd,
+  title,
+  showFormActions = false,
+  showPagination = false,
+  currentPage,
+  pageSize,
+  totalItems,
+  onPageChange,
+  onPageSizeChange,
+  rowsPerPage = 10,
 }: TableComponentProps<T>) => {
-	return (
-		<div className="flex flex-col mx-auto">
-			<div>
-				{showFormActions && (
-					<div className="flex justify-end py-4">
-						<Button
-							onClick={() => onAdd && onAdd()}
-							className="text-white bg-main hover:bg-tertiary text-fontSecondary"
-							icon={<FaPlus className="text-white text-lg" />}
-						>
-							Agregar Nuevo
-						</Button>
-					</div>
-				)}
+  const {
+    paginatedData,
+    activePage,
+    activePageSize,
+    totalPages,
+    handlePageChange,
+    handlePageSizeChange,
+  } = useTablePagination(data, {
+    currentPage,
+    pageSize,
+    totalItems,
+    onPageChange,
+    onPageSizeChange,
+    rowsPerPage,
+  });
 
-				<h2 className="py-4">{title}</h2>
-				<div className="flex-grow overflow-auto">
-					<table className="min-w-full h-full bg-white border border-gray-200">
-						<thead>
-							<tr>
-								{columns.map((column) => (
-									<th
-										key={column.key}
-										className="py-4 px-4 border-b bg-secondary text-black"
-									>
-										{column.header}
-									</th>
-								))}
-								{showFormActions && (
-									<th className="py-4 px-4 border-b bg-secondary text-black">
-										Acciones
-									</th>
-								)}
-							</tr>
-						</thead>
-						<tbody>
-							{data.map((item) => (
-								<tr key={item.id} className="hover:bg-gray-100 text-fontSecondary">
-									{columns.map((column) => (
-										<td key={column.key} className="py-4 px-4 border-b text-center">
-											{typeof item[column.key as keyof T] === "boolean" ? (
-												item[column.key as keyof T] ? (
-													<FaCheck className="text-green-600 text-base mx-auto" />
-												) : (
-													<FaTimes className="text-red-600 text-base mx-auto" />
-												)
-											) : (
-												(item[column.key as keyof T] as string | number)
-											)}
-										</td>
-									))}
-									{showFormActions && (
-										<td className="py-2 px-4 border-b text-center">
-											<button
-												onClick={() => onEdit && onEdit(item.id)}
-												className="text-blue-500 hover:text-blue-700 mr-2"
-											>
-												<FaEdit className="text-black text-base" />
-											</button>
-										</td>
-									)}
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	);
+  return (
+    <div className="flex flex-col mx-auto max-w-[1000px]">
+      {showFormActions && (
+        <div className="flex justify-end py-2">
+          <Button
+            onClick={()=>null}
+            className="text-white bg-main hover:bg-tertiary text-fontSecondary"
+          >
+            Agregar Nuevo
+          </Button>
+        </div>
+      )}
+
+      {title && <h2 className="py-2">{title}</h2>}
+
+      <div
+        className={`flex-grow overflow-auto h-80 border border-gray-200 ${
+          showPagination && totalPages > 1 ? "bg-white" : "bg-white"
+        }`}
+      >
+        <table className="min-w-full bg-white">
+          <TableHeader columns={columns} showFormActions={showFormActions} />
+          <tbody>
+            {paginatedData.map((item) => (
+              <TableRow
+                key={item.id}
+                item={item}
+                columns={columns}
+                showFormActions={showFormActions}
+                onEdit={onEdit}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {showPagination && (
+        <Paginator
+          currentPage={activePage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          pageSize={activePageSize}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      )}
+    </div>
+  );
 };
 
 export default TableComponent;
