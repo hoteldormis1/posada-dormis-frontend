@@ -2,7 +2,11 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import { extractErrorMessage } from "../extractErrorMessage";
 import api from "../../axiosConfig";
-import { AuditoriasState, FetchAuditoriasParams, FetchAuditoriasResponse } from "@/models/types";
+import {
+	AuditoriasState,
+	FetchAuditoriasParams,
+	FetchAuditoriasResponse,
+} from "@/models/types";
 
 const initialState: AuditoriasState = {
 	lista: [],
@@ -17,25 +21,28 @@ export const fetchAuditorias = createAsyncThunk<
 	FetchAuditoriasResponse,
 	FetchAuditoriasParams | undefined,
 	{ rejectValue: string }
->("auditoria/fetchAuditorias", async (params = { page: 1, size: 10 }, { rejectWithValue }) => {
-	try {
-		const { page = 1, size = 10 } = params;
-
-		const { data } = await api.get(`/auditorias?page=${page}&size=${size}`);
-
-		return {
-			data: data.data,
-			page: data.page,
-			pageSize: data.pageSize,
-			total: data.total,
-		};
-	} catch (err) {
-		const axiosError = err as AxiosError;
-		return rejectWithValue(
+>(
+	"auditoria/fetchAuditorias",
+	async (params = { page: 1, size: 10, search: "" }, { rejectWithValue }) => {
+		try {
+			const { page = 1, size = 10, search = "" } = params;
+			const { data } = await api.get(
+				`/auditorias?page=${page}&size=${size}&search=${search}`
+			);
+			return {
+				data: data.data,
+				page: data.page,
+				pageSize: data.pageSize,
+				total: data.total,
+			};
+		} catch (err) {
+			const axiosError = err as AxiosError;
+			return rejectWithValue(
 			extractErrorMessage(axiosError, "No se pudieron obtener las auditorías")
 		);
+		}
 	}
-});
+);
 
 const auditoriaSlice = createSlice({
 	name: "auditoria",
@@ -74,11 +81,7 @@ const auditoriaSlice = createSlice({
 	},
 });
 
-// ---------------------------------------------
-export const {
-	resetAuditoriaError,
-	setAuditoriaPage,
-	setAuditoriaPageSize,
-} = auditoriaSlice.actions;
+export const { resetAuditoriaError, setAuditoriaPage, setAuditoriaPageSize } =
+	auditoriaSlice.actions;
 
 export default auditoriaSlice.reducer;

@@ -12,6 +12,7 @@ import GraficosContent from "./Dashboard/Graficos";
 import GraficoPie from "./Dashboard/Graficos/Components/GraficoPie"
 import GraficoPieEstadoHabitaciones from "./Dashboard/Graficos/Widgets/GraficoPieEstadoHabitaciones";
 import Paginator from "./Paginator";
+import LoadingSpinner from "./LoadingSpinner";
 
 export {
 	LoginIzquierda,
@@ -27,5 +28,6 @@ export {
 	GraficoCantidadDeVentas,
 	GraficoPie,
 	GraficoPieEstadoHabitaciones,
-	Paginator
+	Paginator,
+	LoadingSpinner
 };

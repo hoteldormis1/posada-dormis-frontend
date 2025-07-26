@@ -50,18 +50,17 @@ const InputType = (
 					name={inputKey}
 					ref={ref}
 					type={type}
-					// inputMode={inputMode}
 					placeholder={placeholder}
 					disabled={disabled}
 					required={required}
 					className={`w-full bg-white border ${
 						error ? "border-red-500" : "border-borders"
-					} rounded-md px-4 py-4 placeholder:text-borders text-gray-900 text-sm focus:outline-none focus:ring-1 ${
+					} rounded-md px-4 py-2 placeholder:text-borders text-gray-900 text-sm focus:outline-none focus:ring-1 ${
 						error
 							? "focus:ring-red-500 focus:border-red-500"
 							: "focus:ring-main focus:border-main"
-					}`}
-					onWheel={(e) => (e.target as HTMLInputElement).blur()} // evitar scroll en inputs de tipo number
+					} [&::-webkit-search-cancel-button]:hidden`} // <--- agrega esto
+					onWheel={(e) => (e.target as HTMLInputElement).blur()}
 					onPaste={(e) => e.preventDefault()}
 					{...rest}
 				/>

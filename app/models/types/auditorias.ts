@@ -32,4 +32,5 @@ export type FetchAuditoriasResponse = {
 export type FetchAuditoriasParams = {
 	page?: number;
 	size?: number;
+	search?: string;
 };
