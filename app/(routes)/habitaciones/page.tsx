@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo } from "react";
 import {
-	fuenteDeTitulo,
 	pantallaPrincipalEstilos,
 } from "../../styles/global-styles";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
@@ -47,7 +46,6 @@ const Habitaciones = () => {
 
 	return (
 		<div className={pantallaPrincipalEstilos}>
-			<label className={fuenteDeTitulo}>Habitaciones</label>
 			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
 				{status === "loading" ? (
 					<p className="text-center mt-10">Cargando habitaciones...</p>
@@ -58,6 +56,7 @@ const Habitaciones = () => {
 						columns={columns}
 						data={data}
 						showFormActions={false}
+						title="Habitaciones"
 						// onAdd={() => console.log("Agregar habitación")}
 						// onEdit={(row) => console.log("Editar habitación:", row)}
 					/>

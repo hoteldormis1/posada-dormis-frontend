@@ -1,3 +1,4 @@
+import { SortOrder } from ".";
 
 export interface Auditoria {
 	id: number;
@@ -13,12 +14,14 @@ export interface Auditoria {
 }
 
 export interface AuditoriasState {
-	lista: Auditoria[];
+	datos: Auditoria[];
 	loading: boolean;
 	error: string | null;
 	page: number;
 	pageSize: number;
 	total: number;
+	sortOrder: SortOrder;
+	sortField: string;
 }
 
 
@@ -33,4 +36,6 @@ export type FetchAuditoriasParams = {
 	page?: number;
 	size?: number;
 	search?: string;
+	sortOrder?: string;
+	sortField?: string;
 };

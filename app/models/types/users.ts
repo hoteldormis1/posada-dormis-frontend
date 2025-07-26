@@ -1,3 +1,5 @@
+import { SortOrder } from ".";
+
 export interface Usuario {
 	idUsuario: number;
 	email: string;
@@ -14,5 +16,10 @@ export interface UserState {
 	loading: boolean;
 	accessToken: string | null;
 	error: string | null;
-	usuarios: Usuario[]
+	datos: Usuario[];
+	page: number;
+	pageSize: number;
+	total: number;
+	sortOrder: SortOrder;
+	sortField: string;
 }

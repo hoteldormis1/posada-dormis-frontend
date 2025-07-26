@@ -5,15 +5,13 @@ import {
   ColumnDef,
   useReactTable,
   getCoreRowModel,
-  getSortedRowModel,
-  getFilteredRowModel,
   flexRender,
-  SortingState,
 } from "@tanstack/react-table";
 import { FaCheck, FaTimes, FaEdit, FaSearch } from "react-icons/fa";
 import Paginator from "../Paginator";
 import InputType from "../InputType";
 import { fuenteDeTitulo } from "@/styles/global-styles";
+import { SortOrder } from "@/models/types";
 
 interface TableComponentProps<T> {
   columns: { header: string; key: string }[];
@@ -30,6 +28,11 @@ interface TableComponentProps<T> {
   totalItems?: number;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
+
+  // Sorting
+  onSort?: (field: string, order: SortOrder) => void;
+  sortField?: string;
+  sortOrder?: SortOrder;
 }
 
 const TableComponent = <T extends { id: string }>({
@@ -47,62 +50,63 @@ const TableComponent = <T extends { id: string }>({
   totalItems,
   onPageChange,
   onPageSizeChange,
+  onSort,
+  sortField,
+  sortOrder,
 }: TableComponentProps<T>) => {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-
-  const tableColumns = React.useMemo<ColumnDef<T>[]>(
-    () =>
-      columns.map((col) => ({
-        accessorKey: col.key,
-        header: col.header,
-        cell: ({ getValue }) => {
-          const value = getValue();
-          if (typeof value === "boolean") {
-            return value ? (
-              <FaCheck className="text-green-600 text-xs mx-auto" />
-            ) : (
-              <FaTimes className="text-red-600 text-xs mx-auto" />
-            );
-          }
-          return String(value ?? "—");
-        },
-      })),
-    [columns]
-  );
-
-  if (showFormActions) {
-    tableColumns.push({
-      id: "actions",
-      header: "Acciones",
-      cell: ({ row }) => (
-        <button
-          onClick={() => onEdit && onEdit(row.original.id)}
-          className="text-blue-500 hover:text-blue-700"
-        >
-          <FaEdit className="text-black text-xs" />
-        </button>
-      ),
-    } as ColumnDef<T>);
-  }
+  const tableColumns = React.useMemo<ColumnDef<T>[]>(() => {
+    const baseCols = columns.map((col) => ({
+      accessorKey: col.key,
+      header: col.header,
+      cell: ({ getValue }) => {
+        const value = getValue();
+        if (typeof value === "boolean") {
+          return value ? (
+            <FaCheck className="text-green-600 text-xs mx-auto" />
+          ) : (
+            <FaTimes className="text-red-600 text-xs mx-auto" />
+          );
+        }
+        return String(value ?? "—");
+      },
+    }));
+    if (showFormActions) {
+      baseCols.push({
+        accessorKey: "actions",
+        header: "Acciones",
+        cell: (cell) => (
+          <button
+            onClick={() => onEdit && onEdit(cell.getValue.row.original.id)}
+            className="text-blue-500 hover:text-blue-700"
+          >
+            <FaEdit className="text-black text-xs" />
+          </button>
+        ),
+      });
+    }
+    return baseCols;
+  }, [columns, showFormActions, onEdit]);
 
   const table = useReactTable({
     data,
     columns: tableColumns,
-    state: { sorting },
-    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     manualPagination: true,
     pageCount: Math.ceil((totalItems ?? data.length) / pageSize),
   });
 
+  const handleHeaderClick = (key: string) => {
+    if (!onSort) return;
+    const newOrder =
+      sortField === key && sortOrder === "ASC" ? "DESC" : "ASC";
+    onSort(key, newOrder);
+  };
+
   return (
     <div className="flex flex-col mx-auto w-full max-w-[1000px]">
-      {/* Título y barra de búsqueda */}
-      <div className="w-full flex justify-between items-center mb-2">
+      <div className="w-full flex flex-col sm:flex-row justify-between items-center mb-2 ">
         {title && <h2 className={fuenteDeTitulo}>{title}</h2>}
-        <div className="my-3 w-full sm:w-1/2 md:w-1/3 relative">
+        <div className="mb-3 w-full sm:w-1/2 md:w-1/3 relative">
           <InputType
             inputType="search"
             placeholder="Buscar..."
@@ -116,33 +120,36 @@ const TableComponent = <T extends { id: string }>({
             type="button"
             onClick={onSearchSubmit}
             aria-label="Buscar"
-            className="absolute right-3 top-7/12 -translate-y-1/2 text-gray-400 hover:text-main focus:outline-none focus:ring-2 focus:ring-main focus:ring-offset-1 rounded"
+            className="absolute right-3 top-5/8 -translate-y-1/2 text-gray-400 hover:text-main focus:outline-none focus:ring-2 focus:ring-main focus:ring-offset-1 rounded"
           >
             <FaSearch className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Tabla */}
-      <div className="overflow-x-auto h-80 border border-gray-200">
+      <div className="overflow-x-auto h-64 md:h-80 border border-gray-200 bg-gray-200">
         <table className="min-w-full text-left text-xs bg-white">
           <thead className="bg-main text-white">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    onClick={header.column.getToggleSortingHandler()}
-                    className="py-2 px-4 border-b cursor-pointer select-none"
-                  >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                    {header.column.getIsSorted() === "asc" && " 🔼"}
-                    {header.column.getIsSorted() === "desc" && " 🔽"}
-                  </th>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const colKey = header.column.columnDef.accessorKey as string;
+                  const isActive = sortField === colKey;
+                  return (
+                    <th
+                      key={header.id}
+                      onClick={() => handleHeaderClick(colKey)}
+                      className="py-2 px-4 border-b cursor-pointer select-none text-center"
+                    >
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                      {isActive &&
+                        (sortOrder === "ASC" ? " 🔼" : " 🔽")}
+                    </th>
+                  );
+                })}
               </tr>
             ))}
           </thead>
@@ -153,7 +160,7 @@ const TableComponent = <T extends { id: string }>({
                 className="hover:bg-gray-100 text-fontSecondary h-[20px]"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-2 border-b text-center">
+                  <td key={cell.id} className="px-4 py-2 border-b text-center ">
                     {flexRender(
                       cell.column.columnDef.cell,
                       cell.getContext()
@@ -166,7 +173,6 @@ const TableComponent = <T extends { id: string }>({
         </table>
       </div>
 
-      {/* Paginador */}
       {showPagination && (
         <Paginator
           currentPage={currentPage}

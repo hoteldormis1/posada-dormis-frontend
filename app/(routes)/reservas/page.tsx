@@ -2,14 +2,14 @@
 
 import React, { useEffect, useMemo } from "react";
 import {
-  fuenteDeTitulo,
   pantallaPrincipalEstilos,
 } from "../../styles/global-styles";
 import { TableComponent } from "@/components";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
-import { fetchReservas, Reserva } from "@/lib/store/utils/reservas/reservasSlice";
+import { fetchReservas } from "@/lib/store/utils/reservas/reservasSlice";
 import { useToastAlert } from "@/utils/hooks/useToastAlert";
+import { Reserva } from "@/models/types";
 
 const Reservas: React.FC = () => {
   const dispatch = useAppDispatch<AppDispatch>();
@@ -51,7 +51,6 @@ const Reservas: React.FC = () => {
   // Renderizado
   return (
     <div className={pantallaPrincipalEstilos}>
-      <h1 className={fuenteDeTitulo}>Reservas</h1>
       <div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
         {status === "loading" ? (
           <p className="text-center mt-10">Cargando reservas...</p>
@@ -59,6 +58,7 @@ const Reservas: React.FC = () => {
           <p className="text-center mt-10">No hay reservas registradas</p>
         ) : (
           <TableComponent<Reserva>
+            title="Reservas"
             columns={columns}
             data={data}
             showFormActions={false}

@@ -1,73 +1,104 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
+import { RootState } from "@/lib/store/store";
 import {
-	fuenteDeTitulo,
-	pantallaPrincipalEstilos,
-} from "@/styles/global-styles";
-import { AppDispatch, RootState } from "@/lib/store/store";
-import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { fetchUsuarios } from "@/lib/store/utils/user/userSlice";
-import { useToastAlert } from "@/utils/hooks/useToastAlert";
-import { TableComponent } from "@/components";
+  fetchUsuarios,
+  setUsuarioPage,
+  setUsuarioPageSize,
+} from "@/lib/store/utils/user/userSlice";
+import { useEntityTable } from "@/utils/hooks/useEntityTable"; 
+import { LoadingSpinner, TableComponent } from "@/components";
+import { pantallaPrincipalEstilos } from "@/styles/global-styles";
+import { useAppSelector } from "@/lib/store/hooks";
+
 
 const Usuarios = () => {
-	const dispatch = useAppDispatch<AppDispatch>();
-	const { usuarios } = useAppSelector((state: RootState) => state.user);
-	const { errorToast } = useToastAlert();
 
-	// ✅ Solo hace fetch si usuarios está vacío
-	useEffect(() => {
-		if (usuarios.length === 0) {
-			const fetchUsuariosTest = async () => {
-				try {
-					const action = await dispatch(fetchUsuarios());
-					if (!fetchUsuarios.fulfilled.match(action)) {
-						console.error("Error al obtener usuarios:", action.payload);
-						errorToast(action.payload || "Ocurrió un error al obtener usuarios");
-					}
-				} catch (err) {
-					console.error("Error inesperado:", err);
-					errorToast("Error inesperado al obtener usuarios");
-				}
-			};
+  const {
+    datos,
+    loading,
+    error,
+    page,
+    pageSize,
+    total,
+    search,
+    setSearch,
+    handleSearch,
+    handlePageChange,
+    handlePageSizeChange,
+    sortField,
+    sortOrder,
+    handleSort,
+  } = useEntityTable({
+    fetchAction: fetchUsuarios,
+    setPageAction: setUsuarioPage,
+    setPageSizeAction: setUsuarioPageSize,
+        selector: (state: RootState) => state.user,
+    defaultSortField: "idUsuario",
+    defaultSortOrder: "ASC",
+  });
 
-			fetchUsuariosTest();
-		}
-	}, [dispatch, errorToast, usuarios.length]);
+  const user = useAppSelector((state:RootState)=>state.user)
 
-	// ✅ useMemo evita recomputación innecesaria
-	const usuariosMemo = useMemo(
-		() =>
-			usuarios.map((usuario) => ({
-				id: String(usuario.idUsuario),
-				...usuario,
-			})),
-		[usuarios]
-	);
+  console.log(user);
+  
 
-	const columns = useMemo(
-		() => [
-			{ header: "ID", key: "idUsuario" },
-			{ header: "Nombre", key: "nombre" },
-			{ header: "Email", key: "email" },
-		],
-		[]
-	);
+  // Columnas de la tabla
+  const columns = useMemo(
+    () => [
+      { header: "ID", key: "idUsuario" },
+      { header: "Nombre", key: "nombre" },
+      { header: "Email", key: "email" },
+    ],
+    []
+  );
 
-	return (
-		<div className={pantallaPrincipalEstilos}>
-			<label className={fuenteDeTitulo}>Usuarios</label>
+  // Formateo de datos
+  const data = useMemo(
+    () =>
+      datos.map((u) => ({
+        id: String(u.idUsuario),
+        ...u,
+      })),
+    [datos]
+  );
 
-			<TableComponent
-				columns={columns}
-				data={usuariosMemo}
-				showFormActions={false}
-				// onAdd={() => console.log("Agregar usuario")}
-				// onEdit={(user) => console.log("Editar usuario:", user)}
-			/>
-		</div>
-	);
+  return (
+    <div className={pantallaPrincipalEstilos}>
+      <div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
+        {loading && <LoadingSpinner />}
+
+        {!loading && error && (
+          <p className="text-red-500 text-center mt-10">{error}</p>
+        )}
+
+        {!loading && !error && data.length === 0 && (
+          <p className="text-center mt-10">No hay usuarios registrados</p>
+        )}
+
+        {!loading && !error && data.length > 0 && (
+          <TableComponent
+            columns={columns}
+            data={data}
+            showPagination
+            currentPage={page}
+            pageSize={pageSize}
+            totalItems={total}
+            title="Usuarios"
+            search={search}
+            onSearchChange={setSearch}
+            onSearchSubmit={handleSearch}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            onSort={handleSort}
+            sortField={sortField}
+            sortOrder={sortOrder}
+          />
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Usuarios;
