@@ -30,7 +30,8 @@ const InputTypeComponent = (
 ) => {
 	const [show, setShow] = useState(false);
 
-	const type = inputType === "password" ? (show ? "text" : "password") : inputType;
+	const type =
+		inputType === "password" ? (show ? "text" : "password") : inputType;
 
 	return (
 		<div className="w-full">
@@ -58,7 +59,9 @@ const InputTypeComponent = (
 							: "focus:ring-main focus:border-main"
 					} [&::-webkit-search-cancel-button]:hidden`}
 					onWheel={(e) => (e.target as HTMLInputElement).blur()}
-					onPaste={(e) => e.preventDefault()}
+					onPaste={(e) => {
+						if (inputType === "password") e.preventDefault();
+					}}
 					{...rest}
 				/>
 

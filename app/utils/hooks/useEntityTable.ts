@@ -1,14 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+"use client";
 
-interface UseEntityTableParams<F> {
-	fetchAction: any; // Redux thunk
-	setPageAction: (page: number) => any;
-	setPageSizeAction: (size: number) => any;
-	selector: (state: any) => F;
-	defaultSortField?: string;
-	defaultSortOrder?: "ASC" | "DESC";
-}
+import { useCallback, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import type { RootState } from "@/lib/store/store";
+import type { UnknownAction } from "@reduxjs/toolkit";
 
 interface EntityFetchParams {
 	page: number;
@@ -18,20 +13,13 @@ interface EntityFetchParams {
 	sortOrder?: "ASC" | "DESC";
 }
 
-function dispatchEntityFetch(
-	dispatch: any,
-	fetchAction: any,
-	params: EntityFetchParams
-) {
-	dispatch(
-		fetchAction({
-			page: params.page,
-			size: params.size,
-			search: params.search ?? "",
-			sortField: params.sortField ?? "fecha",
-			sortOrder: params.sortOrder ?? "DESC",
-		})
-	);
+interface UseEntityTableParams<F> {
+	fetchAction: (params: EntityFetchParams) => unknown; // thunk
+	setPageAction: (page: number) => UnknownAction;
+	setPageSizeAction: (size: number) => UnknownAction;
+	selector: (state: RootState) => F;
+	defaultSortField?: string;
+	defaultSortOrder?: "ASC" | "DESC";
 }
 
 export const useEntityTable = <
@@ -39,7 +27,7 @@ export const useEntityTable = <
 		page: number;
 		pageSize: number;
 		total: number;
-		datos: any[];
+		datos: unknown[];
 		loading: boolean;
 		error: string | null;
 	}
@@ -58,71 +46,55 @@ export const useEntityTable = <
 	const [sortField, setSortField] = useState(defaultSortField);
 	const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">(defaultSortOrder);
 
-	// Fetch inicial y en cambios de orden/tamaño/página
+	const fetchData = useCallback(
+		(params: Partial<EntityFetchParams> = {}) => {
+			dispatch(
+				fetchAction({
+					page: params.page ?? state.page,
+					size: params.size ?? state.pageSize,
+					search: params.search ?? search,
+					sortField: params.sortField ?? sortField,
+					sortOrder: params.sortOrder ?? sortOrder,
+				}) as UnknownAction
+			);
+		},
+		[dispatch, fetchAction, search, sortField, sortOrder, state.page, state.pageSize]
+	);
+
 	useEffect(() => {
-		dispatchEntityFetch(dispatch, fetchAction, {
-			page: state.page,
-			size: state.pageSize,
-			search,
-			sortField,
-			sortOrder,
-		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch, state.page, state.pageSize, sortField, sortOrder]);
+		fetchData();
+	}, []);
 
 	const handleSearch = useCallback(() => {
 		dispatch(setPageAction(1));
-		dispatchEntityFetch(dispatch, fetchAction, {
-			page: 1,
-			size: state.pageSize,
-			search,
-			sortField,
-			sortOrder,
-		});
-	}, [dispatch, fetchAction, search, sortField, sortOrder, state.pageSize, setPageAction]);
+		fetchData({ page: 1 });
+	}, [dispatch, setPageAction, fetchData]);
 
 	const handlePageChange = useCallback(
 		(page: number) => {
 			dispatch(setPageAction(page));
-			dispatchEntityFetch(dispatch, fetchAction, {
-				page,
-				size: state.pageSize,
-				search,
-				sortField,
-				sortOrder,
-			});
+			fetchData({ page });
 		},
-		[dispatch, fetchAction, search, sortField, sortOrder, state.pageSize, setPageAction]
+		[dispatch, setPageAction, fetchData]
 	);
 
 	const handlePageSizeChange = useCallback(
 		(size: number) => {
 			dispatch(setPageSizeAction(size));
-			dispatchEntityFetch(dispatch, fetchAction, {
-				page: 1,
-				size,
-				search,
-				sortField,
-				sortOrder,
-			});
+			dispatch(setPageAction(1));
+			fetchData({ size, page: 1 });
 		},
-		[dispatch, fetchAction, search, sortField, sortOrder, setPageSizeAction]
+		[dispatch, setPageSizeAction, setPageAction, fetchData]
 	);
 
 	const handleSort = useCallback(
 		(field: string) => {
-			const newOrder = sortField === field && sortOrder === "ASC" ? "DESC" : "ASC";
+			const newOrder = field === sortField && sortOrder === "ASC" ? "DESC" : "ASC";
 			setSortField(field);
 			setSortOrder(newOrder);
-			dispatchEntityFetch(dispatch, fetchAction, {
-				page: state.page,
-				size: state.pageSize,
-				search,
-				sortField: field,
-				sortOrder: newOrder,
-			});
+			fetchData({ sortField: field, sortOrder: newOrder });
 		},
-		[dispatch, fetchAction, search, sortField, sortOrder, state.page, state.pageSize]
+		[fetchData, sortField, sortOrder]
 	);
 
 	return {

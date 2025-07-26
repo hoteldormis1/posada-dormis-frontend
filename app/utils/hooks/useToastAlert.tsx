@@ -7,8 +7,8 @@ const baseStyles =
   "flex items-center justify-between max-w-sm w-full p-4 rounded-2xl shadow-lg font-medium text-white transition-all duration-300 ease-in-out";
 
 const bgColors: Record<ToastType, string> = {
-  success: "bg-green-600",
-  error: "bg-red-700",
+  success: "bg-success",
+  error: "bg-danger",
   info: "bg-blue-700",
   loading: "bg-yellow-700",
 };

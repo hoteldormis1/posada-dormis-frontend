@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { LoadingSpinner, TableComponent } from "@/components";
 import { pantallaPrincipalEstilos } from "@/styles/global-styles";
 import { fetchAuditorias, setAuditoriaPage, setAuditoriaPageSize } from "@/lib/store/utils/auditorias/auditoriasSlice";
@@ -31,6 +31,18 @@ const Auditorias = () => {
     defaultSortOrder: "DESC",
   });
 
+   const [showSpinner, setShowSpinner] = useState(false);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (loading) {
+      timeout = setTimeout(() => setShowSpinner(true), 300); // espera 300ms
+    } else {
+      setShowSpinner(false);
+    }
+    return () => clearTimeout(timeout);
+  }, [loading]);
+
   const columns = useMemo(
     () => [
       { header: "Método", key: "metodo" },
@@ -60,7 +72,7 @@ const Auditorias = () => {
   return (
     <div className={pantallaPrincipalEstilos}>
       <div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
-        {loading && <LoadingSpinner />}
+        {showSpinner  && <LoadingSpinner />}
         {!loading && error && <p className="text-red-500 text-center mt-10">{error}</p>}
         {!loading && !error && data.length === 0 && <p className="text-center mt-10">No hay auditorías registradas</p>}
         {!loading && !error && data.length > 0 && (

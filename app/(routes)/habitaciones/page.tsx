@@ -5,7 +5,7 @@ import {
 	pantallaPrincipalEstilos,
 } from "../../styles/global-styles";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { TableComponent } from "@/components";
+import { LoadingSpinner, TableComponent } from "@/components";
 import { useToastAlert } from "@/utils/hooks/useToastAlert";
 import { AppDispatch, RootState } from "@/lib/store/store";
 import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
@@ -48,7 +48,7 @@ const Habitaciones = () => {
 		<div className={pantallaPrincipalEstilos}>
 			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
 				{status === "loading" ? (
-					<p className="text-center mt-10">Cargando habitaciones...</p>
+					<LoadingSpinner/>
 				) : data.length === 0 ? (
 					<p className="text-center mt-10">No hay habitaciones disponibles</p>
 				) : (
