@@ -31,11 +31,3 @@ export type FetchAuditoriasResponse = {
 	pageSize: number;
 	total: number;
 };
-
-export type FetchAuditoriasParams = {
-	page?: number;
-	size?: number;
-	search?: string;
-	sortOrder?: string;
-	sortField?: string;
-};

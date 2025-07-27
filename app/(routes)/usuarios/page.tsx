@@ -60,16 +60,7 @@ const Usuarios = () => {
 		<div className={pantallaPrincipalEstilos}>
 			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
 				{loading && <LoadingSpinner />}
-
-				{!loading && error && (
-					<p className="text-red-500 text-center mt-10">{error}</p>
-				)}
-
-				{!loading && !error && data.length === 0 && (
-					<p className="text-center mt-10">No hay usuarios registrados</p>
-				)}
-
-				{!loading && !error && data.length > 0 && (
+				{!loading && !error && (
 					<TableComponent
 						columns={columns}
 						data={data}

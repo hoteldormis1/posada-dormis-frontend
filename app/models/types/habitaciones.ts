@@ -1,5 +1,4 @@
-import { StateStatus } from ".";
-
+import { SortOrder, StateStatus } from ".";
 
 // 🛏️ Interfaz
 export interface Habitacion {
@@ -11,7 +10,20 @@ export interface Habitacion {
 }
 
 export interface HabitacionesState {
-	habitaciones: Habitacion[];
+	datos: Habitacion[];
+	loading: boolean;
 	status: StateStatus;
 	error: string | null;
+	page: number;
+	pageSize: number;
+	total: number;
+	sortOrder: SortOrder;
+	sortField: string;
 }
+
+export type FetchHabitacionesResponse = {
+	data: Habitacion[];
+	page: number;
+	pageSize: number;
+	total: number;
+};

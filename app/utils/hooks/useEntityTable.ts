@@ -58,7 +58,15 @@ export const useEntityTable = <
 				}) as UnknownAction
 			);
 		},
-		[dispatch, fetchAction, search, sortField, sortOrder, state.page, state.pageSize]
+		[
+			dispatch,
+			fetchAction,
+			search,
+			sortField,
+			sortOrder,
+			state.page,
+			state.pageSize,
+		]
 	);
 
 	//fetchData adentro hace que cada cambio en el search se ejecute fetchData, evitar
@@ -93,9 +101,10 @@ export const useEntityTable = <
 			const newOrder = field === sortField && sortOrder === "ASC" ? "DESC" : "ASC";
 			setSortField(field);
 			setSortOrder(newOrder);
-			fetchData({ sortField: field, sortOrder: newOrder });
+			dispatch(setPageAction(1));
+			fetchData({ sortField: field, sortOrder: newOrder, page: 1 });
 		},
-		[fetchData, sortField, sortOrder]
+		[dispatch, fetchData, setPageAction, sortField, sortOrder]
 	);
 
 	return {

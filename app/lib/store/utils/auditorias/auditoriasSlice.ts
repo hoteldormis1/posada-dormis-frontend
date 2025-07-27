@@ -4,8 +4,8 @@ import { extractErrorMessage } from "../extractErrorMessage";
 import api from "../../axiosConfig";
 import {
   AuditoriasState,
-  FetchAuditoriasParams,
   FetchAuditoriasResponse,
+  FetchParams,
   SortOrder,
 } from "@/models/types";
 
@@ -22,7 +22,7 @@ const initialState: AuditoriasState = {
 
 export const fetchAuditorias = createAsyncThunk<
   FetchAuditoriasResponse,
-  FetchAuditoriasParams | undefined,
+  FetchParams | undefined,
   { rejectValue: string }
 >(
   "auditoria/fetchAuditorias",

@@ -1,29 +1,42 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
-import {
-	pantallaPrincipalEstilos,
-} from "../../styles/global-styles";
-import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import React, { useMemo } from "react";
+import { pantallaPrincipalEstilos } from "../../styles/global-styles";
 import { LoadingSpinner, TableComponent } from "@/components";
-import { useToastAlert } from "@/utils/hooks/useToastAlert";
-import { AppDispatch, RootState } from "@/lib/store/store";
-import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
+// import { useToastAlert } from "@/utils/hooks/useToastAlert";
+import { RootState } from "@/lib/store/store";
+import { useEntityTable } from "@/utils/hooks/useEntityTable";
+import {
+	fetchHabitaciones,
+	setHabitacionesPage,
+	setHabitacionesPageSize,
+	// setHabitacionesSort,
+} from "@/lib/store/utils/habitaciones/habitacionesSlice";
 
 const Habitaciones = () => {
-	const dispatch = useAppDispatch<AppDispatch>();
-	const { habitaciones, status } = useAppSelector((state: RootState) => state.habitaciones);
-	const { errorToast } = useToastAlert();
-
-	useEffect(() => {
-		if (status === "idle") {
-			dispatch(fetchHabitaciones()).then((action) => {
-				if (fetchHabitaciones.rejected.match(action)) {
-					errorToast(action.payload || "Error al obtener habitaciones");
-				}
-			});
-		}
-	}, [dispatch, status, errorToast]);
+	const {
+		datos,
+		loading,
+		error,
+		page,
+		pageSize,
+		total,
+		sortField,
+		sortOrder,
+		handlePageChange,
+		handlePageSizeChange,
+		handleSort,
+		search,
+		setSearch,
+		handleSearch,
+	} = useEntityTable({
+		fetchAction: fetchHabitaciones,
+		setPageAction: setHabitacionesPage,
+		setPageSizeAction: setHabitacionesPageSize,
+		selector: (state: RootState) => state.habitaciones,
+		defaultSortField: "numero",
+		defaultSortOrder: "ASC",
+	});
 
 	const columns = useMemo(
 		() => [
@@ -35,30 +48,36 @@ const Habitaciones = () => {
 		[]
 	);
 
-	const data = useMemo(
-		() =>
-			habitaciones.map((h) => ({
-				id: String(h.idHabitacion),
-				...h,
-			})),
-		[habitaciones]
-	);
+	const data = useMemo(() => {
+		if (!datos || !Array.isArray(datos)) return [];
+		return datos.map((h) => ({
+			id: String(h.idHabitacion),
+			...h,
+		}));
+	}, [datos]);
 
 	return (
 		<div className={pantallaPrincipalEstilos}>
 			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
-				{status === "loading" ? (
-					<LoadingSpinner/>
-				) : data.length === 0 ? (
-					<p className="text-center mt-10">No hay habitaciones disponibles</p>
-				) : (
+				{loading && <LoadingSpinner />}
+				{!loading && !error && (
 					<TableComponent
+						title="Habitaciones"
 						columns={columns}
 						data={data}
 						showFormActions={false}
-						title="Habitaciones"
-						// onAdd={() => console.log("Agregar habitación")}
-						// onEdit={(row) => console.log("Editar habitación:", row)}
+						showPagination={true}
+						currentPage={page}
+						pageSize={pageSize}
+						totalItems={total}
+						sortField={sortField}
+						sortOrder={sortOrder}
+						onPageChange={handlePageChange}
+						onPageSizeChange={handlePageSizeChange}
+						onSort={handleSort}
+						search={search}
+						onSearchChange={setSearch}
+						onSearchSubmit={handleSearch}
 					/>
 				)}
 			</div>
