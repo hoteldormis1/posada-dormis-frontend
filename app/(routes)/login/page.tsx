@@ -15,7 +15,7 @@ const Login: React.FC = () => {
     if (isExpired && !toastShown.current) {
       toastShown.current = true;
       errorToast("Tu sesión ha caducado. Por favor inicia sesión nuevamente.");
-      window.history.replaceState({}, "", window.location.pathname);
+      // window.history.replaceState({}, "", window.location.pathname);
     }
   }, [searchParams, errorToast]);
 

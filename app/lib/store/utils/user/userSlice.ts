@@ -26,8 +26,9 @@ export const loginUser = createAsyncThunk<
 		await api.post("/auth/login", { email, clave }, { withCredentials: true });
 	} catch (err) {
 		const axiosError = err as AxiosError;
+		
 		if (axiosError.response?.status === 401) {
-			return rejectWithValue("Acceso denegado: clave o clave inválidos");
+			return rejectWithValue("Acceso denegado: usuario o clave incorrectas.");
 		}
 		return rejectWithValue(
 			extractErrorMessage(axiosError, "Error al iniciar sesión")

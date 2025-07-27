@@ -20,12 +20,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 				// ✅ Guardar token en memoria
 				setAuthToken(result.accessToken);
-
 			} catch (error: any) {
 				console.warn("No se pudo refrescar sesión automáticamente.", error);
 				if (error?.message) console.error("Mensaje del error:", error.message);
-
-				router.push("/login");
+				router.push("/login?expired=true");
 			} finally {
 				setLoading(false);
 			}
@@ -35,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	}, [dispatch, router]);
 
 	if (loading) {
-		return <LoadingSpinner/>;
+		return <LoadingSpinner />;
 	}
 
 	return <>{children}</>;
