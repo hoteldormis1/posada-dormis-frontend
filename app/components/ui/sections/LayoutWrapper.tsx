@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Footerbar, Navbar } from '../../..';
+import { Footerbar, Navbar } from '@/components/index';
 
 interface LayoutWrapperProps {
   children: React.ReactNode;

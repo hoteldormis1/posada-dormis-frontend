@@ -7,9 +7,9 @@ import {
 	getCoreRowModel,
 } from "@tanstack/react-table";
 import { FaCheck, FaTimes, FaEdit } from "react-icons/fa";
-import { SortOrder } from "@/models/types";
+import { FormFieldInputConfig, SortOrder } from "@/models/types";
 import { useEditPopup } from "@/hooks/useEditPopup";
-import { TableBody, TableHeader, TableButtons } from "../../../../../components/index";
+import { TableBody, TableHeader, TableButtons } from "../../../index";
 
 interface TableComponentProps<T> {
 	columns: { header: string; key: string }[];
@@ -29,8 +29,9 @@ interface TableComponentProps<T> {
 	onSort?: (field: string, order: SortOrder) => void;
 	sortField?: string;
 	sortOrder?: SortOrder;
-	defaultNewItem: T;
+	defaultNewItem?: T;
 	onCreate?: (item: T) => void;
+	inputOptions?: FormFieldInputConfig[];
 }
 
 const TableComponent = <T extends { id: string }>({
@@ -50,6 +51,7 @@ const TableComponent = <T extends { id: string }>({
 	onSort,
 	sortField,
 	sortOrder,
+	inputOptions, //para definir lons inputs del formulario. importante y viene de haber llamado tableComponent
 }: TableComponentProps<T>) => {
 	const {
 		showEditPopup,
@@ -60,21 +62,7 @@ const TableComponent = <T extends { id: string }>({
 		handleFormChange,
 		getUpdatedRow,
 		formInputs,
-	} = useEditPopup<T>([
-		{ key: "nombre", type: "text", label: "Nombre" },
-		{
-			key: "estado",
-			type: "select",
-			label: "Estado de habitación",
-			options: [{ value: "test1", label: "test1" }],
-		},
-		{
-			key: "tipo",
-			type: "select",
-			label: "Tipo de habitación",
-			options: [{ value: "test1", label: "test1" }],
-		},
-	]);
+	} = useEditPopup<T>(inputOptions);
 
 	const handleSaveEdit = (updated: T) => {
 		console.log("Guardar cambios:", updated);

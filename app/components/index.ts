@@ -1,7 +1,7 @@
-import LoginIzquierda from "./ui/sections/LoginIzquierda/index";
-import LayoutWrapper from "./ui/sections/LayoutWrapper/index";
-import Navbar from "./ui/sections/Navbar/index";
-import Footerbar from "./ui/sections/Footerbar/index";
+import LoginIzquierda from "./ui/sections/LoginIzquierda";
+import LayoutWrapper from "./ui/sections/LayoutWrapper";
+import Navbar from "./ui/sections/Navbar";
+import Footerbar from "./ui/sections/Footerbar";
 import FiltroFechas from "./ui/uiComponents/Dashboard/FiltroFechas";
 import HotelEstadisticas from "./ui/uiComponents/Dashboard/HotelEstadisticas";
 import GraficoCantidadDeReservas from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoVertical/CantidadDeReservas";
@@ -20,10 +20,11 @@ import AppIcon from "./ui/icons/AppIcon";
 import PopupContainer from "./forms/popups/PopupContainer";
 import PopupFormAgregar from "./forms/popups/PopupFormAgregar";
 import PopupFormEditar from "./forms/popups/PopupFormEditar";
-import DynamicInputField from "./forms/formComponents/DynamicInputField/index"
+import DynamicInputField from "./forms/formComponents/DynamicInputField"
 import TableHeader from "./ui/uiComponents/Tables/TableHeader";
 import TableBody from "./ui/uiComponents/Tables/TableBody";
 import TableButtons from "./ui/uiComponents/Tables/TableButtons";
+import InputForm from "./forms/formComponents/InputForm";
 
 export {
 	LoginIzquierda,
@@ -51,5 +52,6 @@ export {
 	DynamicInputField,
 	TableHeader,
 	TableBody,
-	TableButtons
+	TableButtons,
+	InputForm
 };

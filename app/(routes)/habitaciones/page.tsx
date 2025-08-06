@@ -78,6 +78,21 @@ const Habitaciones = () => {
 						search={search}
 						onSearchChange={setSearch}
 						onSearchSubmit={handleSearch}
+						inputOptions={[
+							{ key: "numero", type: "text", label: "Numero" },
+							{
+								key: "estado",
+								type: "select",
+								label: "Estado de habitación",
+								options: [{ value: "test1", label: "test1" }],
+							},
+							{
+								key: "tipo",
+								type: "select",
+								label: "Tipo de habitación",
+								options: [{ value: "test1", label: "test1" }],
+							},
+						]}
 					/>
 				)}
 			</div>
