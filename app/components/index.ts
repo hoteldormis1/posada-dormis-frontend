@@ -12,7 +12,7 @@ import GraficoPie from "./ui/uiComponents/Dashboard/Graficos/Components/GraficoP
 import GraficoPieEstadoHabitaciones from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoPieEstadoHabitaciones";
 import Paginator from "./ui/sections/Paginator";
 import LoadingSpinner from "./ui/uiComponents/LoadingSpinner";
-import TableComponent from "./ui/uiComponents/TableComponent";
+import TableComponent from "./ui/uiComponents/Tables/TableComponent";
 import LoginForm from "./forms/forms/LoginForm";
 import CloseButton from "./ui/buttons/CloseButton";
 import BackButton from "./ui/buttons/BackButton";
@@ -21,6 +21,9 @@ import PopupContainer from "./forms/popups/PopupContainer";
 import PopupFormAgregar from "./forms/popups/PopupFormAgregar";
 import PopupFormEditar from "./forms/popups/PopupFormEditar";
 import DynamicInputField from "./forms/formComponents/DynamicInputField/index"
+import TableHeader from "./ui/uiComponents/Tables/TableHeader";
+import TableBody from "./ui/uiComponents/Tables/TableBody";
+import TableButtons from "./ui/uiComponents/Tables/TableButtons";
 
 export {
 	LoginIzquierda,
@@ -45,5 +48,8 @@ export {
 	PopupContainer,
 	PopupFormAgregar,
 	PopupFormEditar,
-	DynamicInputField
+	DynamicInputField,
+	TableHeader,
+	TableBody,
+	TableButtons
 };
