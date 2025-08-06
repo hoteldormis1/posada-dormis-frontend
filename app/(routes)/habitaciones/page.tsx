@@ -5,7 +5,7 @@ import { pantallaPrincipalEstilos } from "../../styles/global-styles";
 import { LoadingSpinner, TableComponent } from "@/components";
 // import { useToastAlert } from "@/utils/hooks/useToastAlert";
 import { RootState } from "@/lib/store/store";
-import { useEntityTable } from "@/utils/hooks/useEntityTable";
+import { useEntityTable } from "@/hooks/useEntityTable";
 import {
 	fetchHabitaciones,
 	setHabitacionesPage,
@@ -65,7 +65,7 @@ const Habitaciones = () => {
 						title="Habitaciones"
 						columns={columns}
 						data={data}
-						showFormActions={false}
+						showFormActions={true}
 						showPagination={true}
 						currentPage={page}
 						pageSize={pageSize}

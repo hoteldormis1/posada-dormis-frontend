@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import { inicio } from "../../../../public/public-api";
+import { inicio } from "../../../../../public/public-api";
 
 interface Props {
   includeDescription: boolean;

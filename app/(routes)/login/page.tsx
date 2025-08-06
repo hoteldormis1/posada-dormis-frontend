@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { LoginForm, LoginIzquierda } from "../../components";
-import { useToastAlert } from "@/utils/hooks/useToastAlert";
+import { useToastAlert } from "@/hooks/useToastAlert";
 
 const Login: React.FC = () => {
   const searchParams = useSearchParams();

@@ -51,9 +51,6 @@ export const fetchHabitaciones = createAsyncThunk<
 				`/habitaciones?page=${page}&size=${size}&search=${search}&sortField=${sortField}&sortOrder=${sortOrder}`
 			);
 
-			console.log(data);
-			
-
 			return {
 				data: data.data,
 				page: data.page,

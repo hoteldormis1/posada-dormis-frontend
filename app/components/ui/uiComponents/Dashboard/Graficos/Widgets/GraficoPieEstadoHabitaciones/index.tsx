@@ -1,5 +1,5 @@
 import React from "react";
-import GraficoPie from "../../Components/GraficoPie";
+import {GraficoPie} from "@/components/index";
 
 const GraficoPieEstadoHabitaciones = () => {
 	return (

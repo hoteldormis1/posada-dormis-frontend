@@ -7,7 +7,7 @@ import {
 	setUsuarioPage,
 	setUsuarioPageSize,
 } from "@/lib/store/utils/user/userSlice";
-import { useEntityTable } from "@/utils/hooks/useEntityTable";
+import { useEntityTable } from "@/hooks/useEntityTable";
 import { LoadingSpinner, TableComponent } from "@/components";
 import { pantallaPrincipalEstilos } from "@/styles/global-styles";
 

@@ -7,11 +7,16 @@ import {
 	getCoreRowModel,
 	flexRender,
 } from "@tanstack/react-table";
-import { FaCheck, FaTimes, FaEdit, FaSearch } from "react-icons/fa";
-import Paginator from "../Paginator";
+import { FaCheck, FaTimes, FaEdit, FaSearch, FaPlus } from "react-icons/fa";
 import { fuenteDeTitulo } from "@/styles/global-styles";
 import { SortOrder } from "@/models/types";
-import InputType from "@/components/forms/formComponents/InputType";
+import InputForm from "@/components/forms/formComponents/InputForm";
+import {
+	Paginator,
+	PopupFormEditar,
+	DynamicInputField,
+} from "@/components/index";
+import { useEditPopup } from "@/hooks/useEditPopup";
 
 interface TableComponentProps<T> {
 	columns: { header: string; key: string }[];
@@ -28,17 +33,16 @@ interface TableComponentProps<T> {
 	totalItems?: number;
 	onPageChange?: (page: number) => void;
 	onPageSizeChange?: (size: number) => void;
-
-	// Sorting
 	onSort?: (field: string, order: SortOrder) => void;
 	sortField?: string;
 	sortOrder?: SortOrder;
+	defaultNewItem: T;
+	onCreate?: (item: T) => void;
 }
 
 const TableComponent = <T extends { id: string }>({
 	columns,
 	data,
-	onEdit,
 	title,
 	showFormActions = false,
 	showPagination = false,
@@ -53,7 +57,52 @@ const TableComponent = <T extends { id: string }>({
 	onSort,
 	sortField,
 	sortOrder,
+	onCreate,
 }: TableComponentProps<T>) => {
+	const {
+		showEditPopup,
+		setShowEditPopup,
+		selectedRow,
+		formData,
+		handleEditClick,
+		handleFormChange,
+		getUpdatedRow,
+		formInputs,
+	} = useEditPopup<T>([
+		{ key: "nombre", type: "text", label: "Nombre" },
+		{
+			key: "estado",
+			type: "select",
+			label: "Estado de habitación",
+			options: [{value: "test1", label: "test1"}],
+		},
+		{
+			key: "tipo",
+			type: "select",
+			label: "Tipo de habitación",
+			options: [{value: "test1", label: "test1"}],
+		},
+	]);
+
+	// const {
+	//   showAddPopup,
+	//   setShowAddPopup,
+	//   formData: addFormData,
+	//   handleFormChange: handleAddChange,
+	//   getNewItem,
+	//   formInputs: addFormInputs,
+	//   resetForm,
+	// } = useAddPopup<T>([]);
+
+	const handleSaveEdit = (updated: T) => {
+		console.log("Guardar cambios:", updated);
+	};
+
+	// const handleCreate = (item: T) => {
+	//   if (onCreate) onCreate(item);
+	//   resetForm();
+	// };
+
 	const tableColumns = React.useMemo<ColumnDef<T>[]>(() => {
 		const baseCols = columns.map((col) => ({
 			accessorKey: col.key,
@@ -76,7 +125,7 @@ const TableComponent = <T extends { id: string }>({
 				header: "Acciones",
 				cell: (cell) => (
 					<button
-						onClick={() => onEdit && onEdit(cell.getValue.row.original.id)}
+						onClick={() => handleEditClick(cell.row.original.id, data)}
 						className="text-blue-500 hover:text-blue-700"
 					>
 						<FaEdit className="text-black text-xs" />
@@ -85,7 +134,7 @@ const TableComponent = <T extends { id: string }>({
 			});
 		}
 		return baseCols;
-	}, [columns, showFormActions, onEdit]);
+	}, [columns, showFormActions, , data, handleEditClick]);
 
 	const table = useReactTable({
 		data,
@@ -105,28 +154,36 @@ const TableComponent = <T extends { id: string }>({
 		<div className="flex flex-col mx-auto w-full max-w-[1000px]">
 			<div className="w-full flex flex-col sm:flex-row justify-between items-center mb-2 ">
 				{title && <h2 className={fuenteDeTitulo}>{title}</h2>}
-				<div className="mb-3 w-full sm:w-1/2 md:w-1/3 relative">
-					<InputType
-						inputType="search"
-						placeholder="Buscar..."
-						value={search}
-						onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-						onKeyDown={(e) =>
-							e.key === "Enter" && onSearchSubmit && onSearchSubmit(e)
-						}
-					/>
-					<button
-						type="button"
-						onClick={onSearchSubmit}
-						aria-label="Buscar"
-						className="absolute right-3 top-5/8 -translate-y-1/2 text-gray-400 hover:text-main focus:outline-none focus:ring-2 focus:ring-main focus:ring-offset-1 rounded"
-					>
-						<FaSearch className="w-4 h-4" />
-					</button>
+				<div className="flex gap-2 items-center">
+					<div className="mb-3 w-full sm:w-64 relative">
+						<InputForm
+							InputForm="search"
+							placeholder="Buscar..."
+							value={search}
+							onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+							onKeyDown={(e) =>
+								e.key === "Enter" && onSearchSubmit && onSearchSubmit(e)
+							}
+						/>
+						<button
+							type="button"
+							onClick={onSearchSubmit}
+							aria-label="Buscar"
+							className="absolute right-3 top-5/8 -translate-y-1/2 text-gray-400 hover:text-main focus:outline-none focus:ring-2 focus:ring-main focus:ring-offset-1 rounded"
+						>
+							<FaSearch className="w-4 h-4" />
+						</button>
+					</div>
+					{/* <button
+            onClick={() => setShowAddPopup(true)}
+            className="flex gap-2 items-center px-4 py-2 bg-main text-white rounded hover:bg-green-700"
+          >
+            <FaPlus /> Agregar
+          </button> */}
 				</div>
 			</div>
 
-			<div className="overflow-x-auto h-64 md:h-80 border border-gray-200 bg-gray-200">
+			<div className="overflow-x-auto h-80 md:h-114 border border-gray-200 bg-gray-200">
 				<table className="min-w-full text-left text-xs bg-white">
 					<thead className="bg-main text-white">
 						{table.getHeaderGroups().map((headerGroup) => (
@@ -185,6 +242,71 @@ const TableComponent = <T extends { id: string }>({
 					onPageSizeChange={(s) => onPageSizeChange && onPageSizeChange(s)}
 				/>
 			)}
+
+			{showEditPopup && selectedRow && (
+				<PopupFormEditar
+					isOpen={showEditPopup}
+					initialData={selectedRow}
+					onClose={() => setShowEditPopup(false)}
+					onSave={() => {
+						const updated = getUpdatedRow();
+						if (updated) handleSaveEdit(updated);
+					}}
+					title="Editar habitación"
+				>
+					{() => (
+						<div className="space-y-4 pt-4">
+							{formInputs.map((input) => (
+								<DynamicInputField
+									key={input.key}
+									inputKey={input.key}
+									InputForm={input.type}
+									label={input.label}
+									placeholder={input.label}
+									value={formData[input.key] || ""}
+									onChange={(e) => handleFormChange(e)}
+									options={
+										input.type === "select"
+											? input.options
+											: undefined
+									}
+								/>
+							))}
+						</div>
+					)}
+				</PopupFormEditar>
+			)}
+
+			{/* {showAddPopup && (
+        <PopupFormAgregar
+          isOpen={showAddPopup}
+          defaultData={selectedRow}
+          onClose={() => setShowAddPopup(false)}
+          onSave={() => {
+            const newItem = getNewItem();
+            handleCreate(newItem);
+            setShowAddPopup(false);
+          }}
+          title="Agregar habitación"
+        >
+          {() => (
+            <div className="space-y-4 pt-4">
+              {addFormInputs.map((input) => (
+                <InputForm
+                  key={input.key}
+                  inputKey={input.key}
+                  InputForm={input.type}
+                  placeholder={input.label}
+                  value={addFormData[input.key] || ""}
+                  onChange={handleAddChange}
+                >
+                  {input.label}
+                </InputForm>
+              ))}
+            </div>
+          )}
+        </PopupFormAgregar>
+      )} */}
 		</div>
 	);
 };

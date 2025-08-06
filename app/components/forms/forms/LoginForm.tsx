@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { loginUser, refreshSession } from "@/lib/store/utils/user/userSlice";
 import type { AppDispatch, RootState } from "@/lib/store/store";
-import { useToastAlert } from "@/utils/hooks/useToastAlert";
+import { useToastAlert } from "@/hooks/useToastAlert";
 import { setAuthToken } from "@/lib/store/useAuthToken";
-import InputType from "../formComponents/InputType";
+import InputForm from "../formComponents/InputForm";
 
 const LoginForm = () => {
 	const dispatch: AppDispatch = useAppDispatch();
@@ -42,27 +42,27 @@ const LoginForm = () => {
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-			<InputType
+			<InputForm
 				inputKey="email"
-				inputType="email"
+				InputForm="email"
 				placeholder="usuario@ejemplo.com"
 				value={email}
 				onChange={(e) => setEmail(e.target.value)}
 				required
 			>
 				Correo electrónico
-			</InputType>
+			</InputForm>
 
-			<InputType
+			<InputForm
 				inputKey="password"
-				inputType="password"
+				InputForm="password"
 				placeholder="********"
 				value={clave}
 				onChange={(e) => setClave(e.target.value)}
 				required
 			>
 				Contraseña
-			</InputType>
+			</InputForm>
 
 			<div className="flex items-center justify-between gap-4 pt-4">
 				<button

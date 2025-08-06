@@ -8,7 +8,7 @@ import {
 	setAuditoriaPageSize,
 } from "@/lib/store/utils/auditorias/auditoriasSlice";
 import { RootState } from "@/lib/store/store";
-import { useEntityTable } from "@/utils/hooks/useEntityTable";
+import { useEntityTable } from "@/hooks/useEntityTable";
 
 const Auditorias = () => {
 	const {

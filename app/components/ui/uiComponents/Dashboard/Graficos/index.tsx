@@ -3,9 +3,7 @@
 import { fuenteDeSubtitulo } from "@/styles/global-styles";
 import React from "react";
 import TablaHabitaciones from "./Widgets/TablaReservas";
-import GraficoCantidadDeReservas from "./Widgets/GraficoVertical/CantidadDeReservas";
-import GraficoCantidadDeVentas from "./Widgets/GraficoVertical/CantidadDeVentas";
-import GraficoPieEstadoHabitaciones from "./Widgets/GraficoPieEstadoHabitaciones";
+import {GraficoCantidadDeReservas, GraficoCantidadDeVentas, GraficoPieEstadoHabitaciones} from "@/components/index";
 
 // Datos simulados
 const graficosData = [

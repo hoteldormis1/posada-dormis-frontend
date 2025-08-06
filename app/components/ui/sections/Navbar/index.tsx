@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { logo_dormis } from "../../../../public/public-api";
+import { logo_dormis } from "../../../../../public/public-api";
 import { useAppDispatch } from "@/lib/store/hooks";
 import { logoutUser } from "@/lib/store/utils/user/userSlice";
 import { useRouter } from "next/navigation";

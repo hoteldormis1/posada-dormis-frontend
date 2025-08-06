@@ -16,7 +16,7 @@ export default page
 // import React, { useState } from "react";
 // import Image from "next/image";
 // import { useRouter } from "next/navigation";
-// import InputType from "@/components/InputType";
+// import InputForm from "@/components/InputForm";
 // import { BiHomeAlt, BiSave } from "react-icons/bi";
 // import { pantallaPrincipalEstilos } from "@/styles/global-styles";
 // // import { DateRange } from "react-date-range";
@@ -116,14 +116,14 @@ export default page
 // 								</label>
 // 							</div>
 
-// 							<InputType
+// 							<InputForm
 // 								inputKey="name"
 // 								placeholder="Ingresa tu nombre"
 // 								value={name}
 // 								onChange={(e) => setName(e.target.value)}
 // 							>
 // 								Nombre
-// 							</InputType>
+// 							</InputForm>
 // 						</div>
 // 					)}
 
@@ -185,15 +185,15 @@ export default page
 // 					{activeTab === "Seguridad" && (
 // 						<div className="space-y-6">
 // 							<h1 className="text-xl font-bold text-gray-800">Seguridad</h1>
-// 							<InputType
+// 							<InputForm
 // 								inputKey="password"
-// 								inputType="password"
+// 								InputForm="password"
 // 								placeholder="Nueva contraseña"
 // 								value={password}
 // 								onChange={(e) => setPassword(e.target.value)}
 // 							>
 // 								Cambiar contraseña
-// 							</InputType>
+// 							</InputForm>
 // 						</div>
 // 					)}
 // 				</div>

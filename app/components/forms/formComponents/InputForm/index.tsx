@@ -5,7 +5,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 interface InputTypeProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	inputKey?: string;
-	inputType?: string;
+	InputForm?: string;
 	placeholder?: string;
 	labelStyles?: string;
 	children?: React.ReactNode;
@@ -17,7 +17,7 @@ interface InputTypeProps extends React.InputHTMLAttributes<HTMLInputElement> {
 const InputTypeComponent = (
 	{
 		inputKey = "",
-		inputType = "text",
+		InputForm = "text",
 		placeholder = "",
 		labelStyles = "",
 		children,
@@ -31,7 +31,7 @@ const InputTypeComponent = (
 	const [show, setShow] = useState(false);
 
 	const type =
-		inputType === "password" ? (show ? "text" : "password") : inputType;
+		InputForm === "password" ? (show ? "text" : "password") : InputForm;
 
 	return (
 		<div className="w-full">
@@ -60,12 +60,12 @@ const InputTypeComponent = (
 					} [&::-webkit-search-cancel-button]:hidden`}
 					onWheel={(e) => (e.target as HTMLInputElement).blur()}
 					onPaste={(e) => {
-						if (inputType === "password") e.preventDefault();
+						if (InputForm === "password") e.preventDefault();
 					}}
 					{...rest}
 				/>
 
-				{inputType === "password" && (
+				{InputForm === "password" && (
 					<button
 						type="button"
 						onClick={() => setShow((s) => !s)}

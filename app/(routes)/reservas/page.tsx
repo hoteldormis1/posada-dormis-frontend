@@ -8,7 +8,7 @@ import { LoadingSpinner, TableComponent } from "@/components";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
 import { fetchReservas } from "@/lib/store/utils/reservas/reservasSlice";
-import { useToastAlert } from "@/utils/hooks/useToastAlert";
+import { useToastAlert } from "@/hooks/useToastAlert";
 import { Reserva } from "@/models/types";
 
 const Reservas: React.FC = () => {

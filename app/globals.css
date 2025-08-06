@@ -27,6 +27,9 @@
 
   --color-danger: #EF4444;
   --color-success: #22C55E;
+  
+  --color-dark: black;
+  --color-light: white;
 }
 
 @layer base {
