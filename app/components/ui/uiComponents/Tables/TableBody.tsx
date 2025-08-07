@@ -13,7 +13,7 @@ interface TableBodyProps<T> {
 	handleHeaderClick: (key: string) => void;
 }
 
-const TableBody = <T extends unknown>({
+const TableBody = <T,>({
 	table,
 	columnsLength,
 	showFormActions,
@@ -37,7 +37,7 @@ const TableBody = <T extends unknown>({
 										className="py-2 px-4 border-b cursor-pointer select-none text-center"
 									>
 										{flexRender(header.column.columnDef.header, header.getContext())}
-										{isActive && (sortOrder === "ASC" ? " 🔼" : " 🔽")}
+										{isActive && (sortOrder === SortOrder.asc ? " 🔼" : " 🔽")}
 									</th>
 								);
 							})}

@@ -4,8 +4,17 @@ export * from "./users"
 export * from "./auditorias"
 export * from "./form"
 
-export type StateStatus = "idle" | "loading" | "succeeded" | "failed";
-export type SortOrder = "ASC" | "DESC";
+export enum StateStatus {
+	idle = "idle",
+	loading = "loading",
+	succeeded = "succeeded",
+	failed = "failed",
+}
+
+export enum SortOrder {
+	asc = "ASC",
+	desc = "DESC"
+}
 
 export type FetchParams = {
 	page?: number;

@@ -1,7 +1,12 @@
 "use client";
 
 import React from "react";
-import { Paginator, PopupFormEditar, DynamicInputField } from "@/components";
+import {
+	Paginator,
+	PopupFormEditar,
+	PopupFormAgregar,
+	DynamicInputField,
+} from "@/components";
 import { FieldInputType } from "@/models/types";
 
 interface TableButtonsProps<T> {
@@ -12,6 +17,7 @@ interface TableButtonsProps<T> {
 	onPageChange?: (page: number) => void;
 	onPageSizeChange?: (size: number) => void;
 
+	// Edición
 	showEditPopup: boolean;
 	selectedRow: T | null;
 	formInputs: Array<{
@@ -27,6 +33,15 @@ interface TableButtonsProps<T> {
 	getUpdatedRow: () => T | null;
 	handleSaveEdit: (updated: T) => void;
 	setShowEditPopup: (show: boolean) => void;
+
+	// Agregado
+	showAddPopup?: boolean;
+	setShowAddPopup?: (show: boolean) => void;
+	formDataAdd?: Record<string, string>;
+	handleFormChangeAdd?: (
+		e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+	) => void;
+	handleSaveAdd?: () => void;
 }
 
 const TableButtons = <T extends { id: string }>({
@@ -44,6 +59,11 @@ const TableButtons = <T extends { id: string }>({
 	getUpdatedRow,
 	handleSaveEdit,
 	setShowEditPopup,
+	showAddPopup,
+	setShowAddPopup,
+	formDataAdd,
+	handleFormChangeAdd,
+	handleSaveAdd,
 }: TableButtonsProps<T>) => {
 	return (
 		<>
@@ -57,6 +77,7 @@ const TableButtons = <T extends { id: string }>({
 				/>
 			)}
 
+			{/* Popup para editar */}
 			{showEditPopup && selectedRow && (
 				<PopupFormEditar
 					isOpen={showEditPopup}
@@ -66,13 +87,13 @@ const TableButtons = <T extends { id: string }>({
 						const updated = getUpdatedRow();
 						if (updated) handleSaveEdit(updated);
 					}}
-					title="Editar habitación"
+					title="Editar"
 				>
 					{() => (
 						<div className="space-y-4 pt-4">
 							{formInputs.map((input) => (
 								<DynamicInputField
-									key={input.key}
+									key={`edit-${input.key}`}
 									inputKey={input.key}
 									inputType={input.type}
 									label={input.label}
@@ -85,6 +106,34 @@ const TableButtons = <T extends { id: string }>({
 						</div>
 					)}
 				</PopupFormEditar>
+			)}
+
+			{/* Popup para agregar */}
+			{showAddPopup && (
+				<PopupFormAgregar
+					isOpen={showAddPopup}
+					onClose={() => setShowAddPopup && setShowAddPopup(false)}
+					onSave={() => handleSaveAdd && handleSaveAdd()}
+					title="Agregar"
+					defaultData={selectedRow}
+				>
+					{() => (
+						<div className="space-y-4 pt-4">
+							{formInputs.map((input) => (
+								<DynamicInputField
+									key={`add-${input.key}`}
+									inputKey={input.key}
+									inputType={input.type}
+									label={input.label}
+									placeholder={input.label}
+									value={formDataAdd?.[input.key] || ""}
+									onChange={(e) => handleFormChangeAdd && handleFormChangeAdd(e)}
+									options={input.type === "select" ? input.options : undefined}
+								/>
+							))}
+						</div>
+					)}
+				</PopupFormAgregar>
 			)}
 		</>
 	);

@@ -4,13 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import type { RootState } from "@/lib/store/store";
 import type { UnknownAction } from "@reduxjs/toolkit";
+import { SortOrder } from "@/models/types";
 
 interface EntityFetchParams {
 	page: number;
 	size: number;
 	search?: string;
 	sortField?: string;
-	sortOrder?: "ASC" | "DESC";
+	sortOrder?: SortOrder.asc | SortOrder.desc;
 }
 
 interface UseEntityTableParams<F> {
@@ -19,7 +20,7 @@ interface UseEntityTableParams<F> {
 	setPageSizeAction: (size: number) => UnknownAction;
 	selector: (state: RootState) => F;
 	defaultSortField?: string;
-	defaultSortOrder?: "ASC" | "DESC";
+	defaultSortOrder?: SortOrder.asc | SortOrder.desc;
 }
 
 export const useEntityTable = <
@@ -37,14 +38,14 @@ export const useEntityTable = <
 	setPageSizeAction,
 	selector,
 	defaultSortField = "fecha",
-	defaultSortOrder = "DESC",
+	defaultSortOrder = SortOrder.desc,
 }: UseEntityTableParams<F>) => {
 	const dispatch = useAppDispatch();
 	const state = useAppSelector(selector);
 
 	const [search, setSearch] = useState("");
 	const [sortField, setSortField] = useState(defaultSortField);
-	const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">(defaultSortOrder);
+	const [sortOrder, setSortOrder] = useState<SortOrder.asc | SortOrder.desc>(defaultSortOrder);
 
 	const fetchData = useCallback(
 		(params: Partial<EntityFetchParams> = {}) => {
@@ -98,7 +99,7 @@ export const useEntityTable = <
 
 	const handleSort = useCallback(
 		(field: string) => {
-			const newOrder = field === sortField && sortOrder === "ASC" ? "DESC" : "ASC";
+			const newOrder = field === sortField && sortOrder === SortOrder.asc? SortOrder.desc : SortOrder.asc ;
 			setSortField(field);
 			setSortOrder(newOrder);
 			dispatch(setPageAction(1));
@@ -117,5 +118,6 @@ export const useEntityTable = <
 		handleSort,
 		sortField,
 		sortOrder,
+		fetchData
 	};
 };

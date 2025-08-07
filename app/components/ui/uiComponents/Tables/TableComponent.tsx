@@ -1,14 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
 	ColumnDef,
 	useReactTable,
 	getCoreRowModel,
 } from "@tanstack/react-table";
-import { FaCheck, FaTimes, FaEdit } from "react-icons/fa";
+import { FaCheck, FaTimes, FaEdit, FaTrash } from "react-icons/fa";
 import { FormFieldInputConfig, SortOrder } from "@/models/types";
 import { useEditPopup } from "@/hooks/useEditPopup";
+import { useAddPopup } from "@/hooks/useAddPopup"; // ✅ import correcto
 import { TableBody, TableHeader, TableButtons } from "../../../index";
 
 interface TableComponentProps<T> {
@@ -31,6 +32,9 @@ interface TableComponentProps<T> {
 	sortOrder?: SortOrder;
 	defaultNewItem?: T;
 	onCreate?: (item: T) => void;
+	onSaveEdit: (formData: Record<string, unknown>, selectedRow: T | null) => void;
+	onSaveAdd: (formData: Record<string, unknown>) => void;
+	onSaveDelete: (id: string | null) => void;
 	inputOptions?: FormFieldInputConfig[];
 }
 
@@ -48,11 +52,15 @@ const TableComponent = <T extends { id: string }>({
 	totalItems,
 	onPageChange,
 	onPageSizeChange,
+	onSaveEdit,
+	onSaveAdd,
+	onSaveDelete,
 	onSort,
 	sortField,
 	sortOrder,
-	inputOptions, //para definir lons inputs del formulario. importante y viene de haber llamado tableComponent
+	inputOptions = [],
 }: TableComponentProps<T>) => {
+	// === Editar ===
 	const {
 		showEditPopup,
 		setShowEditPopup,
@@ -64,42 +72,91 @@ const TableComponent = <T extends { id: string }>({
 		formInputs,
 	} = useEditPopup<T>(inputOptions);
 
-	const handleSaveEdit = (updated: T) => {
-		console.log("Guardar cambios:", updated);
+	const handleDelete = (id: string) => {
+		onSaveDelete(id);
 	};
 
-	const tableColumns = React.useMemo<ColumnDef<T>[]>(() => {
-		const baseCols = columns.map((col) => ({
-			accessorKey: col.key,
-			header: col.header,
-			cell: ({ getValue }) => {
-				const value = getValue();
-				if (typeof value === "boolean") {
-					return value ? (
-						<FaCheck className="text-green-600 text-xs mx-auto" />
-					) : (
-						<FaTimes className="text-red-600 text-xs mx-auto" />
-					);
-				}
-				return String(value ?? "—");
-			},
-		}));
+	// === Agregar ===
+	const initialValues = useMemo(() => {
+		const emptyObj: Partial<T> = {};
+		inputOptions.forEach((field) => {
+			emptyObj[field.key as keyof T] = "" as any;
+		});
+		return emptyObj;
+	}, [inputOptions]);
+
+	const numericFields = inputOptions
+		.filter((f) => f.type === "number")
+		.map((f) => f.key);
+
+	const {
+		showAddPopup,
+		setShowAddPopup,
+		formData: formDataAdd,
+		handleFormChange: handleFormChangeAdd,
+		getNewItem,
+		// formInputs: formInputsAdd,
+		resetForm,
+	} = useAddPopup<T>(initialValues, numericFields);
+
+	const handleSaveEdit = () => {
+		onSaveEdit(formData, selectedRow);
+	};
+
+	const handleSaveAdd = () => {
+		const newItem = getNewItem();
+		onSaveAdd(newItem);
+		resetForm();
+		setShowAddPopup(false);
+	};
+
+	// === Columnas tabla ===
+	const tableColumns = useMemo<ColumnDef<T>[]>(() => {
+		const baseCols: ColumnDef<T>[] = columns.map(
+			(col): ColumnDef<T> => ({
+				accessorKey: col.key,
+				header: col.header,
+				cell: (cell) => {
+					const value = cell.getValue();
+					if (typeof value === "boolean") {
+						return value ? (
+							<FaCheck className="text-green-600 text-xs mx-auto" />
+						) : (
+							<FaTimes className="text-red-600 text-xs mx-auto" />
+						);
+					}
+					return String(value ?? "—");
+				},
+			})
+		);
 		if (showFormActions) {
 			baseCols.push({
 				accessorKey: "actions",
 				header: "Acciones",
-				cell: ({ row }) => (
-					<button
-						onClick={() => handleEditClick(row.original.id, data)}
-						className="text-blue-500 hover:text-blue-700"
-					>
-						<FaEdit className="text-black text-xs" />
-					</button>
-				),
+				cell: ({ row }) => {
+					return (
+					<div className="flex gap-2">
+						<button
+							onClick={() => handleEditClick(row.original.id, data)}
+							className="text-blue-500 hover:text-blue-700"
+							aria-label="Editar"
+						>
+							<FaEdit className="text-black text-xs cursor-pointer" />
+						</button>
+						<button
+							onClick={() => handleDelete?.(row.original.id)}
+							className="text-red-500 hover:text-red-700"
+							aria-label="Eliminar"
+						>
+							<FaTrash className="text-black text-xs cursor-pointer" />
+						</button>
+					</div>
+				)
+				},
 			});
 		}
 		return baseCols;
-	}, [columns, showFormActions, data, handleEditClick]);
+	}, [columns, showFormActions, data, handleEditClick, handleDelete]);
 
 	const table = useReactTable({
 		data,
@@ -111,7 +168,10 @@ const TableComponent = <T extends { id: string }>({
 
 	const handleHeaderClick = (key: string) => {
 		if (!onSort) return;
-		const newOrder = sortField === key && sortOrder === "ASC" ? "DESC" : "ASC";
+		const newOrder =
+			sortField === key && sortOrder === SortOrder.asc
+				? SortOrder.desc
+				: SortOrder.asc;
 		onSort(key, newOrder);
 	};
 
@@ -122,6 +182,8 @@ const TableComponent = <T extends { id: string }>({
 				search={search}
 				onSearchChange={onSearchChange}
 				onSearchSubmit={onSearchSubmit}
+				setShowAddPopup={setShowAddPopup}
+				showFormActions={showFormActions}
 			/>
 
 			<TableBody
@@ -141,13 +203,18 @@ const TableComponent = <T extends { id: string }>({
 				onPageChange={onPageChange}
 				onPageSizeChange={onPageSizeChange}
 				showEditPopup={showEditPopup}
+				setShowEditPopup={setShowEditPopup}
 				selectedRow={selectedRow}
 				formInputs={formInputs}
 				formData={formData}
 				handleFormChange={handleFormChange}
 				getUpdatedRow={getUpdatedRow}
 				handleSaveEdit={handleSaveEdit}
-				setShowEditPopup={setShowEditPopup}
+				showAddPopup={showAddPopup}
+				setShowAddPopup={setShowAddPopup}
+				formDataAdd={formDataAdd}
+				handleFormChangeAdd={handleFormChangeAdd}
+				handleSaveAdd={handleSaveAdd}
 			/>
 		</div>
 	);

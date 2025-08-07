@@ -17,7 +17,7 @@ const initialState: AuditoriasState = {
   pageSize: 10,
   total: 0,
   sortField: "fecha",   
-  sortOrder: "DESC",   
+  sortOrder: SortOrder.desc,   
 };
 
 export const fetchAuditorias = createAsyncThunk<
@@ -32,7 +32,7 @@ export const fetchAuditorias = createAsyncThunk<
       size: 10,
       search: "",
       sortField: "fecha",
-      sortOrder: "DESC",
+      sortOrder: SortOrder.desc,
     },
     { rejectWithValue }
   ) => {
@@ -42,7 +42,7 @@ export const fetchAuditorias = createAsyncThunk<
         size = 10,
         search = "",
         sortField = "fecha",
-        sortOrder = "DESC",
+        sortOrder = SortOrder.desc,
       } = params;
 
       const { data } = await api.get(

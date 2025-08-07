@@ -21,7 +21,7 @@ export default function PopupContainer({
 	return (
 		<div className="fixed inset-0 z-[999] flex items-end justify-center bg-gray-700/30 backdrop-blur-sm px-2">
 			<div
-				className={`bg-light w-full max-w-[800px] max-h-[90vh] min-h-[40vh] rounded-t-2xl overflow-y-auto animate-slide-up relative p-4 ${className}`}
+				className={`bg-light w-full max-w-[800px] max-h-[90vh] min-h-[60vh] rounded-t-2xl overflow-y-auto animate-slide-up relative p-4 ${className}`}
 			>
 				{showHeader && (
 					<div className="flex justify-between items-center border-b pb-4">

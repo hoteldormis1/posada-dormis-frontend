@@ -49,7 +49,7 @@ const TablaReservas = () => {
 				<TableComponent<Reserva>
 					columns={columns}
 					data={reservas}
-					onAdd={() => null}
+					// onAdd={() => null}
 					onEdit={() => null}
 				/>
 				{/* <Formulare

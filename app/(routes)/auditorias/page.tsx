@@ -9,6 +9,7 @@ import {
 } from "@/lib/store/utils/auditorias/auditoriasSlice";
 import { RootState } from "@/lib/store/store";
 import { useEntityTable } from "@/hooks/useEntityTable";
+import { SortOrder } from "@/models/types";
 
 const Auditorias = () => {
 	const {
@@ -32,7 +33,7 @@ const Auditorias = () => {
 		setPageSizeAction: setAuditoriaPageSize,
 		selector: (state: RootState) => state.auditorias,
 		defaultSortField: "fecha",
-		defaultSortOrder: "DESC",
+		defaultSortOrder: SortOrder.desc
 	});
 
 	const columns = useMemo(

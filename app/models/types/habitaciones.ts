@@ -9,6 +9,17 @@ export interface Habitacion {
 	habilitada: string;
 }
 
+export interface TipoHabitacion {
+	idTipoHabitacion: number;
+	tipo: string;
+	precio: number;
+}
+
+export interface EstadoHabitacion {
+	idEstadoHabitacion: number;
+	estado: string;
+}
+
 export interface HabitacionesState {
 	datos: Habitacion[];
 	loading: boolean;
@@ -19,6 +30,8 @@ export interface HabitacionesState {
 	total: number;
 	sortOrder: SortOrder;
 	sortField: string;
+	tipoHabitaciones: TipoHabitacion[];
+	estadoHabitaciones: EstadoHabitacion[];
 }
 
 export type FetchHabitacionesResponse = {
@@ -26,4 +39,6 @@ export type FetchHabitacionesResponse = {
 	page: number;
 	pageSize: number;
 	total: number;
+	tipoHabitaciones: TipoHabitacion[];
+	estadoHabitaciones: EstadoHabitacion[];
 };

@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../axiosConfig";
 import { AxiosError } from "axios";
 import { extractErrorMessage } from "../extractErrorMessage";
-import { LoginCredentials, UserState, Usuario } from "@/models/types";
+import { LoginCredentials, SortOrder, UserState, Usuario } from "@/models/types";
 import { setAuthToken } from "../../useAuthToken";
 
 const initialState: UserState = {
@@ -14,7 +14,7 @@ const initialState: UserState = {
 	pageSize: 10,
 	total: 0,
 	sortField: "idUsuario", // Campo por defecto
-	sortOrder: "ASC", // Orden por defecto
+	sortOrder: SortOrder.desc, // Orden por defecto
 };
 // 🔐 LOGIN
 export const loginUser = createAsyncThunk<
@@ -94,7 +94,7 @@ export const fetchUsuarios = createAsyncThunk<
 			size: 10,
 			search: "",
 			sortField: "idUsuario",
-			sortOrder: "ASC",
+			sortOrder: SortOrder.asc,
 		},
 		{ rejectWithValue }
 	) => {
@@ -104,7 +104,7 @@ export const fetchUsuarios = createAsyncThunk<
 				size = 10,
 				search = "",
 				sortField = "idUsuario",
-				sortOrder = "ASC",
+				sortOrder = SortOrder.asc,
 			} = params;
 			const { data } = await api.get(
 				`/usuarios?page=${page}&size=${size}&search=${search}&sortField=${sortField}&sortOrder=${sortOrder}`
@@ -138,7 +138,7 @@ const userSlice = createSlice({
 		setUsuarioSortField: (state, action: PayloadAction<string>) => {
 			state.sortField = action.payload;
 		},
-		setUsuarioSortOrder: (state, action: PayloadAction<"ASC" | "DESC">) => {
+		setUsuarioSortOrder: (state, action: PayloadAction<SortOrder.asc | SortOrder.desc>) => {
 			state.sortOrder = action.payload;
 		},
 	},

@@ -4,11 +4,11 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import api from "../../axiosConfig";
 import { extractErrorMessage } from "../extractErrorMessage";
-import { Reserva, ReservasState } from "@/models/types";
+import { Reserva, ReservasState, StateStatus } from "@/models/types";
 
 const initialState: ReservasState = {
   reservas: [],
-  status: "idle",
+  status: StateStatus.idle,
   error: null,
 };
 
@@ -36,15 +36,15 @@ const reservasSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchReservas.pending, (state) => {
-        state.status = "loading";
+        state.status = StateStatus.loading;
         state.error = null;
       })
       .addCase(fetchReservas.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.status = StateStatus.succeeded;
         state.reservas = action.payload;
       })
       .addCase(fetchReservas.rejected, (state, action) => {
-        state.status = "failed";
+        state.status = StateStatus.failed;
         state.error = action.payload ?? "Error al obtener reservas";
       });
   },

@@ -10,6 +10,7 @@ import {
 import { useEntityTable } from "@/hooks/useEntityTable";
 import { LoadingSpinner, TableComponent } from "@/components";
 import { pantallaPrincipalEstilos } from "@/styles/global-styles";
+import { SortOrder } from "@/models/types";
 
 const Usuarios = () => {
 	const {
@@ -33,7 +34,7 @@ const Usuarios = () => {
 		setPageSizeAction: setUsuarioPageSize,
 		selector: (state: RootState) => state.user,
 		defaultSortField: "idUsuario",
-		defaultSortOrder: "ASC",
+		defaultSortOrder: SortOrder.asc,
 	});
 
 	// Columnas de la tabla
