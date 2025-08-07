@@ -31,10 +31,9 @@ interface TableComponentProps<T> {
 	sortField?: string;
 	sortOrder?: SortOrder;
 	defaultNewItem?: T;
-	onCreate?: (item: T) => void;
 	onSaveEdit: (formData: Record<string, unknown>, selectedRow: T | null) => void;
 	onSaveAdd: (formData: Record<string, unknown>) => void;
-	onSaveDelete: (id: string | null) => void;
+	onSaveDelete: (id: string) => void;
 	inputOptions?: FormFieldInputConfig[];
 }
 
@@ -72,15 +71,11 @@ const TableComponent = <T extends { id: string }>({
 		formInputs,
 	} = useEditPopup<T>(inputOptions);
 
-	const handleDelete = (id: string) => {
-		onSaveDelete(id);
-	};
-
 	// === Agregar ===
 	const initialValues = useMemo(() => {
 		const emptyObj: Partial<T> = {};
 		inputOptions.forEach((field) => {
-			emptyObj[field.key as keyof T] = "" as any;
+			emptyObj[field.key as keyof T] = "" as unknown as T[keyof T];
 		});
 		return emptyObj;
 	}, [inputOptions]);
@@ -129,34 +124,38 @@ const TableComponent = <T extends { id: string }>({
 				},
 			})
 		);
+
+		const handleDelete = (id: string) => {
+			onSaveDelete(id);
+		};
 		if (showFormActions) {
 			baseCols.push({
 				accessorKey: "actions",
 				header: "Acciones",
 				cell: ({ row }) => {
 					return (
-					<div className="flex gap-2">
-						<button
-							onClick={() => handleEditClick(row.original.id, data)}
-							className="text-blue-500 hover:text-blue-700"
-							aria-label="Editar"
-						>
-							<FaEdit className="text-black text-xs cursor-pointer" />
-						</button>
-						<button
-							onClick={() => handleDelete?.(row.original.id)}
-							className="text-red-500 hover:text-red-700"
-							aria-label="Eliminar"
-						>
-							<FaTrash className="text-black text-xs cursor-pointer" />
-						</button>
-					</div>
-				)
+						<div className="flex gap-2">
+							<button
+								onClick={() => handleEditClick(row.original.id, data)}
+								className="text-blue-500 hover:text-blue-700"
+								aria-label="Editar"
+							>
+								<FaEdit className="text-black text-xs cursor-pointer" />
+							</button>
+							<button
+								onClick={() => handleDelete?.(row.original.id)}
+								className="text-red-500 hover:text-red-700"
+								aria-label="Eliminar"
+							>
+								<FaTrash className="text-black text-xs cursor-pointer" />
+							</button>
+						</div>
+					);
 				},
 			});
 		}
 		return baseCols;
-	}, [columns, showFormActions, data, handleEditClick, handleDelete]);
+	}, [columns, showFormActions, data, handleEditClick, onSaveDelete]);
 
 	const table = useReactTable({
 		data,
