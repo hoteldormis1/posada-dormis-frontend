@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { pantallaPrincipalEstilos } from "../../styles/global-styles";
+import { pantallaPrincipalEstilos } from "@/styles/global-styles";
 import { LoadingSpinner, TableComponent } from "@/components";
 import { AppDispatch, RootState } from "@/lib/store/store";
 import { useEntityTable } from "@/hooks/useEntityTable";
@@ -13,9 +13,10 @@ import {
 	setHabitacionesPage,
 	setHabitacionesPageSize,
 } from "@/lib/store/utils/habitaciones/habitacionesSlice";
-import { SortOrder, StateStatus } from "@/models/types";
+import { FormFieldInputConfig, Habitacion, SortOrder, StateStatus } from "@/models/types";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { useToastAlert } from "@/hooks/useToastAlert";
+import { useSweetAlert } from "@/hooks/useSweetAlert";
 
 const Habitaciones = () => {
 	const {
@@ -54,6 +55,34 @@ const Habitaciones = () => {
 
 	const { status } = useAppSelector((state: RootState) => state.habitaciones);
 
+	const { confirm } = useSweetAlert();
+
+	const inputOptions: FormFieldInputConfig[] = [
+		{
+			key: "numero",
+			type: "number",
+			label: "Número",
+		},
+		{
+			key: "tipo",
+			type: "select",
+			label: "Tipo de habitación",
+			options: tipoHabitaciones.map((tipo) => ({
+				value: tipo.tipo,
+				label: `${tipo.tipo} - $${tipo.precio}`,
+			})),
+		},
+		{
+			key: "estado",
+			type: "select",
+			label: "Estado de habitación",
+			options: estadoHabitaciones.map((estado) => ({
+				value: estado.estado,
+				label: estado.estado.charAt(0).toUpperCase() + estado.estado.slice(1),
+			})),
+		},
+	];
+
 	const columns = useMemo(
 		() => [
 			{ header: "Número", key: "numero" },
@@ -67,14 +96,18 @@ const Habitaciones = () => {
 	const data = useMemo(() => {
 		if (!datos || !Array.isArray(datos)) return [];
 		return datos.map((h) => ({
-			id: String(h.idHabitacion),
-			...h,
+			id: String(h.idHabitacion), 
+			numero: h.numero,
+			tipo: h.tipo,
+			precio: h.precio,
+			estado: h.estado,
+			idHabitacion: h.idHabitacion, 
 		}));
 	}, [datos]);
 
 	const onSaveEdit = async (
 		formData: Record<string, unknown>,
-		selectedRow: T | null
+		selectedRow: Habitacion | null
 	) => {
 		const { tipo, estado } = formData;
 
@@ -163,6 +196,8 @@ const Habitaciones = () => {
 
 	const onSaveDelete = async (id: string): Promise<void> => {
 		try {
+			const confirmed = await confirm("Esta acción no se puede deshacer.");
+			if (!confirmed) return;
 			await dispatch(deleteHabitacion(Number(id))).unwrap();
 			await fetchData();
 			successToast("Habitación eliminada exitosamente.");
@@ -189,13 +224,13 @@ const Habitaciones = () => {
 						);
 					}
 
-					if (datos.length === 0) {
-						return (
-							<p className="text-center mt-10 text-gray-500">
-								No hay habitaciones registradas.
-							</p>
-						);
-					}
+					// if (datos.length === 0) {
+					// 	return (
+					// 		<p className="text-center mt-10 text-gray-500">
+					// 			No hay habitaciones registradas.
+					// 		</p>
+					// 	);
+					// }
 
 					return (
 						<TableComponent
@@ -218,31 +253,7 @@ const Habitaciones = () => {
 							onSaveEdit={onSaveEdit}
 							onSaveAdd={onSaveAdd}
 							onSaveDelete={onSaveDelete}
-							inputOptions={[
-								{
-									key: "numero",
-									type: "number",
-									label: "Número",
-								},
-								{
-									key: "tipo",
-									type: "select",
-									label: "Tipo de habitación",
-									options: tipoHabitaciones.map((tipo) => ({
-										value: tipo.tipo,
-										label: `${tipo.tipo} - $${tipo.precio}`,
-									})),
-								},
-								{
-									key: "estado",
-									type: "select",
-									label: "Estado de habitación",
-									options: estadoHabitaciones.map((estado) => ({
-										value: estado.estado,
-										label: estado.estado.charAt(0).toUpperCase() + estado.estado.slice(1),
-									})),
-								},
-							]}
+							inputOptions={inputOptions}
 						/>
 					);
 				})()}

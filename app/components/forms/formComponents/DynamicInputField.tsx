@@ -1,5 +1,5 @@
 import React from "react";
-import { FieldInputType } from "@/models/types";
+import { FieldInputType, FormFieldInputOptionsConfig } from "@/models/types";
 import InputForm from "./InputForm";
 
 interface DynamicInputFieldProps {
@@ -9,7 +9,7 @@ interface DynamicInputFieldProps {
 	placeholder?: string;
 	value: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-	options?: { value: string; label: string }[]; // solo para select
+	options?: FormFieldInputOptionsConfig[]; // solo para select
 }
 
 const DynamicInputField: React.FC<DynamicInputFieldProps> = ({
@@ -24,7 +24,10 @@ const DynamicInputField: React.FC<DynamicInputFieldProps> = ({
 	if (inputType === "select") {
 		return (
 			<div className="flex flex-col gap-1">
-				<label htmlFor={inputKey} className="text-sm font-medium text-gray-700">
+				<label
+					htmlFor={inputKey}
+					className="text-sm font-medium text-[var(--color-text)] dark:text-white"
+				>
 					{label}
 				</label>
 				<select
@@ -32,7 +35,18 @@ const DynamicInputField: React.FC<DynamicInputFieldProps> = ({
 					name={inputKey}
 					value={value}
 					onChange={onChange}
-					className="border border-gray-300 rounded px-3 py-2 text-sm"
+					className={`
+					block w-full text-sm rounded-sm
+					bg-[var(--color-light)] border
+					border-[var(--color-border)]
+					text-[var(--color-text)] placeholder-[var(--color-muted)]
+					focus:outline-none focus:ring-2
+					focus:ring-[var(--color-main)] focus:border-[var(--color-main)]
+					px-3 py-2
+					dark:bg-gray-700 dark:border-gray-600
+					dark:text-white dark:placeholder-gray-400
+					dark:focus:ring-[var(--color-main-light)] dark:focus:border-[var(--color-main-light)]
+				`}
 				>
 					<option value="">Seleccionar...</option>
 					{options.map((opt) => (

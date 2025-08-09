@@ -78,6 +78,9 @@ const Usuarios = () => {
 						onSort={handleSort}
 						sortField={sortField}
 						sortOrder={sortOrder}
+						onSaveAdd={()=>null}
+						onSaveDelete={()=>null}
+						onSaveEdit={()=>null}
 					/>
 				)}
 			</div>

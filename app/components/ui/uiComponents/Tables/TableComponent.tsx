@@ -7,7 +7,7 @@ import {
 	getCoreRowModel,
 } from "@tanstack/react-table";
 import { FaCheck, FaTimes, FaEdit, FaTrash } from "react-icons/fa";
-import { FormFieldInputConfig, SortOrder } from "@/models/types";
+import { FormFieldInputConfig, Habitacion, SortOrder } from "@/models/types";
 import { useEditPopup } from "@/hooks/useEditPopup";
 import { useAddPopup } from "@/hooks/useAddPopup"; // ✅ import correcto
 import { TableBody, TableHeader, TableButtons } from "../../../index";
@@ -31,7 +31,7 @@ interface TableComponentProps<T> {
 	sortField?: string;
 	sortOrder?: SortOrder;
 	defaultNewItem?: T;
-	onSaveEdit: (formData: Record<string, unknown>, selectedRow: T | null) => void;
+	onSaveEdit: (formData: Record<string, unknown>, selectedRow: Habitacion | T | null) => void;
 	onSaveAdd: (formData: Record<string, unknown>) => void;
 	onSaveDelete: (id: string) => void;
 	inputOptions?: FormFieldInputConfig[];
@@ -195,6 +195,7 @@ const TableComponent = <T extends { id: string }>({
 			/>
 
 			<TableButtons
+				title={title}
 				showPagination={showPagination}
 				currentPage={currentPage}
 				pageSize={pageSize}

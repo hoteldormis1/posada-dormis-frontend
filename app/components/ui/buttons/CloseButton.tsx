@@ -1,5 +1,5 @@
 import React from "react";
-import { AppIcon } from "../..";
+import { AppIcon } from "@/components/index";
 
 export default function CloseButton({ onClose, size = 30,  className = "" }) {
 	return (

@@ -4,7 +4,7 @@ import React from "react";
 import {
 	fuenteDeTitulo,
 	pantallaPrincipalEstilos,
-} from "../../styles/global-styles";
+} from "@/styles/global-styles";
 
 const Dashboard = () => {
 

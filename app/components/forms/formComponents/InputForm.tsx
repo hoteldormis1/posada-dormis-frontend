@@ -51,13 +51,22 @@ const InputTypeComponent = (
 					placeholder={placeholder}
 					disabled={disabled}
 					required={required}
-					className={`w-full bg-white border ${
-						error ? "border-red-500" : "border-borders"
-					} rounded-md px-4 py-2 placeholder:text-borders text-gray-900 text-sm focus:outline-none focus:ring-1 ${
-						error
-							? "focus:ring-red-500 focus:border-red-500"
-							: "focus:ring-main focus:border-main"
-					} [&::-webkit-search-cancel-button]:hidden`}
+					className={`
+						block w-full text-sm rounded-sm
+						bg-[var(--color-light)] border
+						${error ? "border-[var(--color-danger)]" : "border-[var(--color-border)]"}
+						placeholder-[var(--color-muted)] text-[var(--color-text)]
+						focus:outline-none
+						focus:ring-2
+						${
+							error
+								? "focus:ring-[var(--color-danger)] focus:border-[var(--color-danger)]"
+								: "focus:ring-[var(--color-main)] focus:border-[var(--color-main)]"
+						}
+						px-4 py-2
+						dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[var(--color-main-light)] dark:focus:border-[var(--color-main-light)]
+						[&::-webkit-search-cancel-button]:hidden
+					`}
 					onWheel={(e) => (e.target as HTMLInputElement).blur()}
 					onPaste={(e) => {
 						if (InputForm === "password") e.preventDefault();

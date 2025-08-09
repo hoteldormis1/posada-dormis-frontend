@@ -19,7 +19,7 @@ export default function PopupContainer({
 	showHeader = true,
 }: PopupContainerProps) {
 	return (
-		<div className="fixed inset-0 z-[999] flex items-end justify-center bg-gray-700/30 backdrop-blur-sm px-2">
+		<div className="fixed inset-0 z-[999]  flex items-end justify-center bg-gray-700/30 backdrop-blur-sm px-2">
 			<div
 				className={`bg-light w-full max-w-[800px] max-h-[90vh] min-h-[60vh] rounded-t-2xl overflow-y-auto animate-slide-up relative p-4 ${className}`}
 			>
@@ -29,7 +29,6 @@ export default function PopupContainer({
 						<CloseButton onClose={onClose} size={24} className="text-dark" />
 					</div>
 				)}
-
 				{children}
 			</div>
 		</div>

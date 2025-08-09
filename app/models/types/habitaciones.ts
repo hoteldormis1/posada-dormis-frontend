@@ -2,11 +2,12 @@ import { SortOrder, StateStatus } from ".";
 
 // 🛏️ Interfaz
 export interface Habitacion {
+	id: string | number;
 	idHabitacion: number;
 	numero: number;
 	precio: number;
 	tipo: string;
-	habilitada: string;
+	estado: string;
 }
 
 export interface TipoHabitacion {

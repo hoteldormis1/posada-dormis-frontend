@@ -7,9 +7,10 @@ import {
 	PopupFormAgregar,
 	DynamicInputField,
 } from "@/components";
-import { FieldInputType } from "@/models/types";
+import { FieldInputType, FormFieldInputOptionsConfig } from "@/models/types";
 
 interface TableButtonsProps<T> {
+	title: string | undefined;
 	showPagination: boolean;
 	currentPage: number;
 	pageSize: number;
@@ -24,7 +25,7 @@ interface TableButtonsProps<T> {
 		key: string;
 		type: FieldInputType;
 		label: string;
-		options?: Array<{ value: string; label: string }>;
+		options?: FormFieldInputOptionsConfig[];
 	}>;
 	formData: Record<string, string>;
 	handleFormChange: (
@@ -45,6 +46,7 @@ interface TableButtonsProps<T> {
 }
 
 const TableButtons = <T extends { id: string }>({
+	title,
 	showPagination,
 	currentPage,
 	pageSize,
@@ -87,10 +89,10 @@ const TableButtons = <T extends { id: string }>({
 						const updated = getUpdatedRow();
 						if (updated) handleSaveEdit(updated);
 					}}
-					title="Editar"
+					title={"Editar " + title}
 				>
 					{() => (
-						<div className="space-y-4 pt-4">
+						<div className="space-y-4 pt-4 grid grid-cols-2 gap-x-4">
 							{formInputs.map((input) => (
 								<DynamicInputField
 									key={`edit-${input.key}`}
@@ -114,11 +116,11 @@ const TableButtons = <T extends { id: string }>({
 					isOpen={showAddPopup}
 					onClose={() => setShowAddPopup && setShowAddPopup(false)}
 					onSave={() => handleSaveAdd && handleSaveAdd()}
-					title="Agregar"
+					title={"Agregar " + title}
 					defaultData={selectedRow}
 				>
 					{() => (
-						<div className="space-y-4 pt-4">
+						<div className="space-y-4 pt-4 grid grid-cols-2 gap-x-4">
 							{formInputs.map((input) => (
 								<DynamicInputField
 									key={`add-${input.key}`}
