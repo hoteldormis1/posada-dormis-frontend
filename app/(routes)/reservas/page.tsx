@@ -20,6 +20,8 @@ import {
 import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
 import { useSweetAlert } from "@/hooks/useSweetAlert";
 import ReactFlagsSelect from "react-flags-select";
+import { reservaAddSchema, reservaEditSchema } from "@/utils/validations/reservaSchema";
+import { log } from "console";
 
 const Reservas: React.FC = () => {
 	const dispatch = useAppDispatch<AppDispatch>();
@@ -45,7 +47,7 @@ const Reservas: React.FC = () => {
 		[]
 	);
 
-	// Inputs del formulario (sacamos el select “origen” normal y lo renderizamos con ReactFlagsSelect)
+	// Inputs del formulario (sacamos el select "origen" normal y lo renderizamos con ReactFlagsSelect)
 	const inputOptions: FormFieldInputConfig[] = useMemo(
 		() => [
 			// HUESPED
@@ -54,7 +56,7 @@ const Reservas: React.FC = () => {
 			{ key: "dni", label: "DNI", type: "text" },
 			{ key: "telefono", label: "Teléfono", type: "text" },
 			{ key: "email", label: "Email", type: "text" },
-			// 👇 Dejá el key “origen” pero como “custom” (o un type que tu TableComponent ignore),
+			// 👇 Dejá el key "origen" pero como "custom" (o un type que tu TableComponent ignore),
 			// para que lo pinte `customFields.origen` con ReactFlagsSelect
 			{ key: "origen", label: "Origen", type: "custom" },
 
@@ -97,10 +99,45 @@ const Reservas: React.FC = () => {
 
 	const data = useMemo(() => reservas, [reservas]);
 
+	// Helper para convertir fecha ISO a formato YYYY-MM-DD (válido para <input type="date">)
+	const toDateInputValue = (iso?: string) => {
+		if (!iso) return "";
+		const d = new Date(iso);
+		if (Number.isNaN(d.getTime())) return "";
+		const y = d.getFullYear();
+		const m = String(d.getMonth() + 1).padStart(2, "0");
+		const day = String(d.getDate()).padStart(2, "0");
+		return `${y}-${m}-${day}`;
+	};
+	
+	// Mapea la reserva a los campos del formulario de edición
+	const mapRowToFormData = (reserva: Reserva) => {
+		// Separar nombre y apellido del campo huespedNombre
+		const nombreCompleto = reserva.huespedNombre || "";
+		const [nombre, ...apellidos] = nombreCompleto.split(" ");
+		const apellido = apellidos.join(" ") || "";
+
+		return {
+		// Datos del huésped
+		nombre: nombre,
+		apellido: apellido,
+		dni: reserva.dniHuesped || "", 
+		email: reserva.emailHuesped || "", 
+		telefono: reserva.telefonoHuesped || "",
+		origen: "AR", 
+	
+		// Datos de la reserva
+		idHabitacion: String((reserva as any).idHabitacion ?? ""), 
+		fechaDesde: toDateInputValue(reserva.ingreso),
+		fechaHasta: toDateInputValue(reserva.egreso),
+		montoPagado: String(reserva.montoPagado ?? ""),
+		};
+	};
+
 	// Custom renderer para el campo "origen" con banderas
 	const customFields = {
-		origen: (value: unknown, onChange: (v: unknown) => void) => {
-			const selected = typeof value === "string" && value ? value : "AR";
+		origen: (value: string, onChange: (v: string) => void) => {
+			const selected = value || "AR";
 			return (
 				<div className="flex flex-col gap-1">
 					<label className="text-sm font-medium text-[var(--color-text)] dark:text-white">
@@ -108,7 +145,7 @@ const Reservas: React.FC = () => {
 					</label>
 					<ReactFlagsSelect
 						selected={selected}
-						onSelect={(code) => onChange(code)} // code es string, pero la firma acepta unknown
+						onSelect={(code) => onChange(code)}
 						searchable
 						placeholder="Seleccioná un país"
 					/>
@@ -145,7 +182,7 @@ const Reservas: React.FC = () => {
 			origen, // ← viene como "AR", "BR", etc.
 		} = formData;
 
-		const countryName = getCountryName(String(origen || "AR"), "es"); // "Argentina"
+		const countryName = getCountryName(String(origen || "AR"), "es");
 
 		const huesped = {
 			nombre: String(nombre || ""),
@@ -153,15 +190,37 @@ const Reservas: React.FC = () => {
 			dni: String(dni || ""),
 			telefono: String(telefono || ""),
 			email: String(email || ""),
-			origen: countryName, // ← ahora subís el NOMBRE
+			origen: countryName, 
+		};
+
+
+
+		// Convertir fechas de formato dd/mm/yyyy a ISO
+		const parseDate = (dateString: string) => {
+			if (!dateString) return new Date().toISOString();
+			
+			try {
+				// Parsear formato dd/mm/yyyy
+				const [day, month, year] = dateString.split('/');
+				const date = new Date(Number(year), Number(month) - 1, Number(day));
+				
+				if (isNaN(date.getTime())) {
+					throw new Error('Invalid date');
+				}
+				
+				return date.toISOString();
+			} catch (error) {
+				console.warn('Error parsing date:', dateString, error);
+				return new Date().toISOString();
+			}
 		};
 
 		const payload = {
 			huesped,
 			idHabitacion: Number(idHabitacion),
 			idEstadoReserva: 1,
-			fechaDesde: new Date(String(fechaDesde)).toISOString(),
-			fechaHasta: new Date(String(fechaHasta)).toISOString(),
+			fechaDesde: parseDate(String(fechaDesde)),
+			fechaHasta: parseDate(String(fechaHasta)),
 			montoPagado: Number(montoPagado),
 		};
 
@@ -209,6 +268,9 @@ const Reservas: React.FC = () => {
 							onSaveDelete={onSaveDelete}
 							inputOptions={inputOptions}
 							customFields={customFields}
+							validationSchema={reservaEditSchema}
+							validationSchemaAdd={reservaAddSchema}
+							mapRowToFormData={mapRowToFormData}
 						/>
 					);
 				})()}

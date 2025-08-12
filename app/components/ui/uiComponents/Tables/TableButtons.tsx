@@ -34,6 +34,8 @@ interface TableButtonsProps<T> {
   getUpdatedRow: () => T | null;
   handleSaveEdit: (updated: T) => void;
   setShowEditPopup: (show: boolean) => void;
+  errors?: Record<string, string>; // Nuevo: errores de validación
+  validateForm?: () => boolean; // Nuevo: función de validación
 
   // Agregado
   showAddPopup?: boolean;
@@ -43,6 +45,8 @@ interface TableButtonsProps<T> {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
   handleSaveAdd?: () => void;
+  errorsAdd?: Record<string, string>; // Nuevo: errores de validación para agregar
+  validateFormAdd?: () => boolean; // Nuevo: función de validación para agregar
 
   // ✅ Nuevo: renderers para campos personalizados (ej: ReactFlagsSelect)
   customFields?: {
@@ -69,11 +73,15 @@ const TableButtons = <T extends { id: string }>({
   getUpdatedRow,
   handleSaveEdit,
   setShowEditPopup,
+  errors = {}, // Nuevo
+  validateForm, // Nuevo
   showAddPopup,
   setShowAddPopup,
   formDataAdd,
   handleFormChangeAdd,
   handleSaveAdd,
+  errorsAdd = {}, // Nuevo
+  validateFormAdd, // Nuevo
   customFields, // ✅
 }: TableButtonsProps<T>) => {
   // puente para onChange de componentes custom → tus handlers existentes
@@ -89,6 +97,27 @@ const TableButtons = <T extends { id: string }>({
         handleFormChange(evt);
       }
     };
+
+  const handleSaveEditWithValidation = () => {
+    if (validateForm && !validateForm()) {
+      return; // No continuar si la validación falla
+    }
+    const updated = getUpdatedRow();
+    if (updated) handleSaveEdit(updated);
+  };
+
+  const handleSaveAddWithValidation = () => {
+    if (validateFormAdd && !validateFormAdd()) {
+      return; // No continuar si la validación falla
+    }
+    if(handleSaveAdd){
+      handleSaveAdd();
+    }
+  };
+
+  // Verificar si hay errores
+  const hasErrors = Object.keys(errors).length > 0;
+  const hasErrorsAdd = Object.keys(errorsAdd).length > 0;
 
   return (
     <>
@@ -108,16 +137,16 @@ const TableButtons = <T extends { id: string }>({
           isOpen={showEditPopup}
           initialData={selectedRow}
           onClose={() => setShowEditPopup(false)}
-          onSave={() => {
-            const updated = getUpdatedRow();
-            if (updated) handleSaveEdit(updated);
-          }}
+          onSave={handleSaveEditWithValidation}
           title={"Editar " + title}
+          validateForm={validateForm}
+          hasErrors={hasErrors}
         >
           {() => (
             <div className="space-y-4 pt-4 grid grid-cols-2 gap-x-4">
               {formInputs.map((input) => {
                 const value = formData[input.key] || "";
+                const error = errors[input.key]; // Nuevo
                 // ✅ usar renderer custom si type === "custom" y está definido
                 if (
                   input.type === ("custom" as FieldInputType) &&
@@ -126,6 +155,9 @@ const TableButtons = <T extends { id: string }>({
                   return (
                     <div key={`edit-${input.key}`}>
                       {customFields[input.key](value, makeSyntheticChange(input.key))}
+                      {error && (
+                        <p className="text-red-500 text-xs mt-1">{error}</p>
+                      )}
                     </div>
                   );
                 }
@@ -140,6 +172,7 @@ const TableButtons = <T extends { id: string }>({
                     value={value}
                     onChange={(e) => handleFormChange(e)}
                     options={input.type === "select" ? input.options : undefined}
+                    error={error} // Nuevo
                   />
                 );
               })}
@@ -153,14 +186,17 @@ const TableButtons = <T extends { id: string }>({
         <PopupFormAgregar
           isOpen={showAddPopup}
           onClose={() => setShowAddPopup && setShowAddPopup(false)}
-          onSave={() => handleSaveAdd && handleSaveAdd()}
+          onSave={handleSaveAddWithValidation}
           title={"Agregar " + title}
           defaultData={selectedRow}
+          validateForm={validateFormAdd}
+          hasErrors={hasErrorsAdd}
         >
           {() => (
             <div className="space-y-4 pt-4 grid grid-cols-2 gap-x-4">
               {formInputs.map((input) => {
                 const value = formDataAdd?.[input.key] || "";
+                const error = errorsAdd[input.key]; // Nuevo
                 if (
                   input.type === ("custom" as FieldInputType) &&
                   customFields?.[input.key]
@@ -170,6 +206,9 @@ const TableButtons = <T extends { id: string }>({
                       {customFields[input.key](
                         value,
                         makeSyntheticChange(input.key, true)
+                      )}
+                      {error && (
+                        <p className="text-red-500 text-xs mt-1">{error}</p>
                       )}
                     </div>
                   );
@@ -184,6 +223,7 @@ const TableButtons = <T extends { id: string }>({
                     value={value}
                     onChange={(e) => handleFormChangeAdd && handleFormChangeAdd(e)}
                     options={input.type === "select" ? input.options : undefined}
+                    error={error} // Nuevo
                   />
                 );
               })}

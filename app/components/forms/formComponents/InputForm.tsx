@@ -37,7 +37,7 @@ const InputTypeComponent = (
 		<div className="w-full">
 			<label
 				htmlFor={inputKey}
-				className={`block mb-2 text-base font-medium text-gray-900 ${labelStyles}`}
+				className={`block mb-2 text-sm font-medium text-gray-900 ${labelStyles}`}
 			>
 				{children}
 			</label>

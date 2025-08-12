@@ -10,4 +10,5 @@ export interface FormFieldInputConfig {
   label?: string;
   type?: FieldInputType;
   options?: FormFieldInputOptionsConfig[];
+  placeholder?: string;
 }

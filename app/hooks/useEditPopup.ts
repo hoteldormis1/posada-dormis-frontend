@@ -1,13 +1,17 @@
 import { FormFieldInputConfig } from "@/models/types";
 import { useCallback, useMemo, useState } from "react";
+import { z } from "zod";
 
 export function useEditPopup<T extends { id: string }>(
-  editableFields: FormFieldInputConfig[] = []
+  editableFields: FormFieldInputConfig[] = [],
+  schema?: z.ZodSchema<Record<string, unknown>>,
+  mapRowToFormData?: (row: T) => Record<string, string>
 ) {
   // Editar
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [selectedRow, setSelectedRow] = useState<T | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Agregar
   const [showAddPopup, setShowAddPopup] = useState(false);
@@ -18,14 +22,20 @@ export function useEditPopup<T extends { id: string }>(
       const item = data.find((d) => d.id === id);
       if (item) {
         setSelectedRow(item);
-        const formatted = Object.fromEntries(
-          editableFields.map((field) => [field.key, String(item[field.key] ?? "")])
-        );
+        
+        // Usar función de mapeo personalizada si está disponible, sino usar mapeo por defecto
+        const formatted = mapRowToFormData 
+          ? mapRowToFormData(item)
+          : Object.fromEntries(
+              editableFields.map((field) => [field.key, String(item[field.key] ?? "")])
+            );
+        
         setFormData(formatted);
+        setErrors({});
         setShowEditPopup(true);
       }
     },
-    [editableFields]
+    [editableFields, mapRowToFormData]
   );
 
   const handleFormChange = (
@@ -33,6 +43,35 @@ export function useEditPopup<T extends { id: string }>(
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Limpiar error del campo cuando el usuario empiece a escribir
+    if (errors[name]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    if (!schema) return true;
+
+    try {
+      schema.parse(formData);
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorMap: Record<string, string> = {};
+        error.issues.forEach((err) => {
+          const field = err.path.join(".");
+          errorMap[field] = err.message;
+        });
+        setErrors(errorMap);
+      }
+      return false;
+    }
   };
 
   const getUpdatedRow = useCallback(() => {
@@ -67,6 +106,8 @@ export function useEditPopup<T extends { id: string }>(
     handleEditClick,
     handleFormChange,
     getUpdatedRow,
+    errors,
+    validateForm,
 
     // Agregar
     showAddPopup,

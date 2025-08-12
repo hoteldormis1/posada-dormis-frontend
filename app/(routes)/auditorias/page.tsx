@@ -83,6 +83,9 @@ const Auditorias = () => {
 						onSort={handleSort}
 						sortField={sortField}
 						sortOrder={sortOrder}
+						onSaveAdd={()=> null}
+						onSaveEdit={()=> null}
+						onSaveDelete={()=> null}
 					/>
 				)}
 			</div>

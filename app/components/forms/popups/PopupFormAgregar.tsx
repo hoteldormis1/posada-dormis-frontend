@@ -13,6 +13,9 @@ type PopupFormAgregarProps<T> = {
     formData: T,
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
   ) => ReactNode;
+  // Nuevo: validación
+  validateForm?: () => boolean;
+  hasErrors?: boolean;
 };
 
 function PopupFormAgregar<T>({
@@ -22,6 +25,8 @@ function PopupFormAgregar<T>({
   onClose,
   onSave,
   children,
+  validateForm, // Nuevo
+  hasErrors = false, // Nuevo
 }: PopupFormAgregarProps<T>) {
   const [formData, setFormData] = useState<T>(defaultData);
 
@@ -33,6 +38,10 @@ function PopupFormAgregar<T>({
   };
 
   const handleSubmit = () => {
+    // Validar antes de guardar
+    if (validateForm && !validateForm()) {
+      return; // No continuar si la validación falla
+    }
     onSave(formData);
     onClose();
   };
@@ -60,7 +69,12 @@ function PopupFormAgregar<T>({
           <button
             type="button"
             onClick={handleSubmit}
-            className="px-4 py-2 bg-[var(--color-main)] text-white rounded-md hover:bg-green-700"
+            disabled={hasErrors}
+            className={`px-4 py-2 text-white rounded-md ${
+              hasErrors 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-[var(--color-main)] hover:bg-green-700'
+            }`}
           >
             Agregar
           </button>

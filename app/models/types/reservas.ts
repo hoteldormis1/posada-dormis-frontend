@@ -17,6 +17,8 @@ export type Reserva = {
   telefonoHuesped?: string; // opcional
   montoPagado: number; // agregado para claridad en la tabla
   total: number; // monto total calculado
+  dniHuesped?: string; // opcional
+  emailHuesped?: string; // opcional
 };
 
 export interface ReservasState {
