@@ -25,4 +25,7 @@ export interface ReservasState {
   reservas: Reserva[];
   status: StateStatus;
   error: string | null;
+  calendarFullyBooked: string[];
+  calendarStatus: StateStatus;
+  calendarError: string | null; 
 }

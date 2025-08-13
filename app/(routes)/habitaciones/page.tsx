@@ -19,6 +19,11 @@ import { useToastAlert } from "@/hooks/useToastAlert";
 import { useSweetAlert } from "@/hooks/useSweetAlert";
 
 const Habitaciones = () => {
+	const dispatch: AppDispatch = useAppDispatch();
+	const { errorToast, successToast } = useToastAlert();
+	const { status } = useAppSelector((state: RootState) => state.habitaciones);
+	const { confirm } = useSweetAlert();
+	
 	const {
 		datos,
 		error,
@@ -48,14 +53,6 @@ const Habitaciones = () => {
 		defaultSortField: "numero",
 		defaultSortOrder: SortOrder.asc,
 	});
-
-	const dispatch: AppDispatch = useAppDispatch();
-
-	const { errorToast, successToast } = useToastAlert();
-
-	const { status } = useAppSelector((state: RootState) => state.habitaciones);
-
-	const { confirm } = useSweetAlert();
 
 	const inputOptions: FormFieldInputConfig[] = [
 		{
@@ -226,14 +223,6 @@ const Habitaciones = () => {
 							</p>
 						);
 					}
-
-					// if (datos.length === 0) {
-					// 	return (
-					// 		<p className="text-center mt-10 text-gray-500">
-					// 			No hay habitaciones registradas.
-					// 		</p>
-					// 	);
-					// }
 
 					return (
 						<TableComponent

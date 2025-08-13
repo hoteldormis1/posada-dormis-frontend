@@ -10,23 +10,27 @@ const initialState: ReservasState = {
 	reservas: [],
 	status: StateStatus.idle,
 	error: null,
-};
-type AddReservaPayload = {
+  
+	calendarFullyBooked: [],
+	calendarStatus: StateStatus.idle,
+	calendarError: null,
+  };
+  
+  type AddReservaPayload = {
 	huesped: {
-		nombre: string;
-		apellido: string;
-		dni: string;
-		telefono: string;
-		email: string;
-		origen: string;
+	  nombre: string;
+	  apellido: string;
+	  dni: string;
+	  telefono: string;
+	  email: string;
+	  origen: string;
 	};
 	idHabitacion: number;
 	idEstadoReserva: number;
 	fechaDesde: string;
 	fechaHasta: string;
 	montoPagado: number;
-};
-
+  };
 export const addReserva = createAsyncThunk<
 	Reserva, // ✅ Tipo que retorna el backend
 	AddReservaPayload, // ✅ Tipo del payload que se envía
@@ -99,6 +103,23 @@ export const editReserva = createAsyncThunk<
   }
 });
 
+export const fetchReservasCalendar = createAsyncThunk<
+  string[],               // devolvemos directamente el array de fechas
+  void,                   // sin payload
+  { rejectValue: string } // manejo de errores
+>("reservas/fetchReservasCalendar", async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await api.get("/reservas/calendar");
+    // El backend retorna { fullyBookedDates: string[] }
+    return (data?.fullyBookedDates ?? []) as string[];
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    return rejectWithValue(
+      extractErrorMessage(axiosError, "No se pudo obtener el calendario")
+    );
+  }
+});
+
 const reservasSlice = createSlice({
 	name: "reservas",
 	initialState,
@@ -121,7 +142,20 @@ const reservasSlice = createSlice({
 				state.reservas = state.reservas.filter(
 					(reserva) => reserva.id !== action.payload
 				);
-			});
+			})
+			.addCase(fetchReservasCalendar.pending, (state) => {
+				state.calendarStatus = StateStatus.loading;
+				state.calendarError = null;
+			  })
+			  .addCase(fetchReservasCalendar.fulfilled, (state, action) => {
+				state.calendarStatus = StateStatus.succeeded;
+				state.calendarFullyBooked = action.payload;
+			  })
+			  .addCase(fetchReservasCalendar.rejected, (state, action) => {
+				state.calendarStatus = StateStatus.failed;
+				state.calendarError =
+				  action.payload ?? "Error al obtener el calendario";
+			  });
 	},
 });
 
