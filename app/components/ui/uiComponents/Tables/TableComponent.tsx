@@ -111,7 +111,8 @@ const TableComponent = <T extends { id: string }>({
     getNewItem,
     resetForm,
     errors: errorsAdd, 
-    validateForm: validateFormAdd, 
+    validateForm: validateFormAdd,
+    huespedLogic, // Extraer la lógica de huésped
   } = useAddPopup<T>(initialValues, numericFields, validationSchemaAdd);
 
   // === Acciones ===
@@ -231,6 +232,8 @@ const TableComponent = <T extends { id: string }>({
         validateFormAdd={validateFormAdd} 
         // ⭐ Nuevo: pasamos renderers custom para inputs (ej: ReactFlagsSelect)
         customFields={customFields}
+        // ⭐ Nuevo: pasamos la lógica de huésped
+        huespedLogic={huespedLogic}
       />
     </div>
   );

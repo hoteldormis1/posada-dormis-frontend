@@ -5,7 +5,7 @@ export const reservaAddSchema = z
 		// HUESPED
 		nombre: z.string().min(1, "Campo requerido"),
 		apellido: z.string().min(1, "Campo requerido"),
-		dni: z.string().min(6, "Mínimo 6 caracteres"),
+		dni: z.coerce.string().min(6, "Mínimo 6 caracteres"),
 		telefono: z.string().min(6, "Mínimo 6 caracteres"),
 		email: z.string().email("Email inválido").optional(),
 

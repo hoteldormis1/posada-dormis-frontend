@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { z } from "zod";
+import { useHuespedFormLogic } from "./useHuespedFormLogic";
 
 export function useAddPopup<T extends Record<string, unknown>>(
 	initialValues: Partial<T>,
@@ -35,6 +36,9 @@ export function useAddPopup<T extends Record<string, unknown>>(
 			});
 		}
 	};
+
+	// Integrar la lógica de selección de huésped
+	const huespedLogic = useHuespedFormLogic(formData, handleFormChange);
 
 	const validateForm = (): boolean => {
 		if (!schema) return true;
@@ -92,5 +96,7 @@ export function useAddPopup<T extends Record<string, unknown>>(
 		resetForm,
 		errors,
 		validateForm,
+		// Exportar la lógica de huésped
+		huespedLogic,
 	};
 }

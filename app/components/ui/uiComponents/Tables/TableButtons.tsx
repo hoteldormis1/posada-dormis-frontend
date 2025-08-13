@@ -6,6 +6,7 @@ import {
   PopupFormEditar,
   PopupFormAgregar,
   DynamicInputField,
+  SelectForm,
 } from "@/components";
 import { FieldInputType, FormFieldInputOptionsConfig } from "@/models/types";
 
@@ -59,6 +60,15 @@ interface TableButtonsProps<T> {
       ctx?: { formData?: Record<string, any>; mode?: "add" | "edit"; row?: any; disabled?: boolean }
     ) => React.ReactNode;
   };
+
+  // ✅ Nuevo: lógica de huésped
+  huespedLogic?: {
+    huespedMode: string;
+    handleModeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    handleHuespedChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    isFieldEditable: (field: string) => boolean;
+    huespedes: any[];
+  };
 }
 
 const TableButtons = <T extends { id: string }>({
@@ -87,6 +97,7 @@ const TableButtons = <T extends { id: string }>({
   errorsAdd = {}, // Nuevo
   validateFormAdd, // Nuevo
   customFields, // ✅
+  huespedLogic, // ✅ Nuevo: lógica de huésped
 }: TableButtonsProps<T>) => {
   // puente para onChange de componentes custom → tus handlers existentes
   const makeSyntheticChange =
@@ -123,6 +134,9 @@ const TableButtons = <T extends { id: string }>({
   // Verificar si hay errores
   const hasErrors = Object.keys(errors).length > 0;
   const hasErrorsAdd = Object.keys(errorsAdd).length > 0;
+
+  console.log(huespedLogic);
+  
 
   return (
     <>
@@ -207,6 +221,55 @@ const TableButtons = <T extends { id: string }>({
               {formInputs.map((input) => {
                 const value = formDataAdd?.[input.key] || "";
                 const error = errorsAdd[input.key]; // Nuevo
+                
+                // Manejar campos especiales del huésped
+                if (input.key === "huespedMode" && huespedLogic) {
+                  return (
+                    <div key={`add-${input.key}`}>
+                      <SelectForm
+                        inputKey={input.key}
+                        label={input.label}
+                        value={huespedLogic.huespedMode}
+                        onChange={huespedLogic.handleModeChange}
+                        options={[
+                          { value: "existente", label: "Huésped existente" },
+                          { value: "nuevo", label: "Nuevo huésped" },
+                        ]}
+                        placeholderOption="Seleccionar tipo..."
+                      />
+                      {error && (
+                        <p className="text-red-500 text-xs mt-1">{error}</p>
+                      )}
+                    </div>
+                  );
+                }
+
+                if (input.key === "idHuesped" && huespedLogic && huespedLogic.huespedMode === "existente") {
+                  return (
+                    <div key={`add-${input.key}`}>
+                      <SelectForm
+                        inputKey={input.key}
+                        label={input.label}
+                        value={value}
+                        onChange={huespedLogic.handleHuespedChange}
+                        options={(huespedLogic.huespedes ?? []).map((h: any) => ({
+                          value: h.idHuesped,
+                          label: `${h.nombre} ${h.apellido}`,
+                        }))}
+                        placeholderOption="Seleccionar huésped..."
+                      />
+                      {error && (
+                        <p className="text-red-500 text-xs mt-1">{error}</p>
+                      )}
+                    </div>
+                  );
+                }
+
+                // Ocultar selector de huésped si no es modo existente
+                if (input.key === "idHuesped" && huespedLogic && huespedLogic.huespedMode !== "existente") {
+                  return null;
+                }
+
                 if (
                   input.type === ("custom" as FieldInputType) &&
                   customFields?.[input.key]
@@ -216,7 +279,12 @@ const TableButtons = <T extends { id: string }>({
                       {customFields[input.key](
                         value,
                         makeSyntheticChange(input.key, true),
-                        { formData: formDataAdd, mode: "add", row: null, disabled: false }
+                        { 
+                          formData: formDataAdd, 
+                          mode: "add", 
+                          row: null, 
+                          disabled: huespedLogic ? !huespedLogic.isFieldEditable(input.key) : false 
+                        }
                       )}
                       {error && (
                         <p className="text-red-500 text-xs mt-1">{error}</p>
@@ -235,6 +303,7 @@ const TableButtons = <T extends { id: string }>({
                     onChange={(e) => handleFormChangeAdd && handleFormChangeAdd(e)}
                     options={input.type === "select" ? input.options : undefined}
                     error={error} // Nuevo
+                    disabled={huespedLogic ? !huespedLogic.isFieldEditable(input.key) : false}
                   />
                 );
               })}

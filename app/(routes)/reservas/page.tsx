@@ -37,17 +37,29 @@ const Reservas: React.FC = () => {
 	]
 
 	const buildReservaInputOptions = (habitacionesDatos: any[]): FormFieldInputConfig[] => [
-		// HUESPED
+		// MODE SELECTION
+		{
+			key: "huespedMode",
+			type: "select",
+			label: "Tipo de huésped",
+			editable: false,
+			options: [
+				{ value: "existente", label: "Huésped existente" },
+				{ value: "nuevo", label: "Nuevo huésped" },
+			],
+		},
+		// HUESPED EXISTENTE
 		{
 			key: "idHuesped",
 			type: "select",
-			label: "Huésped (existente)",
+			label: "Seleccionar huésped",
 			editable: false,
 			options: (huespedes ?? []).map((h: any) => ({
-			  value: h.idHuesped, // ajusta si tu campo id se llama distinto
+			  value: h.idHuesped,
 			  label: `${h.nombre} ${h.apellido}`,
 			})),
-		  },
+		},
+		// HUESPED FIELDS (conditional editable)
 		{ key: "nombre", label: "Nombre", type: "text", editable: false },
 		{ key: "apellido", label: "Apellido", type: "text", editable: false },
 		{ key: "dni", label: "DNI", type: "text", editable: false },
@@ -139,7 +151,7 @@ const Reservas: React.FC = () => {
 	};
 
 	const onSaveAdd = async (formData: Record<string, unknown>) => {
-		const { nombre, apellido, dni, telefono, email, idHabitacion, fechaDesde, fechaHasta, montoPagado, origen } = formData;
+		const { huespedMode, idHuesped, nombre, apellido, dni, telefono, email, origen, idHabitacion, fechaDesde, fechaHasta, montoPagado } = formData;
 
 		const countryName = getCountryName(String(origen || "AR"), "es");
 

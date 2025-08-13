@@ -15,14 +15,14 @@ const graficosData = [
     titulo: "Ventas",
     grafico: <GraficoCantidadDeVentas/>,
   },
-  {
+  /*{
     titulo: "Habitaciones hoy",
     grafico: <TablaHabitaciones/>,
   },
   {
     titulo: "Estado de habitaciones hoy",
     grafico: <GraficoPieEstadoHabitaciones/>
-  },
+  },*/
 ];
 
 const Graficos = () => {

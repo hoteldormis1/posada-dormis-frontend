@@ -7,7 +7,7 @@ import "react-calendar/dist/Calendar.css";
 import "./Calendario.css";
 
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { RootState } from "@/lib/store/store";
+import { AppDispatch, RootState } from "@/lib/store/store";
 import { StateStatus } from "@/models/types";
 import { fetchHabitacionesDisponiblesPorDia } from "@/lib/store/utils/index";
 
@@ -32,7 +32,7 @@ const toYMD = (d: Date): string => {
 };
 
 const Calendario: React.FC<RoomCalendarProps> = ({ calendarData }) => {
-  const dispatch = useAppDispatch();
+  const dispatch: AppDispatch = useAppDispatch();
   const { availableByDate, availabilityStatusByDate, availabilityErrorByDate } =
     useAppSelector((s: RootState) => s.disponibilidad);
 
@@ -53,12 +53,14 @@ const Calendario: React.FC<RoomCalendarProps> = ({ calendarData }) => {
   const handleDateClick = async (value: Date) => {
     setStartDate(value);
     const dateKey = toYMD(value);
-    // Lazy fetch: si no está cargado o está en error, pedimos
+
     const status = availabilityStatusByDate[dateKey] ?? StateStatus.idle;
+
     if (status === StateStatus.idle || status === StateStatus.failed) {
       // no esperes el resultado para abrir el popup; mostramos "Cargando..."
       dispatch(fetchHabitacionesDisponiblesPorDia(dateKey));
     }
+
     setShowPopup(true);
   };
 
@@ -108,21 +110,9 @@ const Calendario: React.FC<RoomCalendarProps> = ({ calendarData }) => {
           locale="es-ES"
         />
 
-        {/* Leyenda */}
-        <div className="mt-6 mb-4 flex gap-6 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-100 border-2 border-green-500 rounded"></div>
-            <span>Disponible</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-100 border-2 border-red-500 rounded"></div>
-            <span>Sin disponibilidad</span>
-          </div>
-        </div>
-
         {/* Popup de disponibilidad */}
         {showPopup && startDate && (
-          <div className="availability-popup">
+          <div className="availability-popup ">
             <button onClick={closePopup} className="close-button" aria-label="Cerrar">
               ✕
             </button>
