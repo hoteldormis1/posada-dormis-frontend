@@ -18,7 +18,7 @@ const LoginIzquierda: React.FC<Props> = ({ includeDescription }) => {
 			</p>
 			{includeDescription && (
 				<ul className="text-sm list-disc list-inside text-left max-w-md space-y-2">
-					<li>Reserva rápida y sencilla: Reserva tu habitación al instante.</li>
+					{/*<li>Reserva rápida y sencilla: Reserva tu habitación al instante.</li>*/}
 					<li>Desayuno incluido: Comienza tu día con un delicioso desayuno.</li>
 					<li>Servicios exclusivos: Comodidades diseñadas para tu confort.</li>
 				</ul>

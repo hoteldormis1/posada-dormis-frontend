@@ -28,6 +28,7 @@ import InputForm from "./forms/formComponents/InputForm";
 import InputDateForm from "./forms/formComponents/InputDateForm";
 import SelectForm from "./forms/formComponents/SelectForm";
 import MainCalendario from "./ui/calendario/MainCalendario";
+import ButtonForm from "./forms/formComponents/ButtonForm";
 
 export {
 	LoginIzquierda,
@@ -59,5 +60,6 @@ export {
 	InputForm,
 	InputDateForm,
 	SelectForm,
-	MainCalendario
+	MainCalendario,
+	ButtonForm
 };

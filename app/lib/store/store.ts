@@ -7,6 +7,7 @@ import disponibilidadReducer from "./utils/disponibilidad/disponibilidadSlice";
 import userSlice from "./utils/user/userSlice";
 import habitacionesSlice from "./utils/habitaciones/habitacionesSlice";
 import auditoriasSlice from "./utils/auditorias/auditoriasSlice";
+import dashboardSlice from "./utils/dashboard/dashboardSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,7 +17,8 @@ export const store = configureStore({
     disponibilidad: disponibilidadReducer,
     user: userSlice,
     habitaciones: habitacionesSlice,
-    auditorias: auditoriasSlice
+    auditorias: auditoriasSlice,
+    dashboards: dashboardSlice
   },
 });
 
