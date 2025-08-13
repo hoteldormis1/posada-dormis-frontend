@@ -62,6 +62,7 @@ const Habitaciones = () => {
 			key: "numero",
 			type: "number",
 			label: "Número",
+			editable: false
 		},
 		{
 			key: "tipo",
@@ -71,6 +72,7 @@ const Habitaciones = () => {
 				value: tipo.tipo,
 				label: `${tipo.tipo} - $${tipo.precio}`,
 			})),
+			editable: false
 		},
 		{
 			key: "estado",
@@ -80,6 +82,7 @@ const Habitaciones = () => {
 				value: estado.estado,
 				label: estado.estado.charAt(0).toUpperCase() + estado.estado.slice(1),
 			})),
+			editable: true
 		},
 	];
 

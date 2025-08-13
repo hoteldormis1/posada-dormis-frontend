@@ -40,7 +40,8 @@ interface TableComponentProps<T> {
   customFields?: {
     [key: string]: (
       value: string,
-      onChange: (nextValue: string) => void
+      onChange: (nextValue: string) => void,
+      ctx?: { formData?: Record<string, any>; mode?: "add" | "edit"; row?: any; disabled?: boolean }
     ) => React.ReactNode;
   };
   // Nuevo: esquemas de validación

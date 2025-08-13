@@ -26,6 +26,9 @@ interface TableButtonsProps<T> {
     type: FieldInputType; // ← debe soportar "custom"
     label: string;
     options?: FormFieldInputOptionsConfig[];
+    min?: number;
+    max?: number;
+    editable?: boolean; // Nuevo: indica si el campo es editable en modo edición
   }>;
   formData: Record<string, string>;
   handleFormChange: (
@@ -52,7 +55,8 @@ interface TableButtonsProps<T> {
   customFields?: {
     [key: string]: (
       value: string,
-      onChange: (nextValue: string) => void
+      onChange: (nextValue: string) => void,
+      ctx?: { formData?: Record<string, any>; mode?: "add" | "edit"; row?: any; disabled?: boolean }
     ) => React.ReactNode;
   };
 }
@@ -87,16 +91,16 @@ const TableButtons = <T extends { id: string }>({
   // puente para onChange de componentes custom → tus handlers existentes
   const makeSyntheticChange =
     (key: string, isAdd = false) =>
-    (nextValue: string) => {
-      const evt = {
-        target: { name: key, value: nextValue },
-      } as unknown as React.ChangeEvent<HTMLInputElement>;
-      if (isAdd) {
-        handleFormChangeAdd?.(evt);
-      } else {
-        handleFormChange(evt);
-      }
-    };
+      (nextValue: string) => {
+        const evt = {
+          target: { name: key, value: nextValue },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        if (isAdd) {
+          handleFormChangeAdd?.(evt);
+        } else {
+          handleFormChange(evt);
+        }
+      };
 
   const handleSaveEditWithValidation = () => {
     if (validateForm && !validateForm()) {
@@ -110,10 +114,11 @@ const TableButtons = <T extends { id: string }>({
     if (validateFormAdd && !validateFormAdd()) {
       return; // No continuar si la validación falla
     }
-    if(handleSaveAdd){
+    if (handleSaveAdd) {
       handleSaveAdd();
     }
   };
+
 
   // Verificar si hay errores
   const hasErrors = Object.keys(errors).length > 0;
@@ -154,7 +159,11 @@ const TableButtons = <T extends { id: string }>({
                 ) {
                   return (
                     <div key={`edit-${input.key}`}>
-                      {customFields[input.key](value, makeSyntheticChange(input.key))}
+                      {customFields[input.key](
+                        value,
+                        makeSyntheticChange(input.key),
+                        { formData, mode: "edit", row: selectedRow, disabled: input.editable === false }
+                      )}
                       {error && (
                         <p className="text-red-500 text-xs mt-1">{error}</p>
                       )}
@@ -173,6 +182,7 @@ const TableButtons = <T extends { id: string }>({
                     onChange={(e) => handleFormChange(e)}
                     options={input.type === "select" ? input.options : undefined}
                     error={error} // Nuevo
+                    disabled={input.editable === false} // Deshabilitar si no es editable
                   />
                 );
               })}
@@ -205,7 +215,8 @@ const TableButtons = <T extends { id: string }>({
                     <div key={`add-${input.key}`}>
                       {customFields[input.key](
                         value,
-                        makeSyntheticChange(input.key, true)
+                        makeSyntheticChange(input.key, true),
+                        { formData: formDataAdd, mode: "add", row: null, disabled: false }
                       )}
                       {error && (
                         <p className="text-red-500 text-xs mt-1">{error}</p>

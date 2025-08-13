@@ -94,6 +94,7 @@ export function useEditPopup<T extends { id: string }>(
       label: field.label || field.key[0].toUpperCase() + field.key.slice(1),
       type: field.type || "text",
       options: field.options || [],
+      editable: field.editable || false
     }));
   }, [editableFields]);
 

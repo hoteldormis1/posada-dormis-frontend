@@ -25,6 +25,8 @@ import TableHeader from "./ui/uiComponents/Tables/TableHeader";
 import TableBody from "./ui/uiComponents/Tables/TableBody";
 import TableButtons from "./ui/uiComponents/Tables/TableButtons";
 import InputForm from "./forms/formComponents/InputForm";
+import InputDateForm from "./forms/formComponents/InputDateForm";
+import SelectForm from "./forms/formComponents/SelectForm";
 
 export {
 	LoginIzquierda,
@@ -53,5 +55,7 @@ export {
 	TableHeader,
 	TableBody,
 	TableButtons,
-	InputForm
+	InputForm,
+	InputDateForm,
+	SelectForm
 };
