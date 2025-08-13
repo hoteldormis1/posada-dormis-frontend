@@ -5,7 +5,7 @@ import { inputBaseEstilos, labelBaseEstilos, pantallaPrincipalEstilos } from "@/
 import { LoadingSpinner, TableComponent } from "@/components";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
-import { addReserva, deleteReserva, editReserva, fetchReservas } from "@/lib/store/utils/reservas/reservasSlice";
+import { addReserva, deleteReserva, editReserva, fetchHuespedes, fetchReservas } from "@/lib/store/utils/reservas/reservasSlice";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { FormFieldInputConfig, Reserva, SortOrder, StateStatus } from "@/models/types";
 import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
@@ -19,7 +19,7 @@ import makeCustomFields from "@/components/reservas/makeCustomFields";
 
 const Reservas: React.FC = () => {
 	const dispatch = useAppDispatch<AppDispatch>();
-	const { reservas, status } = useAppSelector((state: RootState) => state.reservas);
+	const { reservas, status, huespedes } = useAppSelector((state: RootState) => state.reservas);
 	const { habitaciones } = useAppSelector((state: RootState) => state);
 	const { errorToast, successToast } = useToastAlert();
 	const { confirm } = useSweetAlert();
@@ -37,6 +37,16 @@ const Reservas: React.FC = () => {
 
 	const buildReservaInputOptions = (habitacionesDatos: any[]): FormFieldInputConfig[] => [
 		// HUESPED
+		{
+			key: "idHuesped",
+			type: "select",
+			label: "Huésped (existente)",
+			editable: false,
+			options: (huespedes ?? []).map((h: any) => ({
+			  value: h.idHuesped, // ajusta si tu campo id se llama distinto
+			  label: `${h.nombre} ${h.apellido}`,
+			})),
+		  },
 		{ key: "nombre", label: "Nombre", type: "text", editable: false },
 		{ key: "apellido", label: "Apellido", type: "text", editable: false },
 		{ key: "dni", label: "DNI", type: "text", editable: false },
@@ -65,9 +75,10 @@ const Reservas: React.FC = () => {
 		if (status !== StateStatus.idle) return;
 
 		(async () => {
-			const [habRes, resRes] = await Promise.all([
+			const [habRes, resRes, hueRes] = await Promise.all([
 				dispatch(fetchHabitaciones({ sortOrder: SortOrder.asc })),
 				dispatch(fetchReservas()),
+				dispatch(fetchHuespedes()),
 			]);
 
 			if (fetchHabitaciones.rejected.match(habRes)) {
@@ -75,6 +86,9 @@ const Reservas: React.FC = () => {
 			}
 			if (fetchReservas.rejected.match(resRes)) {
 				errorToast(resRes.payload || "Error al obtener reservas");
+			}
+			if (fetchHuespedes.rejected.match(hueRes)) {
+			  errorToast(hueRes.payload || "Error al obtener huéspedes");
 			}
 		})();
 	}, [dispatch, status, errorToast]);
@@ -192,7 +206,7 @@ const Reservas: React.FC = () => {
 							onSaveDelete={onSaveDelete}
 							inputOptions={inputOptions}
 							customFields={customFields}
-							validationSchema={reservaEditSchema}
+							validationSchemaEdit={reservaEditSchema}
 							validationSchemaAdd={reservaAddSchema}
 							mapRowToFormData={mapRowToFormDataReservas}
 						/>

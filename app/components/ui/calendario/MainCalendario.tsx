@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { RootState } from "@/lib/store/store";
+import { AppDispatch, RootState } from "@/lib/store/store";
 import { fetchReservasCalendar } from "@/lib/store/utils/reservas/reservasSlice";
 import { StateStatus } from "@/models/types";
 import RoomCalendar, { DayAvailability } from "./Calendario";
@@ -31,7 +31,7 @@ const datesBetween = (start: Date, end: Date): Date[] => {
 };
 
 const MainCalendario: React.FC = () => {
-  const dispatch = useAppDispatch();
+  const dispatch: AppDispatch = useAppDispatch();
   const { calendarFullyBooked, calendarStatus, calendarError } = useAppSelector(
     (s: RootState) => s.reservas
   );

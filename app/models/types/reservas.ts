@@ -1,4 +1,5 @@
-import { StateStatus } from ".";
+import { Habitacion, StateStatus } from ".";
+import { Huesped } from "./huesped";
 
 export enum TipoReserva {
   CheckIn = "check-in",
@@ -19,6 +20,7 @@ export type Reserva = {
   total: number; // monto total calculado
   dniHuesped?: string; // opcional
   emailHuesped?: string; // opcional
+  huespedes?: Huesped[]; // opcional
 };
 
 export interface ReservasState {
@@ -27,5 +29,27 @@ export interface ReservasState {
   error: string | null;
   calendarFullyBooked: string[];
   calendarStatus: StateStatus;
-  calendarError: string | null; 
+  calendarError: string | null;
+  huespedes: Huesped[];
+  huespedesStatus: StateStatus;
+  huespedesError: string | null;
+  availableByDate: Record<string, Habitacion[]>;
+  availabilityStatusByDate: Record<string, StateStatus>;
+  availabilityErrorByDate: Record<string, string | null>;
 }
+
+export type AddReservaPayload = {
+  huesped: {
+    nombre: string;
+    apellido: string;
+    dni: string;
+    telefono: string;
+    email: string;
+    origen: string;
+  };
+  idHabitacion: number;
+  idEstadoReserva: number;
+  fechaDesde: string;
+  fechaHasta: string;
+  montoPagado: number;
+};

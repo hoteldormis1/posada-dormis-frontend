@@ -44,8 +44,7 @@ interface TableComponentProps<T> {
       ctx?: { formData?: Record<string, any>; mode?: "add" | "edit"; row?: any; disabled?: boolean }
     ) => React.ReactNode;
   };
-  // Nuevo: esquemas de validación
-  validationSchema?: z.ZodSchema<Record<string, unknown>>;
+  validationSchemaEdit?: z.ZodSchema<Record<string, unknown>>;
   validationSchemaAdd?: z.ZodSchema<Record<string, unknown>>;
   // Función para mapear datos de la fila al formulario de edición
   mapRowToFormData?: (row: T) => Record<string, string>;
@@ -73,9 +72,9 @@ const TableComponent = <T extends { id: string }>({
   sortOrder,
   inputOptions = [],
   customFields, // ⭐
-  validationSchema, // Nuevo
-  validationSchemaAdd, // Nuevo
-  mapRowToFormData, // Nuevo
+  validationSchemaEdit, 
+  validationSchemaAdd, 
+  mapRowToFormData, 
 }: TableComponentProps<T>) => {
   // === Editar ===
   const {
@@ -87,9 +86,9 @@ const TableComponent = <T extends { id: string }>({
     handleFormChange,
     getUpdatedRow,
     formInputs, // seguirá funcionando para inputs estándar
-    errors, // Nuevo
-    validateForm, // Nuevo
-  } = useEditPopup<T>(inputOptions, validationSchema, mapRowToFormData);
+    errors, 
+    validateForm, 
+  } = useEditPopup<T>(inputOptions, validationSchemaEdit, mapRowToFormData);
 
   // === Agregar ===
   const initialValues = useMemo(() => {
@@ -111,8 +110,8 @@ const TableComponent = <T extends { id: string }>({
     handleFormChange: handleFormChangeAdd,
     getNewItem,
     resetForm,
-    errors: errorsAdd, // Nuevo
-    validateForm: validateFormAdd, // Nuevo
+    errors: errorsAdd, 
+    validateForm: validateFormAdd, 
   } = useAddPopup<T>(initialValues, numericFields, validationSchemaAdd);
 
   // === Acciones ===
@@ -221,15 +220,15 @@ const TableComponent = <T extends { id: string }>({
         handleFormChange={handleFormChange}
         getUpdatedRow={getUpdatedRow}
         handleSaveEdit={handleSaveEdit}
-        errors={errors} // Nuevo
-        validateForm={validateForm} // Nuevo
+        errors={errors} 
+        validateForm={validateForm} 
         showAddPopup={showAddPopup}
         setShowAddPopup={setShowAddPopup}
         formDataAdd={formDataAdd}
         handleFormChangeAdd={handleFormChangeAdd}
         handleSaveAdd={handleSaveAdd}
-        errorsAdd={errorsAdd} // Nuevo
-        validateFormAdd={validateFormAdd} // Nuevo
+        errorsAdd={errorsAdd} 
+        validateFormAdd={validateFormAdd} 
         // ⭐ Nuevo: pasamos renderers custom para inputs (ej: ReactFlagsSelect)
         customFields={customFields}
       />

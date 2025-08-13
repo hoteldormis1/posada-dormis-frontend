@@ -92,13 +92,15 @@
 
 /* Estilos para disponibilidad */
 .react-calendar__tile.available {
-  background-color: #dcfce7;
-  border: 2px solid #22c55e;
+  background-color: #2dd36f;
+  border: 1px solid black;
+  color: white !important;
 }
 
 .react-calendar__tile.not-available {
-  background-color: #fee2e2;
-  border: 2px solid #ef4444;
+  background-color: red;
+  border: 1px solid black;
+  color: white !important;
 }
 
 .react-calendar__tile.available:enabled:hover {
@@ -226,4 +228,9 @@
 .past-day {
   color: #ccc !important; 
   background-color: gray; 
+}
+
+.react-calendar__tile  {
+  height: 60px ;
+  font-size: 16px;
 }

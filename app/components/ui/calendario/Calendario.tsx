@@ -1,11 +1,19 @@
-import React, { useRef, useState } from "react";
+// Calendario.tsx
+"use client";
+
+import React, { useRef, useState, useMemo } from "react";
 import Calendar, { TileClassNameFunc, TileContentFunc } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./Calendario.css";
 
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { RootState } from "@/lib/store/store";
+import { fetchHabitacionesDisponiblesPorDia } from "@/lib/store/utils/reservas/reservasSlice";
+import { StateStatus } from "@/models/types";
+
 export interface Room {
-  roomNumber: string;
-  available: boolean;
+  idHabitacion: number;
+  numero: string | number;
 }
 export interface DayAvailability {
   date: string;      // YYYY-MM-DD
@@ -23,28 +31,38 @@ const toYMD = (d: Date): string => {
   return `${y}-${m}-${day}`;
 };
 
-const RoomCalendar: React.FC<RoomCalendarProps> = ({ calendarData }) => {
-  const [availability] = useState<DayAvailability[]>(calendarData);
+const Calendario: React.FC<RoomCalendarProps> = ({ calendarData }) => {
+  const dispatch = useAppDispatch();
+  const { availableByDate, availabilityStatusByDate, availabilityErrorByDate } =
+    useAppSelector((s: RootState) => s.reservas);
+
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [showPopup, setShowPopup] = useState<boolean>(false);
-  const [roomsAvailable, setRoomsAvailable] = useState<Room[]>([]);
   const calendarRef = useRef<HTMLDivElement | null>(null);
 
+  // Indexamos calendarData por fecha para lookups O(1)
+  const availabilityByDay = useMemo(() => {
+    const map = new Map<string, DayAvailability>();
+    for (const d of calendarData) map.set(d.date, d);
+    return map;
+  }, [calendarData]);
+
   const findDay = (date: Date): DayAvailability | undefined =>
-    availability.find((d) => d.date === toYMD(date));
+    availabilityByDay.get(toYMD(date));
 
-  const getRoomAvailability = (date: Date): Room[] =>
-    findDay(date)?.rooms ?? [];
-
-  const handleDateChange = (value: any) => {
-    if (!value) return;
-    const date = Array.isArray(value) ? value[0] : value;
-    setStartDate(date);
-    setRoomsAvailable(getRoomAvailability(date));
+  const handleDateClick = async (value: Date) => {
+    setStartDate(value);
+    const dateKey = toYMD(value);
+    // Lazy fetch: si no está cargado o está en error, pedimos
+    const status = availabilityStatusByDate[dateKey] ?? StateStatus.idle;
+    if (status === StateStatus.idle || status === StateStatus.failed) {
+      // no esperes el resultado para abrir el popup; mostramos "Cargando..."
+      dispatch(fetchHabitacionesDisponiblesPorDia(dateKey));
+    }
     setShowPopup(true);
   };
 
-  const tileClassName: TileClassNameFunc = ({ date, view }: { date: Date; view: string }) => {
+  const tileClassName: TileClassNameFunc = ({ date, view }) => {
     if (view !== "month") return null;
 
     // hoy a las 00:00
@@ -56,7 +74,7 @@ const RoomCalendar: React.FC<RoomCalendarProps> = ({ calendarData }) => {
     return day?.anyAvailable ? "available" : "not-available";
   };
 
-  const tileContent: TileContentFunc = ({ date, view }: { date: Date; view: string }) => {
+  const tileContent: TileContentFunc = ({ date, view }) => {
     if (view !== "month") return null;
     return <span data-date={toYMD(date)} className="absolute inset-0 pointer-events-none" />;
   };
@@ -68,14 +86,19 @@ const RoomCalendar: React.FC<RoomCalendarProps> = ({ calendarData }) => {
   const maxDate = new Date(today.getFullYear(), today.getMonth() + 12, 31);
 
   // ====== Derivados para el popup ======
+  const selectedDateKey = startDate ? toYMD(startDate) : "";
   const selectedDay = startDate ? findDay(startDate) : undefined;
   const isAvailable = selectedDay?.anyAvailable ?? false;
+
+  const roomsForSelected = availableByDate[selectedDateKey] ?? [];
+  const statusForSelected = availabilityStatusByDate[selectedDateKey] ?? StateStatus.idle;
+  const errorForSelected = availabilityErrorByDate[selectedDateKey] ?? null;
 
   return (
     <div className="calendar-container" ref={calendarRef}>
       <div className="flex flex-col items-center">
         <Calendar
-          onChange={handleDateChange}
+          onClickDay={handleDateClick}
           value={startDate || new Date()}
           tileClassName={tileClassName}
           tileContent={tileContent}
@@ -117,12 +140,32 @@ const RoomCalendar: React.FC<RoomCalendarProps> = ({ calendarData }) => {
               </span>
             </div>
 
-            {/* Mensaje según disponibilidad */}
-            <div className={`mt-2 text-sm ${isAvailable ? "text-green-600" : "text-red-600"}`}>
-              {isAvailable ? "Hay habitaciones disponibles" : "No hay habitaciones disponibles"}
+            {/* Mensajes / lista */}
+            <div className="mt-2 text-sm">
+              {statusForSelected === StateStatus.loading && "Cargando habitaciones…"}
+              {statusForSelected === StateStatus.failed && (
+                <span className="text-red-600">
+                  {errorForSelected ?? "Error al obtener habitaciones."}
+                </span>
+              )}
+              {statusForSelected === StateStatus.succeeded && (
+                <>
+                  {isAvailable ? "Hay habitaciones disponibles:" : "No hay habitaciones disponibles"}
+                  {roomsForSelected.length > 0 && (
+                    <ul className="rooms-list mt-2">
+                      {roomsForSelected.map((r: any) => (
+                        <li key={r.idHabitacion} className="py-1 border-b last:border-none">
+                          Hab. {r.numero} (ID {r.idHabitacion})
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              )}
+              {statusForSelected === StateStatus.idle && (
+                <>{isAvailable ? "Hay habitaciones disponibles" : "No hay habitaciones disponibles"}</>
+              )}
             </div>
-
-            <ul className="rooms-list">{/* tu lista si querés reactivarla */}</ul>
           </div>
         )}
       </div>
@@ -130,4 +173,4 @@ const RoomCalendar: React.FC<RoomCalendarProps> = ({ calendarData }) => {
   );
 };
 
-export default RoomCalendar;
+export default Calendario;
