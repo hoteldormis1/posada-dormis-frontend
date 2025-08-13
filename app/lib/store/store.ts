@@ -1,23 +1,28 @@
-import { configureStore } from '@reduxjs/toolkit';
-import userSlice from './utils/user/userSlice';
-import habitacionesSlice from './utils/habitaciones/habitacionesSlice';
-import reservasSlice from './utils/reservas/reservasSlice';
-import auditoriasSlice from './utils/auditorias/auditoriasSlice';
+// src/lib/store/store.ts
+import { configureStore } from "@reduxjs/toolkit";
+import reservasReducer from "./utils/reservas/reservasSlice";
+import calendarioReducer from "./utils/calendario/calendarioSlice";
+import huespedesReducer from "./utils/huespedes/huespedesSlice";
+import disponibilidadReducer from "./utils/disponibilidad/disponibilidadSlice";
+import userSlice from "./utils/user/userSlice";
+import habitacionesSlice from "./utils/habitaciones/habitacionesSlice";
 
-// ✅ Creamos una instancia real del store
 export const store = configureStore({
   reducer: {
+    reservas: reservasReducer,
+    calendario: calendarioReducer,
+    huespedes: huespedesReducer,
+    disponibilidad: disponibilidadReducer,
     user: userSlice,
-    habitaciones: habitacionesSlice,
-    reservas: reservasSlice,
-    auditorias: auditoriasSlice
+    habitaciones: habitacionesSlice
   },
 });
 
-// 🏭 Para quienes necesiten crear otro store (ej. tests)
-export const makeStore = () => store;
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
 // ✅ Tipos globales correctos
 export type AppStore = typeof store;
-export type AppDispatch = AppStore['dispatch'];
-export type RootState = ReturnType<AppStore['getState']>;
+
+// 🏭 Para quienes necesiten crear otro store (ej. tests)
+export const makeStore = () => store;

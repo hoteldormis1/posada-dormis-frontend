@@ -8,8 +8,8 @@ import "./Calendario.css";
 
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { RootState } from "@/lib/store/store";
-import { fetchHabitacionesDisponiblesPorDia } from "@/lib/store/utils/reservas/reservasSlice";
 import { StateStatus } from "@/models/types";
+import { fetchHabitacionesDisponiblesPorDia } from "@/lib/store/utils/index";
 
 export interface Room {
   idHabitacion: number;
@@ -34,7 +34,7 @@ const toYMD = (d: Date): string => {
 const Calendario: React.FC<RoomCalendarProps> = ({ calendarData }) => {
   const dispatch = useAppDispatch();
   const { availableByDate, availabilityStatusByDate, availabilityErrorByDate } =
-    useAppSelector((s: RootState) => s.reservas);
+    useAppSelector((s: RootState) => s.disponibilidad);
 
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [showPopup, setShowPopup] = useState<boolean>(false);
@@ -155,7 +155,7 @@ const Calendario: React.FC<RoomCalendarProps> = ({ calendarData }) => {
                     <ul className="rooms-list mt-2">
                       {roomsForSelected.map((r: any) => (
                         <li key={r.idHabitacion} className="py-1 border-b last:border-none">
-                          Hab. {r.numero} (ID {r.idHabitacion})
+                          Habitación {r.numero}
                         </li>
                       ))}
                     </ul>

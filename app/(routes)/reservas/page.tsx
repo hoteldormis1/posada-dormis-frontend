@@ -5,7 +5,7 @@ import { inputBaseEstilos, labelBaseEstilos, pantallaPrincipalEstilos } from "@/
 import { LoadingSpinner, TableComponent } from "@/components";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
-import { addReserva, deleteReserva, editReserva, fetchHuespedes, fetchReservas } from "@/lib/store/utils/reservas/reservasSlice";
+import { addReserva, deleteReserva, editReserva, fetchHuespedes, fetchReservas } from "@/lib/store/utils/index";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { FormFieldInputConfig, Reserva, SortOrder, StateStatus } from "@/models/types";
 import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
@@ -19,7 +19,8 @@ import makeCustomFields from "@/components/reservas/makeCustomFields";
 
 const Reservas: React.FC = () => {
 	const dispatch = useAppDispatch<AppDispatch>();
-	const { reservas, status, huespedes } = useAppSelector((state: RootState) => state.reservas);
+	const { reservas, status } = useAppSelector((state: RootState) => state.reservas);
+	const { datos: huespedes } = useAppSelector((state: RootState) => state.huespedes);
 	const { habitaciones } = useAppSelector((state: RootState) => state);
 	const { errorToast, successToast } = useToastAlert();
 	const { confirm } = useSweetAlert();

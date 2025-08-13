@@ -114,7 +114,6 @@
 /* Popup de disponibilidad */
 .availability-popup {
   position: relative;
-  z-index: 1000;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
