@@ -2,7 +2,7 @@
 
 // Pantalla principal
 export const pantallaPrincipalEstilos =
-  'bg-[var(--color-background)] w-full min-h-screen overflow-auto pt-30 pb-40 px-4';
+  'bg-background w-full min-h-full overflow-auto';
 
 // Títulos principales
 export const fuenteDeTitulo =

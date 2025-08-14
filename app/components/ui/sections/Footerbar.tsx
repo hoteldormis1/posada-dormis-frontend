@@ -50,7 +50,7 @@ export default function Footerbar() {
 	const pathname = usePathname();
 
 	return (
-		<div className="fixed bottom-0 w-full z-50 bg-white py-2 rounded-t-3xl shadow-md">
+		<div className="fixed bottom-0 w-full z-50 bg-white py-2 rounded-t-3xl">
 			<div className="flex justify-around">
 				{footerItems.map(({ name, label, icon, link }) => {
 					const isActive = pathname === link || pathname.startsWith(link + "/");

@@ -6,7 +6,7 @@ import { RootState } from "@/lib/store/store";
 import { fuenteDeSubtitulo } from "@/styles/global-styles";
 import {
   GraficoCantidadDeReservas,
-  GraficoCantidadDeVentas,
+  GraficoCantidadDeIngresos,
   // GraficoPieEstadoHabitaciones,
 } from "@/components/index";
 // import TablaHabitaciones from "./Widgets/TablaReservas";
@@ -66,7 +66,7 @@ const Graficos: React.FC = () => {
   const tarjeta = (titulo: string, contenido: React.ReactNode, key: string | number) => (
     <div
       key={key}
-      className="flex flex-col p-6 border border-gray-300 shadow-md rounded-xl min-h-[300px] max-h-[500px] bg-white"
+      className="flex flex-col p-6 border border-gray-300 shadow-md min-h-[300px] max-h-[500px] bg-white"
     >
       <label className={fuenteDeSubtitulo}>{titulo}</label>
       <div className="mt-4 flex-1">{contenido}</div>
@@ -101,7 +101,7 @@ const Graficos: React.FC = () => {
   const hayVentas = ventasCountData.length > 0;
   
   return (
-    <div className="pt-8 w-full ">
+    <div className="pt-4 w-full bg-white/70 shadow-md rounded-xl p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 ">
         {tarjeta(
           "Cantidad de reservas",
@@ -114,9 +114,9 @@ const Graficos: React.FC = () => {
         )}
 
         {tarjeta(
-          "Ventas",
+          "Ingresos",
           hayVentas ? (
-            <GraficoCantidadDeVentas data={ventasSumData} className="h-full" />
+            <GraficoCantidadDeIngresos   data={ventasSumData} className="h-full" />
           ) : (
             <div className="text-sm text-gray-500">Sin datos en el rango seleccionado.</div>
           ),

@@ -133,9 +133,6 @@ const TableButtons = <T extends { id: string }>({
   const hasErrors = Object.keys(errors).length > 0;
   const hasErrorsAdd = Object.keys(errorsAdd).length > 0;
 
-  console.log(huespedLogic);
-  
-
   return (
     <>
       {showPagination && (

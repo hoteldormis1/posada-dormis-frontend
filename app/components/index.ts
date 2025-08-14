@@ -2,14 +2,14 @@ import LoginIzquierda from "./ui/sections/LoginIzquierda";
 import LayoutWrapper from "./ui/sections/LayoutWrapper";
 import Navbar from "./ui/sections/Navbar";
 import Footerbar from "./ui/sections/Footerbar";
-import FiltroFechas from "./ui/uiComponents/Dashboard/FiltroFechas";
+import FiltroFechas from "./ui/uiComponents/Dashboard/FiltroFechas/FiltroFechas";
 import HotelEstadisticas from "./ui/uiComponents/Dashboard/HotelEstadisticas";
-import GraficoCantidadDeReservas from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoVertical/CantidadDeReservas";
-import GraficoCantidadDeVentas from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoVertical/CantidadDeVentas";
+import GraficoCantidadDeReservas from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoCantidadDeReservas";
+import GraficoCantidadDeIngresos from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoCantidadDeIngresos";
 import GraficoVertical from "./ui/uiComponents/Dashboard/Graficos/Components/GraficoVertical";
 import GraficosContent from "./ui/uiComponents/Dashboard/Graficos";
 import GraficoPie from "./ui/uiComponents/Dashboard/Graficos/Components/GraficoPie"
-import GraficoPieEstadoHabitaciones from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoPieEstadoHabitaciones";
+import GraficoPieEstadoHabitaciones from "./ui/uiComponents/Dashboard/Graficos/Widgets/PieEstadoHabitaciones";
 import Paginator from "./ui/sections/Paginator";
 import LoadingSpinner from "./ui/uiComponents/LoadingSpinner";
 import TableComponent from "./ui/uiComponents/Tables/TableComponent";
@@ -41,7 +41,7 @@ export {
 	GraficosContent,
 	GraficoCantidadDeReservas,
     GraficoVertical,
-	GraficoCantidadDeVentas,
+	GraficoCantidadDeIngresos,
 	GraficoPie,
 	GraficoPieEstadoHabitaciones,
 	Paginator,

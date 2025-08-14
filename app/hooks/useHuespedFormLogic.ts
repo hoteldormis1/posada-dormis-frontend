@@ -7,7 +7,7 @@ export const useHuespedFormLogic = (
     handleFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
 ) => {
     const { datos: huespedes } = useAppSelector((state: RootState) => state.huespedes);
-    const [huespedMode, setHuespedMode] = useState<string>("existente");
+    const [huespedMode, setHuespedMode] = useState<string>("nuevo");
 
     // Obtener el huésped seleccionado
     const getHuespedById = (id: string) => {

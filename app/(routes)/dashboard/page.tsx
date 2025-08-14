@@ -9,24 +9,25 @@ import {
 import { FiltroFechas, HotelEstadisticas, GraficosContent } from "@/components";
 import { fetchDashboardSummary } from "@/lib/store/utils";
 import { AppDispatch } from "@/lib/store/store";
+import { toYMDLocal } from "@/utils/helpers/date";
 
 const Dashboard = () => {
   const dispatch: AppDispatch = useAppDispatch();
 
   // Primer fetch con rango por defecto (últimos 30 días)
   useEffect(() => {
-    const to = new Date();
-    const from = new Date();
-    from.setDate(to.getDate() - 29);
-    const toStr = to.toISOString().slice(0, 10);
-    const fromStr = from.toISOString().slice(0, 10);
-    dispatch(fetchDashboardSummary({ from: fromStr, to: toStr }));
+    const hoy = toYMDLocal(new Date()); // "YYYY-MM-DD" en TU zona horaria
+    dispatch(fetchDashboardSummary({
+      from: hoy,
+      to:   hoy,
+      agruparPor: "day",
+    }));
   }, [dispatch]);
 
   return (
     <div className={pantallaPrincipalEstilos + " pb-40 px-12"}>
       <label className={fuenteDeTitulo}>Dashboards</label>
-      <div className="mt-4 space-y-8">
+      <div className="mt-4 space-y-6">
         <FiltroFechas />
         <HotelEstadisticas />
         <GraficosContent />
