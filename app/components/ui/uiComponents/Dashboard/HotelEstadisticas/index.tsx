@@ -18,6 +18,10 @@ type DashboardDatos = {
     ventas?: number;
     montoPagado?: number;
     montoTotal?: number;
+    habitacionesOcupadas?: number;
+    totalHabitaciones?: number;
+    taseDeOcupacion?: number;
+    taseDeOcupacionPct?: number;
     // si luego agregás más campos, sumalos acá
   };
 };
@@ -55,32 +59,37 @@ const HotelEstadisticas = () => {
       ? datos!.totals.ventas.toLocaleString("es-AR")
       : "-";
 
-  const montoPagado = formatCurrency(datos?.totals?.montoPagado);
-  const montoTotal = formatCurrency(datos?.totals?.montoTotal);
+    const montoPagado = formatCurrency(datos?.totals?.montoPagado);
+    const montoTotal = formatCurrency(datos?.totals?.montoTotal);
+    const habitacionesOcupadas = datos?.totals?.habitacionesOcupadas;
+    const totalHabitaciones = datos?.totals?.totalHabitaciones;
+    const taseDeOcupacion = datos?.totals?.taseDeOcupacion;
+    const taseDeOcupacionPct = datos?.totals?.taseDeOcupacionPct;
 
   const cards = [
-    { titulo: "Reservas activas", valor: reservas, icon: <MdArticle size={24} className="text-main" /> },
-    { titulo: "Ventas", valor: ventas, icon: <HiUserGroup size={24} className="text-main" /> },
-    { titulo: "Monto pagado", valor: montoPagado, icon: <MdLocalAtm size={24} className="text-main" /> },
-    { titulo: "Monto total", valor: montoTotal, icon: <MdFreeCancellation size={24} className="text-main" /> },
+    { titulo: "Reservas", valor: reservas, icon: <MdArticle size={24} className="text-main" /> },
+    //{ titulo: "Ventas", valor: ventas, icon: <HiUserGroup size={24} className="text-main" /> },
+    { titulo: "Ingresos ($)", valor: `${montoPagado} / ${montoTotal}`, icon: <MdLocalAtm size={24} className="text-main" /> },
+    { titulo: "Habitaciones actualmente ocupadas", valor: `${habitacionesOcupadas}/${totalHabitaciones}`, icon: <MdFreeCancellation size={24} className="text-main" /> },
+    //{ titulo: "Tasa de ocupación (%)", valor: taseDeOcupacionPct, icon: <MdFreeCancellation size={24} className="text-main" /> },
   ];
 
   return (
     <div className="pt-2 w-full">
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 w-full rounded-xl p-6 border border-gray-300 shadow-md bg-white/70">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full rounded-xl p-6 border border-gray-300 shadow-md bg-white/70">
         {status === StateStatus.loading
           ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
           : cards.map((item, index) => (
               <div
                 key={index}
-                className="bg-tertiary flex gap-6 items-center justify-center px-4 py-6 rounded-xl"
+                className="bg-tertiary flex gap-6 items-center justify-center px-4 py-2 rounded-xl"
               >
                 {item.icon}
                 <div className="flex flex-col items-center justify-center">
                   <span className="text-sm font-semibold text-gray-700">
                     {item.titulo}
                   </span>
-                  <span className="text-lg font-bold text-primary mt-1">
+                  <span className="text-sm font-bold text-primary mt-1">
                     {item.valor}
                   </span>
                 </div>

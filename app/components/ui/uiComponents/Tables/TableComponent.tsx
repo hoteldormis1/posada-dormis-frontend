@@ -230,9 +230,7 @@ const TableComponent = <T extends { id: string }>({
         handleSaveAdd={handleSaveAdd}
         errorsAdd={errorsAdd} 
         validateFormAdd={validateFormAdd} 
-        // ⭐ Nuevo: pasamos renderers custom para inputs (ej: ReactFlagsSelect)
         customFields={customFields}
-        // ⭐ Nuevo: pasamos la lógica de huésped
         huespedLogic={huespedLogic}
       />
     </div>

@@ -52,7 +52,6 @@ interface TableButtonsProps<T> {
   errorsAdd?: Record<string, string>; // Nuevo: errores de validación para agregar
   validateFormAdd?: () => boolean; // Nuevo: función de validación para agregar
 
-  // ✅ Nuevo: renderers para campos personalizados (ej: ReactFlagsSelect)
   customFields?: {
     [key: string]: (
       value: string,
@@ -61,7 +60,6 @@ interface TableButtonsProps<T> {
     ) => React.ReactNode;
   };
 
-  // ✅ Nuevo: lógica de huésped
   huespedLogic?: {
     huespedMode: string;
     handleModeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;

@@ -29,7 +29,7 @@ const Dashboard = () => {
       <div className="mt-4 space-y-8">
         <FiltroFechas />
         <HotelEstadisticas />
-        {/*<GraficosContent />*/}
+        <GraficosContent />
       </div>
     </div>
   );
