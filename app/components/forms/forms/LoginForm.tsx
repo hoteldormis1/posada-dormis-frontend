@@ -16,29 +16,34 @@ const LoginForm = () => {
 
 	const [email, setEmail] = useState("");
 	const [clave, setClave] = useState("");
+	const [submitting, setSubmitting] = useState(false);
 
 	const { loading } = useAppSelector((state: RootState) => state.user);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-
+	  
 		if (!email || !clave) {
-			errorToast("Por favor, completá todos los campos.");
-			return;
+		  errorToast("Por favor, completá todos los campos.");
+		  return;
 		}
-
+	  
 		try {
-			await dispatch(loginUser({ email, clave })).unwrap();
-			const { accessToken } = await dispatch(refreshSession()).unwrap();
-			setAuthToken(accessToken);
-			successToast("Inicio de sesión exitoso");
-			router.push("/usuarios");
+		  setSubmitting(true);
+		  await dispatch(loginUser({ email, clave })).unwrap();
+	  
+		  // refreshSession ya hace setAuthToken internamente
+		  await dispatch(refreshSession()).unwrap();
+	  
+		  successToast("Inicio de sesión exitoso");
+		  router.replace("/usuarios"); // evita volver con "atrás"
 		} catch (err) {
-			const msg =
-				typeof err === "string" ? err : "Error desconocido al iniciar sesión";
-			errorToast(msg);
+		  const msg = typeof err === "string" ? err : "Error desconocido al iniciar sesión";
+		  errorToast(msg);
+		} finally {
+		  setSubmitting(false);
 		}
-	};
+	  };
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
