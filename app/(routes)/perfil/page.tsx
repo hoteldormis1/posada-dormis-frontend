@@ -11,12 +11,13 @@ const page = () => {
 
 export default page
 
+
 // "use client";
 
 // import React, { useState } from "react";
 // import Image from "next/image";
 // import { useRouter } from "next/navigation";
-// import InputForm from "@/components/InputForm";
+// import {InputForm} from "@/components/index";
 // import { BiHomeAlt, BiSave } from "react-icons/bi";
 // import { pantallaPrincipalEstilos } from "@/styles/global-styles";
 // // import { DateRange } from "react-date-range";
