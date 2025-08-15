@@ -1,0 +1,5 @@
+{
+    "rewrites": [
+      { "source": "/api/:path*", "destination": "https://posada-dormis-backend.onrender.com/api/:path*" }
+    ]
+  }
