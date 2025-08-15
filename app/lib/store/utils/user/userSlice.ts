@@ -1,57 +1,54 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../axiosConfig";
 import { AxiosError } from "axios";
 import { extractErrorMessage } from "../extractErrorMessage";
-import { Usuario } from "@/models/types";
-
-interface LoginCredentials {
-	email: string;
-	clave: string;
-}
-
-// interface LoginResponse {
-// 	accessToken: string;
-// }
-
-interface UserState {
-	loading: boolean;
-	accessToken: string | null;
-	error: string | null;
-	usuarios: Usuario[]
-}
+import { LoginCredentials, SortOrder, UserState, Usuario } from "@/models/types";
+import { setAuthToken } from "../../useAuthToken";
 
 const initialState: UserState = {
 	loading: false,
 	accessToken: null,
 	error: null,
-	usuarios: []
+	datos: [],
+	page: 1,
+	pageSize: 10,
+	total: 0,
+	sortField: "idUsuario", // Campo por defecto
+	sortOrder: SortOrder.desc, // Orden por defecto
 };
-
-// 🔐 LOGIN: solo establece la cookie (refreshToken)
-export const loginUser = createAsyncThunk<void, LoginCredentials, { rejectValue: string }>(
-	"user/login",
-	async ({ email, clave }, { rejectWithValue }) => {
-		try {
-			await api.post("/auth/login", { email, clave }, { withCredentials: true });
-			// no devolvés accessToken aquí — se obtiene luego con /auth/refresh
-		} catch (err) {
-			const axiosError = err as AxiosError;
-			if (axiosError.response?.status === 401) {
-				return rejectWithValue("Acceso denegado: clave o clave inválidos");
-			}
-			return rejectWithValue(extractErrorMessage(axiosError, "Error al iniciar sesión"));
+// 🔐 LOGIN
+export const loginUser = createAsyncThunk<
+	void,
+	LoginCredentials,
+	{ rejectValue: string }
+>("user/login", async ({ email, clave }, { rejectWithValue }) => {
+	try {
+		await api.post("/auth/login", { email, clave }, { withCredentials: true });
+	} catch (err) {
+		const axiosError = err as AxiosError;
+		
+		if (axiosError.response?.status === 401) {
+			return rejectWithValue("Acceso denegado: usuario o clave incorrectas.");
 		}
+		return rejectWithValue(
+			extractErrorMessage(axiosError, "Error al iniciar sesión")
+		);
 	}
-);
+});
 
-// 🔁 REFRESH: obtiene nuevo accessToken usando la cookie
+// 🔁 REFRESH
 export const refreshSession = createAsyncThunk<
 	{ accessToken: string },
 	void,
 	{ rejectValue: string }
 >("user/refreshSession", async (_, { rejectWithValue }) => {
 	try {
-		const { data } = await api.post("/auth/refresh", {}, { withCredentials: true });
+		const { data } = await api.post(
+			"/auth/refresh",
+			{},
+			{ withCredentials: true }
+		);
+		setAuthToken(data.accessToken);
 		
 		return { accessToken: data.accessToken };
 	} catch (err) {
@@ -62,88 +59,114 @@ export const refreshSession = createAsyncThunk<
 	}
 });
 
-// 🔓 LOGOUT: limpia la cookie del refresh token en backend
-export const logoutUser = createAsyncThunk<
-	void, // No se espera ningún dato
-	void,
-	{ rejectValue: string }
->("user/logout", async (_, { rejectWithValue }) => {
-	try {
-		await api.post("/auth/logout", {}, { withCredentials: true });
-	} catch (err) {
-		const axiosError = err as AxiosError;
-		return rejectWithValue(
-			extractErrorMessage(axiosError, "No se pudo cerrar sesión")
-		);
+// 🔓 LOGOUT
+export const logoutUser = createAsyncThunk<void, void, { rejectValue: string }>(
+	"user/logout",
+	async (_, { rejectWithValue }) => {
+		try {
+			await api.post("/auth/logout", {}, { withCredentials: true });
+		} catch (err) {
+			const axiosError = err as AxiosError;
+			return rejectWithValue(
+				extractErrorMessage(axiosError, "No se pudo cerrar sesión")
+			);
+		}
 	}
-});
+);
 
+// 🔍 FETCH USUARIOS CON PAGINACIÓN Y SORT
 export const fetchUsuarios = createAsyncThunk<
-  Usuario[], 
-  void,
-  { rejectValue: string }
->("user/fetchUsuarios", async (_, { rejectWithValue }) => {
-  try {
-    const { data } = await api.get("/usuarios");
-	console.log(data);
-	
-    return data;
-  } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudieron obtener los usuarios")
-    );
-  }
-});
+	{ data: Usuario[]; page: number; pageSize: number; total: number },
+	| {
+			page?: number;
+			size?: number;
+			search?: string;
+			sortField?: string;
+			sortOrder?: string;
+	  }
+	| undefined,
+	{ rejectValue: string }
+>(
+	"user/fetchUsuarios",
+	async (
+		params = {
+			page: 1,
+			size: 10,
+			search: "",
+			sortField: "idUsuario",
+			sortOrder: SortOrder.asc,
+		},
+		{ rejectWithValue }
+	) => {
+		try {
+			const {
+				page = 1,
+				size = 10,
+				search = "",
+				sortField = "idUsuario",
+				sortOrder = SortOrder.asc,
+			} = params;
+			const { data } = await api.get(
+				`/usuarios?page=${page}&size=${size}&search=${search}&sortField=${sortField}&sortOrder=${sortOrder}`
+			);
+
+			return {
+				data: data.data,
+				page: data.page,
+				pageSize: data.pageSize,
+				total: data.total,
+			};
+		} catch (err) {
+			const axiosError = err as AxiosError;
+			return rejectWithValue(
+				extractErrorMessage(axiosError, "No se pudieron obtener los usuarios")
+			);
+		}
+	}
+);
 
 const userSlice = createSlice({
 	name: "user",
 	initialState,
 	reducers: {
+		setUsuarioPage: (state, action: PayloadAction<number>) => {
+			state.page = action.payload;
+		},
+		setUsuarioPageSize: (state, action: PayloadAction<number>) => {
+			state.pageSize = action.payload;
+		},
+		setUsuarioSortField: (state, action: PayloadAction<string>) => {
+			state.sortField = action.payload;
+		},
+		setUsuarioSortOrder: (state, action: PayloadAction<SortOrder.asc | SortOrder.desc>) => {
+			state.sortOrder = action.payload;
+		},
 	},
 	extraReducers: (builder) => {
 		builder
-			.addCase(loginUser.pending, (state) => {
-				state.loading = true;
-				state.error = null;
-			})
-			.addCase(loginUser.fulfilled, (state) => {
-				state.loading = false;
-				state.error = null;
-			})
-			.addCase(loginUser.rejected, (state, action) => {
-				state.loading = false;
-				state.error = action.payload ?? "Error al iniciar sesión";
-			})
-
-			.addCase(refreshSession.pending, (state) => {
-				state.loading = true;
-			})
-			.addCase(refreshSession.fulfilled, (state, action) => {
-				state.loading = false;
-				state.accessToken = action.payload.accessToken;
-				state.error = null;
-			})
-			.addCase(refreshSession.rejected, (state, action) => {
-				state.loading = false;
-				state.accessToken = null;
-				state.error = action.payload ?? "Error al refrescar sesión";
-			})
 			.addCase(fetchUsuarios.pending, (state) => {
 				state.loading = true;
 				state.error = null;
 			})
 			.addCase(fetchUsuarios.fulfilled, (state, action) => {
 				state.loading = false;
-				state.usuarios = action.payload;
-				state.error = null;
+				state.datos = action.payload.data;
+				state.page = action.payload.page;
+				state.pageSize = action.payload.pageSize;
+				state.total = action.payload.total;
 			})
 			.addCase(fetchUsuarios.rejected, (state, action) => {
 				state.loading = false;
 				state.error = action.payload ?? "Error al obtener los usuarios";
-			})
+			});
 	},
 });
 
-// export const { logout } = userSlice.actions;
+export const {
+	setUsuarioPage,
+	setUsuarioPageSize,
+	setUsuarioSortField,
+	setUsuarioSortOrder,
+} = userSlice.actions;
+
 export default userSlice.reducer;

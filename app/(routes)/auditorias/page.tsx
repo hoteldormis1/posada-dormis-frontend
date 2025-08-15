@@ -1,28 +1,40 @@
 "use client";
-
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
+import { LoadingSpinner, TableComponent } from "@/components";
+import { pantallaPrincipalEstilos } from "@/styles/global-styles";
 import {
-	pantallaPrincipalEstilos,
-	fuenteDeTitulo,
-} from "@/styles/global-styles";
-import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { AppDispatch, RootState } from "@/lib/store/store";
-import { TableComponent } from "@/components";
-import { fetchAuditorias } from "@/lib/store/utils/auditorias/auditoriasSlice";
+	fetchAuditorias,
+	setAuditoriaPage,
+	setAuditoriaPageSize,
+} from "@/lib/store/utils/auditorias/auditoriasSlice";
+import { RootState } from "@/lib/store/store";
+import { useEntityTable } from "@/hooks/useEntityTable";
+import { SortOrder } from "@/models/types";
 
 const Auditorias = () => {
-	const dispatch = useAppDispatch<AppDispatch>();
-	const { lista, loading, error } = useAppSelector(
-		(state: RootState) => state.auditorias
-	);
-
-	const { accessToken } = useAppSelector((state: RootState) => state.user);
-	
-	useEffect(() => {
-		if (accessToken && lista.length === 0 && !loading) {
-			dispatch(fetchAuditorias());
-		}
-	}, [accessToken, dispatch]);
+	const {
+		datos,
+		loading,
+		error,
+		page,
+		pageSize,
+		total,
+		search,
+		setSearch,
+		handleSearch,
+		handlePageChange,
+		handlePageSizeChange,
+		handleSort,
+		sortField,
+		sortOrder,
+	} = useEntityTable({
+		fetchAction: fetchAuditorias,
+		setPageAction: setAuditoriaPage,
+		setPageSizeAction: setAuditoriaPageSize,
+		selector: (state: RootState) => state.auditorias,
+		defaultSortField: "fecha",
+		defaultSortOrder: SortOrder.desc
+	});
 
 	const columns = useMemo(
 		() => [
@@ -38,7 +50,7 @@ const Auditorias = () => {
 
 	const data = useMemo(
 		() =>
-			lista.map((a) => ({
+			datos.map((a) => ({
 				id: String(a.id),
 				metodo: a.metodo,
 				ruta: a.ruta,
@@ -47,25 +59,36 @@ const Auditorias = () => {
 				status: a.status ?? "—",
 				fecha: new Date(a.fecha).toLocaleString("es-AR"),
 			})),
-		[lista]
+		[datos]
 	);
 
 	return (
-		<div>
-			<div className={pantallaPrincipalEstilos}>
-			<label className={fuenteDeTitulo}>Auditorías</label>
+		<div className={pantallaPrincipalEstilos}>
 			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
-				{loading ? (
-					<p className="text-center mt-10">Cargando auditorías...</p>
-				) : error ? (
-					<p className="text-red-500 text-center mt-10">{error}</p>
-				) : data.length === 0 ? (
-					<p className="text-center mt-10">No hay auditorías registradas</p>
-				) : (
-					<TableComponent columns={columns} data={data} showFormActions={false} />
+				{loading && <LoadingSpinner />}
+				{!loading && !error && (
+					<TableComponent
+						columns={columns}
+						data={data}
+						showPagination
+						currentPage={page}
+						pageSize={pageSize}
+						totalItems={total}
+						title="Auditorías"
+						search={search}
+						onSearchChange={setSearch}
+						onSearchSubmit={handleSearch}
+						onPageChange={handlePageChange}
+						onPageSizeChange={handlePageSizeChange}
+						onSort={handleSort}
+						sortField={sortField}
+						sortOrder={sortOrder}
+						onSaveAdd={()=> null}
+						onSaveEdit={()=> null}
+						onSaveDelete={()=> null}
+					/>
 				)}
 			</div>
-		</div>
 		</div>
 	);
 };

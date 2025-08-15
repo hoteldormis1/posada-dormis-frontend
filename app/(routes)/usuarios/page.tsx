@@ -1,51 +1,43 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
+import { RootState } from "@/lib/store/store";
 import {
-	fuenteDeTitulo,
-	pantallaPrincipalEstilos,
-} from "@/styles/global-styles";
-import { AppDispatch, RootState } from "@/lib/store/store";
-import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { fetchUsuarios } from "@/lib/store/utils/user/userSlice";
-import { useToastAlert } from "@/utils/hooks/useToastAlert";
-import { TableComponent } from "@/components";
+	fetchUsuarios,
+	setUsuarioPage,
+	setUsuarioPageSize,
+} from "@/lib/store/utils/user/userSlice";
+import { useEntityTable } from "@/hooks/useEntityTable";
+import { LoadingSpinner, TableComponent } from "@/components";
+import { pantallaPrincipalEstilos } from "@/styles/global-styles";
+import { SortOrder } from "@/models/types";
 
 const Usuarios = () => {
-	const dispatch = useAppDispatch<AppDispatch>();
-	const { usuarios } = useAppSelector((state: RootState) => state.user);
-	const { errorToast } = useToastAlert();
+	const {
+		datos,
+		loading,
+		error,
+		page,
+		pageSize,
+		total,
+		search,
+		setSearch,
+		handleSearch,
+		handlePageChange,
+		handlePageSizeChange,
+		sortField,
+		sortOrder,
+		handleSort,
+	} = useEntityTable({
+		fetchAction: fetchUsuarios,
+		setPageAction: setUsuarioPage,
+		setPageSizeAction: setUsuarioPageSize,
+		selector: (state: RootState) => state.user,
+		defaultSortField: "idUsuario",
+		defaultSortOrder: SortOrder.asc,
+	});
 
-	// ✅ Solo hace fetch si usuarios está vacío
-	useEffect(() => {
-		if (usuarios.length === 0) {
-			const fetchUsuariosTest = async () => {
-				try {
-					const action = await dispatch(fetchUsuarios());
-					if (!fetchUsuarios.fulfilled.match(action)) {
-						console.error("Error al obtener usuarios:", action.payload);
-						errorToast(action.payload || "Ocurrió un error al obtener usuarios");
-					}
-				} catch (err) {
-					console.error("Error inesperado:", err);
-					errorToast("Error inesperado al obtener usuarios");
-				}
-			};
-
-			fetchUsuariosTest();
-		}
-	}, [dispatch, errorToast, usuarios.length]);
-
-	// ✅ useMemo evita recomputación innecesaria
-	const usuariosMemo = useMemo(
-		() =>
-			usuarios.map((usuario) => ({
-				id: String(usuario.idUsuario),
-				...usuario,
-			})),
-		[usuarios]
-	);
-
+	// Columnas de la tabla
 	const columns = useMemo(
 		() => [
 			{ header: "ID", key: "idUsuario" },
@@ -55,17 +47,43 @@ const Usuarios = () => {
 		[]
 	);
 
+	// Formateo de datos
+	const data = useMemo(
+		() =>
+			datos.map((u) => ({
+				id: String(u.idUsuario),
+				...u,
+			})),
+		[datos]
+	);
+
 	return (
 		<div className={pantallaPrincipalEstilos}>
-			<label className={fuenteDeTitulo}>Usuarios</label>
-
-			<TableComponent
-				columns={columns}
-				data={usuariosMemo}
-				showFormActions={false}
-				// onAdd={() => console.log("Agregar usuario")}
-				// onEdit={(user) => console.log("Editar usuario:", user)}
-			/>
+			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
+				{loading && <LoadingSpinner />}
+				{!loading && !error && (
+					<TableComponent
+						columns={columns}
+						data={data}
+						showPagination
+						currentPage={page}
+						pageSize={pageSize}
+						totalItems={total}
+						title="Usuarios"
+						search={search}
+						onSearchChange={setSearch}
+						onSearchSubmit={handleSearch}
+						onPageChange={handlePageChange}
+						onPageSizeChange={handlePageSizeChange}
+						onSort={handleSort}
+						sortField={sortField}
+						sortOrder={sortOrder}
+						onSaveAdd={()=>null}
+						onSaveDelete={()=>null}
+						onSaveEdit={()=>null}
+					/>
+				)}
+			</div>
 		</div>
 	);
 };

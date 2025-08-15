@@ -1,16 +1,34 @@
-import LoginIzquierda from "./LoginIzquierda/index";
-import LayoutWrapper from "./LayoutWrapper/index";
-import Navbar from "./Navbar/index";
-import Footerbar from "./Footerbar/index";
-import TableComponent from "./TableComponent/index";
-import FiltroFechas from "./Dashboard/FiltroFechas";
-import HotelEstadisticas from "./Dashboard/HotelEstadisticas";
-import GraficoCantidadDeReservas from "./Dashboard/Graficos/Widgets/GraficoVertical/CantidadDeReservas";
-import GraficoCantidadDeVentas from "./Dashboard/Graficos/Widgets/GraficoVertical/CantidadDeVentas";
-import GraficoVertical from "./Dashboard/Graficos/Components/GraficoVertical";
-import GraficosContent from "./Dashboard/Graficos";
-import GraficoPie from "./Dashboard/Graficos/Components/GraficoPie"
-import GraficoPieEstadoHabitaciones from "./Dashboard/Graficos/Widgets/GraficoPieEstadoHabitaciones";
+import LoginIzquierda from "./ui/sections/LoginIzquierda";
+import LayoutWrapper from "./ui/sections/LayoutWrapper";
+import Navbar from "./ui/sections/Navbar";
+import Footerbar from "./ui/sections/Footerbar";
+import FiltroFechas from "./ui/uiComponents/Dashboard/FiltroFechas/FiltroFechas";
+import HotelEstadisticas from "./ui/uiComponents/Dashboard/HotelEstadisticas";
+import GraficoCantidadDeReservas from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoCantidadDeReservas";
+import GraficoCantidadDeIngresos from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoCantidadDeIngresos";
+import GraficoVertical from "./ui/uiComponents/Dashboard/Graficos/Components/GraficoVertical";
+import GraficosContent from "./ui/uiComponents/Dashboard/Graficos";
+import GraficoPie from "./ui/uiComponents/Dashboard/Graficos/Components/GraficoPie"
+import GraficoPieEstadoHabitaciones from "./ui/uiComponents/Dashboard/Graficos/Widgets/PieEstadoHabitaciones";
+import Paginator from "./ui/sections/Paginator";
+import LoadingSpinner from "./ui/uiComponents/LoadingSpinner";
+import TableComponent from "./ui/uiComponents/Tables/TableComponent";
+import LoginForm from "./forms/forms/LoginForm";
+import CloseButton from "./ui/buttons/CloseButton";
+import BackButton from "./ui/buttons/BackButton";
+import AppIcon from "./ui/icons/AppIcon";
+import PopupContainer from "./forms/popups/PopupContainer";
+import PopupFormAgregar from "./forms/popups/PopupFormAgregar";
+import PopupFormEditar from "./forms/popups/PopupFormEditar";
+import DynamicInputField from "./forms/formComponents/DynamicInputField"
+import TableHeader from "./ui/uiComponents/Tables/TableHeader";
+import TableBody from "./ui/uiComponents/Tables/TableBody";
+import TableButtons from "./ui/uiComponents/Tables/TableButtons";
+import InputForm from "./forms/formComponents/InputForm";
+import InputDateForm from "./forms/formComponents/InputDateForm";
+import SelectForm from "./forms/formComponents/SelectForm";
+import MainCalendario from "./ui/calendario/MainCalendario";
+import ButtonForm from "./forms/formComponents/ButtonForm";
 
 export {
 	LoginIzquierda,
@@ -23,7 +41,25 @@ export {
 	GraficosContent,
 	GraficoCantidadDeReservas,
     GraficoVertical,
-	GraficoCantidadDeVentas,
+	GraficoCantidadDeIngresos,
 	GraficoPie,
-	GraficoPieEstadoHabitaciones
+	GraficoPieEstadoHabitaciones,
+	Paginator,
+	LoadingSpinner,
+	LoginForm,
+	CloseButton,
+	BackButton,
+	AppIcon,
+	PopupContainer,
+	PopupFormAgregar,
+	PopupFormEditar,
+	DynamicInputField,
+	TableHeader,
+	TableBody,
+	TableButtons,
+	InputForm,
+	InputDateForm,
+	SelectForm,
+	MainCalendario,
+	ButtonForm
 };
