@@ -1,7 +1,7 @@
 import React from "react";
 import {GraficoPie} from "@/components/index";
 
-const GraficoPieEstadoHabitaciones = () => {
+const GraficoPieEstadoReservas = () => {
 	return (
 		<div className="w-full max-w-full h-auto">
 			<div className="relative w-full max-w-md h-9/10 mx-auto aspect-square">
@@ -15,4 +15,4 @@ const GraficoPieEstadoHabitaciones = () => {
 	);
 };
 
-export default GraficoPieEstadoHabitaciones;
+export default GraficoPieEstadoReservas;

@@ -13,6 +13,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   // Rutas donde ocultar el navbar y footer
   const hideNavbar =
     pathname === '/' ||
+    pathname === '/verificarCuenta' ||
     pathname === '/login' ||
     pathname === '/olvidarContrasena';
 

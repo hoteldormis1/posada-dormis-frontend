@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../axiosConfig";
 import { AxiosError } from "axios";
 import { extractErrorMessage } from "../extractErrorMessage";
-import { LoginCredentials, SortOrder, UserState, Usuario } from "@/models/types";
+import { LoginCredentials, SortOrder, TipoUsuario, UserState, Usuario } from "@/models/types";
 import { setAuthToken } from "../../useAuthToken";
 
 const initialState: UserState = {
@@ -15,6 +15,7 @@ const initialState: UserState = {
 	total: 0,
 	sortField: "idUsuario", // Campo por defecto
 	sortOrder: SortOrder.desc, // Orden por defecto
+	tiposUsuarios: []
 };
 // 🔐 LOGIN
 export const loginUser = createAsyncThunk<
@@ -75,54 +76,75 @@ export const logoutUser = createAsyncThunk<void, void, { rejectValue: string }>(
 );
 
 // 🔍 FETCH USUARIOS CON PAGINACIÓN Y SORT
+// 🔍 FETCH USUARIOS + TIPOS
 export const fetchUsuarios = createAsyncThunk<
-	{ data: Usuario[]; page: number; pageSize: number; total: number },
-	| {
-			page?: number;
-			size?: number;
-			search?: string;
-			sortField?: string;
-			sortOrder?: string;
-	  }
-	| undefined,
-	{ rejectValue: string }
+  {
+    data: Usuario[];
+    page: number;
+    pageSize: number;
+    total: number;
+    tiposUsuarios: TipoUsuario[];  // ✅ incluimos tipos en el payload
+  },
+  | {
+      page?: number;
+      size?: number;
+      search?: string;
+      sortField?: string;
+      sortOrder?: string;
+    }
+  | undefined,
+  { rejectValue: string }
 >(
-	"user/fetchUsuarios",
-	async (
-		params = {
-			page: 1,
-			size: 10,
-			search: "",
-			sortField: "idUsuario",
-			sortOrder: SortOrder.asc,
-		},
-		{ rejectWithValue }
-	) => {
-		try {
-			const {
-				page = 1,
-				size = 10,
-				search = "",
-				sortField = "idUsuario",
-				sortOrder = SortOrder.asc,
-			} = params;
-			const { data } = await api.get(
-				`/usuarios?page=${page}&size=${size}&search=${search}&sortField=${sortField}&sortOrder=${sortOrder}`
-			);
+  "user/fetchUsuarios",
+  async (
+    params = {
+      page: 1,
+      size: 10,
+      search: "",
+      sortField: "idUsuario",
+      sortOrder: SortOrder.asc,
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const {
+        page = 1,
+        size = 10,
+        search = "",
+        sortField = "idUsuario",
+        sortOrder = SortOrder.asc,
+      } = params;
 
-			return {
-				data: data.data,
-				page: data.page,
-				pageSize: data.pageSize,
-				total: data.total,
-			};
-		} catch (err) {
-			const axiosError = err as AxiosError;
-			return rejectWithValue(
-				extractErrorMessage(axiosError, "No se pudieron obtener los usuarios")
-			);
-		}
-	}
+      // ✅ Usuarios (estructura: { total, page, pageSize, data })
+      const { data: usuariosRes } = await api.get(
+        `/usuarios?page=${page}&size=${size}&search=${encodeURIComponent(
+          search
+        )}&sortField=${sortField}&sortOrder=${sortOrder}`
+      );
+
+      // ✅ Tipos de usuario (estructura: { data: TipoUsuario[] } o directamente array)
+      const { data: tiposRes } = await api.get(`/tipoUsuarios`);
+
+      const tiposUsuarios: TipoUsuario[] = tiposRes.map((t: any) => ({
+		activo: t.activo,
+		nombre: t.nombre,
+		idTipoUsuario: t.idTipoUsuario,
+	  }))
+
+      return {
+        data: usuariosRes.data,
+        page: usuariosRes.page,
+        pageSize: usuariosRes.pageSize,
+        total: usuariosRes.total,
+        tiposUsuarios,                 
+      };
+    } catch (err) {
+      const axiosError = err as AxiosError;
+      return rejectWithValue(
+        extractErrorMessage(axiosError, "No se pudieron obtener los usuarios")
+      );
+    }
+  }
 );
 
 const userSlice = createSlice({
@@ -154,6 +176,7 @@ const userSlice = createSlice({
 				state.page = action.payload.page;
 				state.pageSize = action.payload.pageSize;
 				state.total = action.payload.total;
+				state.tiposUsuarios = action.payload.tiposUsuarios;
 			})
 			.addCase(fetchUsuarios.rejected, (state, action) => {
 				state.loading = false;

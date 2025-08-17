@@ -12,6 +12,12 @@ export interface LoginCredentials {
 	clave: string;
 }
 
+export interface TipoUsuario {
+	nombre: string;
+	idTipoUsuario: number;
+	activo: boolean;
+}
+
 export interface UserState {
 	loading: boolean;
 	accessToken: string | null;
@@ -22,4 +28,5 @@ export interface UserState {
 	total: number;
 	sortOrder: SortOrder;
 	sortField: string;
+	tiposUsuarios: TipoUsuario[];
 }

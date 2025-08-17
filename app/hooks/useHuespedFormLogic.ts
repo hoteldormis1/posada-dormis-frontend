@@ -28,7 +28,7 @@ export const useHuespedFormLogic = (
 
         if (newMode === "nuevo") {
             // Limpiar campos cuando se cambia a nuevo huésped
-            const fields = ["idHuesped", "nombre", "apellido", "dni", "telefono", "email", "origen"];
+            const fields = ["idHuesped", "nombre", "apellido", "dni", "telefono", "email", "origen", "estadoDeReserva"];
             fields.forEach(field => {
                 const event = createSyntheticEvent(field, field === "origen" ? "AR" : "");
                 handleFormChange(event);
@@ -65,7 +65,9 @@ export const useHuespedFormLogic = (
     const isFieldEditable = (field: string) => {
         if (huespedMode === "nuevo") return true;
         if (huespedMode === "existente") {
-            if (field !== "fechaHasta" && field !== "fechaDesde" && field !== "montoPagado" && field !== "idHabitacion") {
+            if (field !== "fechaHasta" && field !== "fechaDesde" && field !== "montoPagado" && field !== "idHabitacion"
+                && field !== "idEstadoReserva"
+            ) {
                 return false
             }
         };

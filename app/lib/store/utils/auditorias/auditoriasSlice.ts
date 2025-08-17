@@ -25,7 +25,7 @@ export const fetchAuditorias = createAsyncThunk<
   FetchParams | undefined,
   { rejectValue: string }
 >(
-  "auditoria/fetchAuditorias",
+  "Auditoria/fetchAuditorias",
   async (
     params = {
       page: 1,
@@ -65,7 +65,7 @@ export const fetchAuditorias = createAsyncThunk<
 );
 
 const auditoriaSlice = createSlice({
-  name: "auditoria",
+  name: "Auditoria",
   initialState,
   reducers: {
     resetAuditoriaError: (state) => {

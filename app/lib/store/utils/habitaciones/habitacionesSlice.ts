@@ -23,7 +23,7 @@ const initialState: HabitacionesState = {
 	sortField: "numero",
 	sortOrder: SortOrder.asc,
 	tipoHabitaciones: [],
-	estadoHabitaciones: [],
+	EstadoReservas: [],
 };
 
 export const fetchHabitaciones = createAsyncThunk<
@@ -56,7 +56,11 @@ export const fetchHabitaciones = createAsyncThunk<
 			);
 
 			const { data: tipos } = await api.get("/tipoHabitacion");
-			const { data: estados } = await api.get("/estadoHabitacion");
+			const { data: estados } = await api.get("/estadoReserva");
+
+			const estadosOrdenados = [...estados].sort(
+				(a, b) => b.prioridad - a.prioridad
+			  );
 
 			return {
 				data: data.data,
@@ -64,7 +68,7 @@ export const fetchHabitaciones = createAsyncThunk<
 				pageSize: data.pageSize,
 				total: data.total,
 				tipoHabitaciones: tipos,
-				estadoHabitaciones: estados,
+				EstadoReservas: estadosOrdenados,
 			};
 		} catch (err) {
 			const axiosError = err as AxiosError;
@@ -80,20 +84,20 @@ export const editHabitacion = createAsyncThunk<
 	{
 		idHabitacion: number;
 		idTipoHabitacion: number;
-		idEstadoHabitacion: number;
+		idEstadoReserva: number;
 		// numero: number;
 	},
 	{ rejectValue: string }
 >(
 	"habitaciones/editHabitacion",
 	async (
-		{ idHabitacion, idTipoHabitacion, idEstadoHabitacion },
+		{ idHabitacion, idTipoHabitacion, idEstadoReserva },
 		{ rejectWithValue }
 	) => {
 		try {
 			await api.put(`/habitaciones/${idHabitacion}`, {
 				idTipoHabitacion,
-				idEstadoHabitacion,
+				idEstadoReserva,
 			});
 		} catch (err) {
 			const axiosError = err as AxiosError;
@@ -108,17 +112,15 @@ export const addHabitacion = createAsyncThunk<
 	void,
 	{
 		idTipoHabitacion: number;
-		idEstadoHabitacion: number;
 		numero: number;
 	},
 	{ rejectValue: string }
 >(
 	"habitaciones/addHabitacion",
-	async ({ idTipoHabitacion, idEstadoHabitacion, numero }, { rejectWithValue }) => {
+	async ({ idTipoHabitacion, numero }, { rejectWithValue }) => {
 		try {
 			await api.post("/habitaciones", {
 				idTipoHabitacion,
-				idEstadoHabitacion,
 				numero,
 			});
 		} catch (err) {
@@ -191,7 +193,7 @@ const habitacionesSlice = createSlice({
 					state.pageSize = action.payload.pageSize;
 					state.total = action.payload.total;
 					state.tipoHabitaciones = action.payload.tipoHabitaciones;
-					state.estadoHabitaciones = action.payload.estadoHabitaciones;
+					state.EstadoReservas = action.payload.EstadoReservas;
 				}
 			)
 			.addCase(fetchHabitaciones.rejected, (state, action) => {

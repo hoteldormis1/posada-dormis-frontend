@@ -36,6 +36,8 @@ const Reservas: React.FC = () => {
 		{ header: "Estado", key: "estadoDeReserva" },
 	]
 
+	const EstadoReservas = useAppSelector((state: RootState) => state.habitaciones.EstadoReservas);
+
 	const buildReservaInputOptions = (habitacionesDatos: any[]): FormFieldInputConfig[] => [
 		// MODE SELECTION
 		{
@@ -55,8 +57,8 @@ const Reservas: React.FC = () => {
 			label: "Seleccionar huésped",
 			editable: false,
 			options: (huespedes ?? []).map((h: any) => ({
-			  value: h.idHuesped,
-			  label: `${h.nombre} ${h.apellido}`,
+				value: h.idHuesped,
+				label: `${h.nombre} ${h.apellido}`,
 			})),
 		},
 		// HUESPED FIELDS (conditional editable)
@@ -80,6 +82,18 @@ const Reservas: React.FC = () => {
 		},
 		{ key: "fechaDesde", label: "Fecha desde", type: "date", editable: false },
 		{ key: "fechaHasta", label: "Fecha hasta", type: "date", editable: false },
+		{
+			key: "idEstadoReserva",
+			type: "select",
+			label: "Estado de Reserva",
+			options: EstadoReservas.map((estado: any) => {
+				return {
+					value: estado.idEstadoReserva,
+					label: estado.nombre.charAt(0).toUpperCase() + estado.nombre.slice(1),
+				}
+			}),
+			editable: true
+		},
 		{ key: "montoPagado", label: "Monto Pagado", type: "custom", editable: true },
 	];
 
@@ -101,7 +115,7 @@ const Reservas: React.FC = () => {
 				errorToast(resRes.payload || "Error al obtener reservas");
 			}
 			if (fetchHuespedes.rejected.match(hueRes)) {
-			  errorToast(hueRes.payload || "Error al obtener huéspedes");
+				errorToast(hueRes.payload || "Error al obtener huéspedes");
 			}
 		})();
 	}, [dispatch, status, errorToast]);
@@ -151,43 +165,52 @@ const Reservas: React.FC = () => {
 	};
 
 	const onSaveAdd = async (formData: Record<string, unknown>) => {
-		const { huespedMode, idHuesped, nombre, apellido, dni, telefono, email, origen, idHabitacion, fechaDesde, fechaHasta, montoPagado } = formData;
+		const {
+			huespedMode, idHuesped,
+			nombre, apellido, dni, telefono, email, origen,
+			idHabitacion, idEstadoReserva, fechaDesde, fechaHasta, montoPagado
+		} = formData;
 
 		const countryName = getCountryName(String(origen || "AR"), "es");
 
-		const huesped = {
-			nombre: String(nombre || ""),
-			apellido: String(apellido || ""),
-			dni: String(dni || ""),
-			telefono: String(telefono || ""),
-			email: String(email || ""),
-			origen: countryName,
-		};
-
-		// Calcular monto total y asegurar que montoPagado no exceda el total
+		// cálculo del monto total
 		const precioPorDia = getPrecioHabitacion(habitaciones, idHabitacion);
 		const noches = diffNoches(String(fechaDesde), String(fechaHasta));
 		const montoTotal = precioPorDia * noches;
 		const pagadoNum = Number(montoPagado) || 0;
 		const montoPagadoSeguro = Math.min(pagadoNum, montoTotal);
 
-		const payload = {
-			huesped,
+		// base del payload
+		const payload: any = {
 			idHabitacion: Number(idHabitacion),
-			idEstadoReserva: 1,
+			idEstadoReserva: Number(idEstadoReserva),
 			fechaDesde: parseDateWithFallbackISO(String(fechaDesde)),
 			fechaHasta: parseDateWithFallbackISO(String(fechaHasta)),
 			montoPagado: montoPagadoSeguro,
-		} as const;
+		};
+
+		if (huespedMode === "existente") {
+			payload.idHuesped = Number(idHuesped);   // ✅ acá va
+		} else {
+			payload.huesped = {
+				nombre: String(nombre || ""),
+				apellido: String(apellido || ""),
+				dni: String(dni || ""),
+				telefono: String(telefono || ""),
+				email: String(email || ""),
+				origen: countryName,
+			};
+		}
 
 		try {
-			await dispatch(addReserva(payload as any)).unwrap();
+			await dispatch(addReserva(payload)).unwrap();
 			await dispatch(fetchReservas());
 			successToast("Reserva creada exitosamente.");
 		} catch (err) {
 			errorToast(typeof err === "string" ? err : "Error al crear reserva.");
 		}
 	};
+
 
 	const onSaveDelete = async (id: string) => {
 		try {

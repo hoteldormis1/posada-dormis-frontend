@@ -9,7 +9,7 @@ import GraficoCantidadDeIngresos from "./ui/uiComponents/Dashboard/Graficos/Widg
 import GraficoVertical from "./ui/uiComponents/Dashboard/Graficos/Components/GraficoVertical";
 import GraficosContent from "./ui/uiComponents/Dashboard/Graficos";
 import GraficoPie from "./ui/uiComponents/Dashboard/Graficos/Components/GraficoPie"
-import GraficoPieEstadoHabitaciones from "./ui/uiComponents/Dashboard/Graficos/Widgets/PieEstadoHabitaciones";
+import GraficoPieEstadoReservas from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoCantidadDeReservas";
 import Paginator from "./ui/sections/Paginator";
 import LoadingSpinner from "./ui/uiComponents/LoadingSpinner";
 import TableComponent from "./ui/uiComponents/Tables/TableComponent";
@@ -43,7 +43,7 @@ export {
     GraficoVertical,
 	GraficoCantidadDeIngresos,
 	GraficoPie,
-	GraficoPieEstadoHabitaciones,
+	GraficoPieEstadoReservas,
 	Paginator,
 	LoadingSpinner,
 	LoginForm,
