@@ -49,7 +49,7 @@ const Habitaciones = () => {
 		selector: (state: RootState) => ({
 			...state.habitaciones,
 			tipoHabitaciones: state.habitaciones.tipoHabitaciones,
-			EstadoReservas: state.habitaciones.EstadoReservas,
+			EstadoReservas: state.habitaciones.estadosDeReserva,
 		}),
 		defaultSortField: "numero",
 		defaultSortOrder: SortOrder.asc,
@@ -194,7 +194,7 @@ const Habitaciones = () => {
 
 	const onSaveDelete = async (id: string): Promise<void> => {
 		try {
-			const confirmed = window.confirm("¿Eliminar esta habitación? Esta acción no se puede deshacer.");
+			const confirmed = await confirm("¿Eliminar esta habitación? Esta acción no se puede deshacer.");
 			if (!confirmed) return;
 
 			await dispatch(deleteHabitacion(Number(id))).unwrap();

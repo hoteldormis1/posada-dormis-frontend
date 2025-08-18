@@ -17,7 +17,6 @@ import { AxiosError } from "axios";
 import { useSweetAlert } from "@/hooks/useSweetAlert";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { hasPermission } from "@/utils/helpers/permissions";
-import { useGetTiposHabitacionQuery } from "@/lib/store/api/catalogosApi";
 
 /**
  * Componente de administración de usuarios.

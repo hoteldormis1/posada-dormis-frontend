@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
 import { addReserva, deleteReserva, editReserva, fetchHuespedes, fetchReservas } from "@/lib/store/utils/index";
 import { useToastAlert } from "@/hooks/useToastAlert";
-import { FormFieldInputConfig, Reserva, SortOrder, StateStatus } from "@/models/types";
+import { EstadoReserva, FormFieldInputConfig, Habitacion, Reserva, SortOrder, StateStatus } from "@/models/types";
 import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
 import { useSweetAlert } from "@/hooks/useSweetAlert";
 import { reservaAddSchema, reservaEditSchema } from "@/utils/validations/reservaSchema";
@@ -17,6 +17,7 @@ import { diffNoches, toISOFromFlexible, parseDateWithFallbackISO } from "@/utils
 import { getPrecioHabitacion } from "@/utils/helpers/money";
 import makeCustomFields from "@/components/reservas/makeCustomFields";
 import { hasPermission } from "@/utils/helpers/permissions";
+import { Huesped } from "@/models/types/huesped";
 
 const Reservas: React.FC = () => {
 	const dispatch = useAppDispatch<AppDispatch>();
@@ -39,7 +40,7 @@ const Reservas: React.FC = () => {
 
 	const EstadoReservas = useAppSelector((state: RootState) => state.habitaciones.estadosDeReserva);
 
-	const buildReservaInputOptions = (habitacionesDatos: any[]): FormFieldInputConfig[] => [
+	const buildReservaInputOptions = (habitacionesDatos: Habitacion[]): FormFieldInputConfig[] => [
 		// MODE SELECTION
 		{
 			key: "huespedMode",
@@ -57,7 +58,7 @@ const Reservas: React.FC = () => {
 			type: "select",
 			label: "Seleccionar huésped",
 			editable: false,
-			options: (huespedes ?? []).map((h: any) => ({
+			options: (huespedes ?? []).map((h: Huesped) => ({
 				value: h.idHuesped,
 				label: `${h.nombre} ${h.apellido}`,
 			})),
@@ -76,7 +77,7 @@ const Reservas: React.FC = () => {
 			type: "select",
 			label: "Habitación",
 			editable: false,
-			options: (habitacionesDatos ?? []).map((h: any) => ({
+			options: (habitacionesDatos ?? []).map((h: Habitacion) => ({
 				value: h.idHabitacion,
 				label: `Número ${h.numero}`,
 			})),
@@ -87,7 +88,7 @@ const Reservas: React.FC = () => {
 			key: "idEstadoReserva",
 			type: "select",
 			label: "Estado de Reserva",
-			options: EstadoReservas.map((estado: any) => {
+			options: EstadoReservas.map((estado: EstadoReserva) => {
 				return {
 					value: estado.idEstadoReserva,
 					label: estado.nombre.charAt(0).toUpperCase() + estado.nombre.slice(1),
@@ -160,7 +161,7 @@ const Reservas: React.FC = () => {
 			await dispatch(editReserva(payload)).unwrap();
 			await dispatch(fetchReservas());
 			successToast("Reserva actualizada correctamente.");
-		} catch (err: any) {
+		} catch (err) {
 			errorToast(typeof err === "string" ? err : "Ocurrió un error al actualizar la reserva.");
 		}
 	};
