@@ -23,7 +23,7 @@ const initialState: HabitacionesState = {
 	sortField: "numero",
 	sortOrder: SortOrder.asc,
 	tipoHabitaciones: [],
-	EstadoReservas: [],
+	estadosDeReserva: [],
 };
 
 export const fetchHabitaciones = createAsyncThunk<
@@ -68,7 +68,7 @@ export const fetchHabitaciones = createAsyncThunk<
 				pageSize: data.pageSize,
 				total: data.total,
 				tipoHabitaciones: tipos,
-				EstadoReservas: estadosOrdenados,
+				estadosDeReserva: estadosOrdenados,
 			};
 		} catch (err) {
 			const axiosError = err as AxiosError;
@@ -193,7 +193,7 @@ const habitacionesSlice = createSlice({
 					state.pageSize = action.payload.pageSize;
 					state.total = action.payload.total;
 					state.tipoHabitaciones = action.payload.tipoHabitaciones;
-					state.EstadoReservas = action.payload.EstadoReservas;
+					state.estadosDeReserva = action.payload.estadosDeReserva;
 				}
 			)
 			.addCase(fetchHabitaciones.rejected, (state, action) => {

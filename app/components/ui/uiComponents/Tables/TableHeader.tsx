@@ -12,6 +12,7 @@ interface TableHeaderProps {
 	onSearchSubmit?: (e?: React.FormEvent | React.KeyboardEvent) => void;
 	setShowAddPopup?: (show: boolean) => void;
 	showFormActions: boolean;
+	showActions?: { create: boolean; delete: boolean; edit: boolean };
 }
 
 const TableHeader = ({
@@ -20,7 +21,8 @@ const TableHeader = ({
 	onSearchChange,
 	onSearchSubmit,
 	setShowAddPopup,
-	showFormActions
+	showFormActions,
+	showActions
 }: TableHeaderProps) => {
 	return (
 		<div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
@@ -45,7 +47,7 @@ const TableHeader = ({
 					</button>
 				</div>
 
-				{showFormActions && <button
+				{showFormActions && showActions?.create && <button
 					onClick={() => setShowAddPopup?.(true)}
 					className="cursor-pointer bg-main text-white px-4 py-2 rounded hover:bg-green-700 transition-all text-sm w-full sm:w-auto"
 				>

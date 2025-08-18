@@ -32,7 +32,7 @@ export interface HabitacionesState {
 	sortOrder: SortOrder;
 	sortField: string;
 	tipoHabitaciones: TipoHabitacion[];
-	EstadoReservas: EstadoReserva[];
+	estadosDeReserva: EstadoReserva[];
 }
 
 export type FetchHabitacionesResponse = {
@@ -41,5 +41,5 @@ export type FetchHabitacionesResponse = {
 	pageSize: number;
 	total: number;
 	tipoHabitaciones: TipoHabitacion[];
-	EstadoReservas: EstadoReserva[];
+	estadosDeReserva: EstadoReserva[];
 };

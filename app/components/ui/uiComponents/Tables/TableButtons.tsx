@@ -29,7 +29,7 @@ interface TableButtonsProps<T> {
     options?: FormFieldInputOptionsConfig[];
     min?: number;
     max?: number;
-    editable?: boolean; // Nuevo: indica si el campo es editable en modo edición
+    editable?: boolean;
   }>;
   formData: Record<string, string>;
   handleFormChange: (
@@ -38,8 +38,8 @@ interface TableButtonsProps<T> {
   getUpdatedRow: () => T | null;
   handleSaveEdit: (updated: T) => void;
   setShowEditPopup: (show: boolean) => void;
-  errors?: Record<string, string>; // Nuevo: errores de validación
-  validateForm?: () => boolean; // Nuevo: función de validación
+  errors?: Record<string, string>;
+  validateForm?: () => boolean; 
 
   // Agregado
   showAddPopup?: boolean;
@@ -49,8 +49,8 @@ interface TableButtonsProps<T> {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
   handleSaveAdd?: () => void;
-  errorsAdd?: Record<string, string>; // Nuevo: errores de validación para agregar
-  validateFormAdd?: () => boolean; // Nuevo: función de validación para agregar
+  errorsAdd?: Record<string, string>;
+  validateFormAdd?: () => boolean; 
 
   customFields?: {
     [key: string]: (
@@ -85,19 +85,18 @@ const TableButtons = <T extends { id: string }>({
   getUpdatedRow,
   handleSaveEdit,
   setShowEditPopup,
-  errors = {}, // Nuevo
-  validateForm, // Nuevo
+  errors = {},
+  validateForm, 
   showAddPopup,
   setShowAddPopup,
   formDataAdd,
   handleFormChangeAdd,
   handleSaveAdd,
-  errorsAdd = {}, // Nuevo
-  validateFormAdd, // Nuevo
-  customFields, // ✅
-  huespedLogic, // ✅ Nuevo: lógica de huésped
+  errorsAdd = {},
+  validateFormAdd, 
+  customFields, 
+  huespedLogic,
 }: TableButtonsProps<T>) => {
-  // puente para onChange de componentes custom → tus handlers existentes
   const makeSyntheticChange =
     (key: string, isAdd = false) =>
       (nextValue: string) => {

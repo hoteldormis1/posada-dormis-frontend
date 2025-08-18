@@ -48,6 +48,7 @@ interface TableComponentProps<T> {
   validationSchemaAdd?: z.ZodSchema<Record<string, unknown>>;
   // Función para mapear datos de la fila al formulario de edición
   mapRowToFormData?: (row: T) => Record<string, string>;
+  showActions?: { create: boolean; delete: boolean; edit: boolean };
 }
 
 const TableComponent = <T extends { id: string }>({
@@ -75,6 +76,7 @@ const TableComponent = <T extends { id: string }>({
   validationSchemaEdit, 
   validationSchemaAdd, 
   mapRowToFormData, 
+  showActions
 }: TableComponentProps<T>) => {
   // === Editar ===
   const {
@@ -139,13 +141,15 @@ const TableComponent = <T extends { id: string }>({
       header: col.header,
     }));
 
-    if (showFormActions) {
+    // 👇 solo agregamos la columna "Acciones" si hay al menos una acción habilitada
+    const hasRowActions = showActions?.edit || showActions?.delete;
+    if (showFormActions && hasRowActions) {
       baseCols.push({
         accessorKey: "actions",
         header: "Acciones",
-        cell: ({ row }) => {
-          return (
-            <div className="flex gap-2">
+        cell: ({ row }) => (
+          <div className="flex gap-2 justify-center ">
+            {showActions?.edit && (
               <button
                 onClick={() => handleEditClick(row.original.id, data)}
                 className="text-blue-500 hover:text-blue-700"
@@ -153,6 +157,8 @@ const TableComponent = <T extends { id: string }>({
               >
                 <FaEdit className="text-black text-xs cursor-pointer" />
               </button>
+            )}
+            {showActions?.delete && (
               <button
                 onClick={() => handleDelete?.(row.original.id)}
                 className="text-red-500 hover:text-red-700"
@@ -160,13 +166,15 @@ const TableComponent = <T extends { id: string }>({
               >
                 <FaTrash className="text-black text-xs cursor-pointer" />
               </button>
-            </div>
-          );
-        },
+            )}
+          </div>
+        ),
       });
     }
+
     return baseCols;
-  }, [columns, showFormActions, data, handleEditClick, onSaveDelete]);
+  }, [columns, showFormActions, showActions, data, handleEditClick, onSaveDelete]);
+
 
   const table = useReactTable({
     data,
@@ -194,6 +202,7 @@ const TableComponent = <T extends { id: string }>({
         onSearchSubmit={onSearchSubmit}
         setShowAddPopup={setShowAddPopup}
         showFormActions={showFormActions}
+        showActions={showActions}
       />
 
       <TableBody
@@ -203,6 +212,7 @@ const TableComponent = <T extends { id: string }>({
         sortField={sortField}
         sortOrder={sortOrder}
         handleHeaderClick={handleHeaderClick}
+        showActions={showActions}
       />
 
       <TableButtons

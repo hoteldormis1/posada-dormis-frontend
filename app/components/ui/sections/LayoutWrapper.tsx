@@ -2,6 +2,10 @@
 
 import { usePathname } from 'next/navigation';
 import { Footerbar, Navbar } from '@/components/index';
+import { useLayoutEffect } from 'react';
+import { fetchTiposUsuarios } from '@/lib/store/utils';
+import { AppDispatch } from '@/lib/store/store';
+import { useAppDispatch } from '@/lib/store/hooks';
 
 interface LayoutWrapperProps {
   children: React.ReactNode;
@@ -9,6 +13,11 @@ interface LayoutWrapperProps {
 
 export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const pathname = usePathname();
+  const dispatch: AppDispatch = useAppDispatch();
+
+  useLayoutEffect(() => {
+    dispatch(fetchTiposUsuarios());
+  }, []);
 
   // Rutas donde ocultar el navbar y footer
   const hideNavbar =

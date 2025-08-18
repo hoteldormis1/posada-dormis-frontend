@@ -16,6 +16,8 @@ import { useAppSelector } from "@/lib/store/hooks";
 import { AxiosError } from "axios";
 import { useSweetAlert } from "@/hooks/useSweetAlert";
 import { useToastAlert } from "@/hooks/useToastAlert";
+import { hasPermission } from "@/utils/helpers/permissions";
+import { useGetTiposHabitacionQuery } from "@/lib/store/api/catalogosApi";
 
 /**
  * Componente de administración de usuarios.
@@ -75,10 +77,11 @@ const Usuarios = () => {
 		defaultSortField: "idUsuario",
 		defaultSortOrder: SortOrder.asc,
 	});
-
 	const { confirm } = useSweetAlert();
 	const { errorToast } = useToastAlert();
-
+	const { currentUser } = useAppSelector((state: RootState) => state.user);
+	const {tiposUsuarios} = useAppSelector((state: RootState) => state.user);
+	
 	// Columnas de la tabla
 	const columns = useMemo(
 		() => [
@@ -88,9 +91,7 @@ const Usuarios = () => {
 		],
 		[]
 	);
-
-	const tiposUsuarios = useAppSelector((state: RootState) => state.user.tiposUsuarios);
-
+	
 	function parseAxiosError(e: unknown) {
 		const err = e as AxiosError<{ message?: string }>;
 		const status = err?.response?.status;
@@ -167,11 +168,13 @@ const Usuarios = () => {
 			key: "nombre",
 			type: "text",
 			label: "Nombre",
+			editable: true
 		  },
 		  {
 			key: "email",
 			type: "text",
 			label: "Email",
+			editable: false
 		  },
 		  {
 			key: "tipoUsuario",
@@ -181,6 +184,7 @@ const Usuarios = () => {
 				value: t.nombre,
 				label: t.nombre,
 			})),
+			editable: false
 		  },
 	];
 
@@ -193,6 +197,11 @@ const Usuarios = () => {
 			})),
 		[datos]
 	);
+
+	const idTipoUsuarioActual = currentUser?.idTipoUsuario;
+	const puedeBorrar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "usuario", "delete");
+	const puedeEditar = false; //nunca poder editar usuario acá
+	const puedeAgregar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "usuario", "create");
 
 	return (
 		<div className={pantallaPrincipalEstilos}>
@@ -220,6 +229,7 @@ const Usuarios = () => {
 						onSaveEdit={()=>null}
 						inputOptions={inputOptions}
 						showFormActions={true}
+						showActions={{create: puedeAgregar, delete: puedeBorrar, edit: puedeEditar}}
 					/>
 				)}
 			</div>

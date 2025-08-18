@@ -29,4 +29,12 @@ export interface UserState {
 	sortOrder: SortOrder;
 	sortField: string;
 	tiposUsuarios: TipoUsuario[];
+	currentUser: UserPerfil;
 }
+
+export type UserPerfil = {
+	idUsuario: number;
+	nombre: string;
+	email: string;
+	idTipoUsuario: number;
+  };
