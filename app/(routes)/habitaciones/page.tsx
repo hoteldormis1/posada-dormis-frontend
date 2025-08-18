@@ -17,6 +17,7 @@ import { FormFieldInputConfig, Habitacion, SortOrder, StateStatus } from "@/mode
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { useSweetAlert } from "@/hooks/useSweetAlert";
+import { hasPermission } from "@/utils/helpers/permissions";
 
 const Habitaciones = () => {
 	const dispatch: AppDispatch = useAppDispatch();
@@ -206,6 +207,13 @@ const Habitaciones = () => {
 		}
 	};
 
+	const { currentUser } = useAppSelector((state: RootState) => state.user);
+	const {tiposUsuarios} = useAppSelector((state: RootState) => state.user);
+	const idTipoUsuarioActual = currentUser?.idTipoUsuario;
+	const puedeBorrar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "habitacion", "delete");
+	const puedeEditar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "habitacion", "update"); 
+	const puedeAgregar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "habitacion", "create");
+
 	return (
 		<div className={pantallaPrincipalEstilos}>
 			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
@@ -244,6 +252,7 @@ const Habitaciones = () => {
 							onSaveAdd={onSaveAdd}
 							onSaveDelete={onSaveDelete}
 							inputOptions={inputOptions}
+							showActions={{create: puedeAgregar, delete: puedeBorrar, edit: puedeEditar}}
 						/>
 					);
 				})()}

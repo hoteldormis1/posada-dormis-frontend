@@ -8,7 +8,6 @@ import userSlice from "./utils/user/userSlice";
 import habitacionesSlice from "./utils/habitaciones/habitacionesSlice";
 import auditoriasSlice from "./utils/auditorias/auditoriasSlice";
 import dashboardSlice from "./utils/dashboard/dashboardSlice";
-import { apiSlice } from "./api/apiSlice";
 
 export const store = configureStore({
   reducer: {
@@ -19,10 +18,8 @@ export const store = configureStore({
     user: userSlice,
     habitaciones: habitacionesSlice,
     auditorias: auditoriasSlice,
-    dashboards: dashboardSlice,
-    [apiSlice.reducerPath]: apiSlice.reducer,
-  },
-  middleware: (getDefault) => getDefault().concat(apiSlice.middleware),
+    dashboards: dashboardSlice
+  }
 });
 
 export type RootState = ReturnType<typeof store.getState>;

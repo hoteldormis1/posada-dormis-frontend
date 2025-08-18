@@ -5,9 +5,9 @@ import { inputBaseEstilos, labelBaseEstilos, pantallaPrincipalEstilos } from "@/
 import { LoadingSpinner, TableComponent } from "@/components";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
-import { fetchHuespedes } from "@/lib/store/utils/index";
+import { addReserva, deleteReserva, editReserva, fetchHuespedes, fetchReservas } from "@/lib/store/utils/index";
 import { useToastAlert } from "@/hooks/useToastAlert";
-import { FormFieldInputConfig, Reserva, SortOrder } from "@/models/types";
+import { FormFieldInputConfig, Reserva, SortOrder, StateStatus } from "@/models/types";
 import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
 import { useSweetAlert } from "@/hooks/useSweetAlert";
 import { reservaAddSchema, reservaEditSchema } from "@/utils/validations/reservaSchema";
@@ -17,18 +17,14 @@ import { diffNoches, toISOFromFlexible, parseDateWithFallbackISO } from "@/utils
 import { getPrecioHabitacion } from "@/utils/helpers/money";
 import makeCustomFields from "@/components/reservas/makeCustomFields";
 import { hasPermission } from "@/utils/helpers/permissions";
-import { useGetReservasQuery, useAddReservaMutation, useEditReservaMutation, useDeleteReservaMutation } from "@/lib/store/api/reservasApi";
 
 const Reservas: React.FC = () => {
 	const dispatch = useAppDispatch<AppDispatch>();
+	const { reservas, status } = useAppSelector((state: RootState) => state.reservas);
 	const { datos: huespedes } = useAppSelector((state: RootState) => state.huespedes);
 	const { habitaciones } = useAppSelector((state: RootState) => state);
 	const { errorToast, successToast } = useToastAlert();
 	const { confirm } = useSweetAlert();
-	const { data: reservas = [], isFetching, isError, refetch } = useGetReservasQuery();
-	const [createReserva] = useAddReservaMutation();
-	const [updateReserva] = useEditReservaMutation();
-	const [removeReserva] = useDeleteReservaMutation();
 
 	const columns = [
 		{ header: "Habitación", key: "numeroHab" },
@@ -41,7 +37,7 @@ const Reservas: React.FC = () => {
 		{ header: "Estado", key: "estadoDeReserva" },
 	]
 
-	const estadosDeReserva = useAppSelector((state: RootState) => state.habitaciones.estadosDeReserva);
+	const EstadoReservas = useAppSelector((state: RootState) => state.habitaciones.estadosDeReserva);
 
 	const buildReservaInputOptions = (habitacionesDatos: any[]): FormFieldInputConfig[] => [
 		// MODE SELECTION
@@ -91,7 +87,7 @@ const Reservas: React.FC = () => {
 			key: "idEstadoReserva",
 			type: "select",
 			label: "Estado de Reserva",
-			options: estadosDeReserva.map((estado: any) => {
+			options: EstadoReservas.map((estado: any) => {
 				return {
 					value: estado.idEstadoReserva,
 					label: estado.nombre.charAt(0).toUpperCase() + estado.nombre.slice(1),
@@ -102,22 +98,28 @@ const Reservas: React.FC = () => {
 		{ key: "montoPagado", label: "Monto Pagado", type: "custom", editable: true },
 	];
 
-	// Carga inicial de catálogos dependientes
+	// Carga inicial
 	useEffect(() => {
+		if (status !== StateStatus.idle) return;
+
 		(async () => {
-			const [habRes, hueRes] = await Promise.all([
+			const [habRes, resRes, hueRes] = await Promise.all([
 				dispatch(fetchHabitaciones({ sortOrder: SortOrder.asc })),
+				dispatch(fetchReservas()),
 				dispatch(fetchHuespedes()),
 			]);
 
 			if (fetchHabitaciones.rejected.match(habRes)) {
 				errorToast(habRes.payload || "Error al obtener habitaciones");
 			}
+			if (fetchReservas.rejected.match(resRes)) {
+				errorToast(resRes.payload || "Error al obtener reservas");
+			}
 			if (fetchHuespedes.rejected.match(hueRes)) {
 				errorToast(hueRes.payload || "Error al obtener huéspedes");
 			}
 		})();
-	}, [dispatch, errorToast]);
+	}, [dispatch, status, errorToast]);
 
 	const data = useMemo(() => reservas, [reservas]);
 
@@ -155,8 +157,8 @@ const Reservas: React.FC = () => {
 
 			Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k]);
 
-			await updateReserva(payload).unwrap();
-			await refetch();
+			await dispatch(editReserva(payload)).unwrap();
+			await dispatch(fetchReservas());
 			successToast("Reserva actualizada correctamente.");
 		} catch (err: any) {
 			errorToast(typeof err === "string" ? err : "Ocurrió un error al actualizar la reserva.");
@@ -202,8 +204,8 @@ const Reservas: React.FC = () => {
 		}
 
 		try {
-			await createReserva(payload).unwrap();
-			await refetch();
+			await dispatch(addReserva(payload)).unwrap();
+			await dispatch(fetchReservas());
 			successToast("Reserva creada exitosamente.");
 		} catch (err) {
 			errorToast(typeof err === "string" ? err : "Error al crear reserva.");
@@ -215,7 +217,7 @@ const Reservas: React.FC = () => {
 		try {
 			const confirmed = await confirm("Esta acción no se puede deshacer.");
 			if (!confirmed) return;
-			await removeReserva(id).unwrap();
+			await dispatch(deleteReserva(id)).unwrap();
 			successToast("Reserva eliminada exitosamente.");
 		} catch (err) {
 			errorToast(typeof err === "string" ? err : "Error al eliminar la reserva.");
@@ -226,15 +228,15 @@ const Reservas: React.FC = () => {
 	const {tiposUsuarios} = useAppSelector((state: RootState) => state.user);
 	const idTipoUsuarioActual = currentUser?.idTipoUsuario;
 	const puedeBorrar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "reserva", "delete");
-	const puedeEditar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "reserva", "update");
+	const puedeEditar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "reserva", "update"); 
 	const puedeAgregar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "reserva", "create");
 
 	return (
 		<div className={pantallaPrincipalEstilos}>
 			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
 				{(() => {
-					if (isFetching) return <LoadingSpinner />;
-					if (isError)
+					if (status === StateStatus.loading) return <LoadingSpinner />;
+					if (status === StateStatus.failed)
 						return <p className="text-center mt-10 text-red-600">Ocurrió un error al cargar las reservas.</p>;
 
 					return (
