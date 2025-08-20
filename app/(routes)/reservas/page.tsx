@@ -202,6 +202,9 @@ const Reservas: React.FC = () => {
 				email: String(email || ""),
 				origen: countryName,
 			};
+			if(idHuesped){
+				payload.idHuesped = Number(idHuesped);
+			}
 		}
 
 		try {
