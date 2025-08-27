@@ -114,6 +114,16 @@ export const toYMDLocal = (d: Date) => {
   return `${y}-${m}-${day}`;
 };
 
+export const toYMD = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate()
+  ).padStart(2, "0")}`;
+const addDays = (d: Date, n: number) => {
+  const c = new Date(d);
+  c.setDate(c.getDate() + n);
+  return c;
+};
+
 /** ────────────────────────────────────────────────────────────────────────────
  *  Helpers de rango (semana/mes/año) – usando semana que inicia en Lunes
  *  ──────────────────────────────────────────────────────────────────────────── */
