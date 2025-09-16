@@ -60,7 +60,7 @@ const Habitaciones = () => {
 			key: "numero",
 			type: "number",
 			label: "Número",
-			editable: false
+			editable: true
 		},
 		{
 			key: "tipo",
@@ -70,7 +70,7 @@ const Habitaciones = () => {
 				value: tipo.nombre,
 				label: `${tipo.nombre} - $${tipo.precio}`,
 			})),
-			editable: false
+			editable: true
 		},
 		/*{
 			key: "nombre",

@@ -173,7 +173,7 @@ const Usuarios = () => {
 			key: "email",
 			type: "text",
 			label: "Email",
-			editable: false
+			editable: true
 		  },
 		  {
 			key: "tipoUsuario",
@@ -183,7 +183,7 @@ const Usuarios = () => {
 				value: t.nombre,
 				label: t.nombre,
 			})),
-			editable: false
+			editable: true
 		  },
 	];
 
