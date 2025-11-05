@@ -23,6 +23,7 @@ import { Option } from "@/components/reservas/types";
 import { EstadoReserva } from "@/models/types";
 import FormRenderer from "@/components/reservas/FormRenderer";
 import { useHuespedFormLogic } from "@/hooks/useHuespedFormLogic";
+import DetallesReservaPopup from "@/components/ui/calendario/DetallesReservaPopup";
 
 export default function CalendarioPage() {
   const dispatch: AppDispatch = useAppDispatch();
@@ -62,6 +63,9 @@ export default function CalendarioPage() {
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // 🏗️ Estado para el popup de detalles de reserva
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
 
   // 🎯 Lógica de huésped
@@ -201,11 +205,16 @@ export default function CalendarioPage() {
     [calendarioBookings, rooms.length] // Solo dependemos de la longitud de rooms, no del objeto completo
   );
 
-  // 🖱️ Handler memoizado (no cambia identidad en cada render)
+  // 🖱️ Handler memoizado para abrir detalles de reserva
   const handleBookingClick = useCallback((id: string | number) => {
-    console.log("click booking", id);
-    // TODO: abrir modal/drawer con detalles de la reserva
-  }, []);
+    console.log("🔍 Click en reserva, ID:", id);
+    // Buscar el booking en el array de bookings
+    const booking = bookings.find(b => String(b.id) === String(id));
+    console.log("📋 Booking encontrado:", booking);
+    if (booking) {
+      setSelectedBooking(booking);
+    }
+  }, [bookings]);
 
   // 🖱️ Handler para cambio de rango del calendario
   const handleRangeChange = useCallback((start: Date, end: Date) => {
@@ -328,8 +337,24 @@ export default function CalendarioPage() {
             onBookingClick={handleBookingClick}
             onRangeChange={handleRangeChange}
             onDateRangeSelect={handleDateRangeSelect}
+            onRefreshCalendar={() => {
+              // Refrescar los datos del calendario
+              const hoy = new Date();
+              const startDate = toYMDLocal(hoy);
+              const endDate = toYMDLocal(new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000));
+              dispatch(fetchReservasCalendar({ startDate, endDate }));
+            }}
           />
           
+          {/* Popup para detalles de reserva */}
+          {selectedBooking && (
+            <DetallesReservaPopup
+              booking={selectedBooking}
+              roomName={rooms.find(r => String(r.id) === String(selectedBooking.roomId))?.name}
+              onClose={() => setSelectedBooking(null)}
+            />
+          )}
+
           {/* Popup para crear reserva */}
           {showAddPopup && (
             <PopupContainer

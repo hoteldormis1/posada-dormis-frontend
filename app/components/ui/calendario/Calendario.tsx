@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useCallback, useState } from "react";
-import EstadoReservaSelector from "./EstadoReservaSelector";
 
 /**
  * Calendario – estilo "Gantt" por habitación
@@ -378,8 +377,21 @@ export default function Calendario({
                   ))}
                 </div>
 
+                {/* Indicador visual de selección */}
+                {selectionRange && selectionRange.roomId === r.id && (
+                  <div
+                    className="absolute top-1 h-10 bg-blue-200 border-2 border-blue-500 opacity-70 pointer-events-none z-5 rounded-sm"
+                    style={{
+                      left: selectionRange.left,
+                      width: selectionRange.width
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-blue-300/20 rounded-sm animate-pulse" />
+                  </div>
+                )}
+
                 {/* Reservas existentes */}
-                <div className="absolute inset-0">
+                <div className="absolute inset-0 z-30 pointer-events-none">
                   {(layoutByRoom.get(Number(r.id)) || []).map((b) => {
                     const s = parseD(b.start);
                     const e = addDays(parseD(b.end), -1);
@@ -389,56 +401,32 @@ export default function Calendario({
                     return (
                       <div
                         key={String(b.id)}
-                        className={`absolute top-1 h-10 px-2 rounded-sm flex flex-col justify-between overflow-hidden text-[11px] shadow hover:brightness-95 transition cursor-default ${badgeClass}`}
+                        className={`absolute top-1 h-10 px-2 rounded-sm flex flex-col justify-between overflow-hidden text-[11px] shadow hover:brightness-110 hover:shadow-lg transition-all cursor-pointer pointer-events-auto ${badgeClass}`}
                         style={{ left: b.left, width: b.width }}
-                        onClick={() => onBookingClick?.(b.id)}
                         title={`${b.guest ?? "Reserva"}
                       Check-in: ${fmtLong(s)}
                       Check-out: ${fmtLong(e)}
                       ${b.price ? `Precio: $${b.price}` : ""}
                       ${b.status ? `Estado: ${b.status}` : ""}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log("🖱️ Click detectado en reserva:", b.id);
+                          onBookingClick?.(b.id);
+                        }}
                       >
-                        <div className="flex items-center justify-between leading-tight min-h-[14px]">
-                          <span 
-                            className="font-semibold truncate text-left flex-1 mr-1"
-                          >
+                        <div className="flex items-center justify-between leading-tight min-h-[14px] pointer-events-none">
+                          <span className="font-semibold truncate text-left flex-1 mr-1">
                             {b.guest ?? "Sin nombre"}
                           </span>
-                          {onEstadoChange && estadosReserva.length > 0 && (
-                            <div 
-                              className="flex-shrink-0 z-10"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <EstadoReservaSelector
-                                estadoActual={b.status || 'pendiente'}
-                                estados={estadosReserva}
-                                onEstadoChange={(nuevoEstado) => onEstadoChange(b.id, nuevoEstado)}
-                                className="scale-75"
-                              />
-                            </div>
-                          )}
                         </div>
-                        <div className="text-[10px] leading-tight opacity-95 text-center mt-0.5">
+                        <div className="text-[10px] leading-tight opacity-95 text-center mt-0.5 pointer-events-none">
                           {b.price ? `$${b.price}` : ""}
                         </div>
                       </div>
                     );
                   })}
-
                 </div>
-
-                {/* Indicador visual de selección */}
-                {selectionRange && selectionRange.roomId === r.id && (
-                  <div
-                    className="absolute top-1 h-10 bg-blue-200 border-2 border-blue-500 opacity-70 pointer-events-none z-10 rounded-sm"
-                    style={{
-                      left: selectionRange.left,
-                      width: selectionRange.width
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-blue-300/20 rounded-sm animate-pulse" />
-                  </div>
-                )}
 
                 {/* Área de selección de rango */}
                 {showSelection && (
