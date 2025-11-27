@@ -54,23 +54,27 @@ function PopupFormEditar<T>({
 
 	return (
 		<PopupContainer onClose={onClose} title={title}>
-			<div className="pt-4 space-y-6">
-				{children(formData, handleChange)}
+			<div className="relative h-full flex flex-col pt-4 space-y-6">
+				<div className="flex-1 overflow-auto pr-1 pb-20">
+					{children(formData, handleChange)}
+				</div>
 
-				<div className="flex justify-end gap-3">
+				<div className="absolute bottom-4 right-4 flex justify-end gap-3">
 					<button
+						type="button"
 						onClick={onClose}
-						className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+						className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium shadow-sm"
 					>
 						Cancelar
 					</button>
 					<button
+						type="button"
 						onClick={handleSubmit}
 						disabled={hasErrors}
-						className={`px-4 py-2 text-white rounded-md ${
+						className={`px-5 py-2.5 text-white rounded-lg font-medium shadow-md transition-all duration-200 ${
 							hasErrors 
-								? 'bg-gray-400 cursor-not-allowed' 
-								: 'bg-[var(--color-main)] hover:bg-green-700'
+								? 'bg-gray-400 cursor-not-allowed opacity-60' 
+								: 'bg-[var(--color-main)] hover:bg-green-700 hover:shadow-lg transform hover:-translate-y-0.5'
 						}`}
 					>
 						Guardar cambios

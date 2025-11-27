@@ -77,7 +77,7 @@ const Usuarios = () => {
 		defaultSortOrder: SortOrder.asc,
 	});
 	const { confirm } = useSweetAlert();
-	const { errorToast } = useToastAlert();
+	const { errorToast, successToast } = useToastAlert();
 	const { currentUser } = useAppSelector((state: RootState) => state.user);
 	const {tiposUsuarios} = useAppSelector((state: RootState) => state.user);
 	
@@ -114,51 +114,50 @@ const Usuarios = () => {
 	  
 		// Validaciones básicas de front
 		if (!payload.nombre || !payload.email || !payload.tipoUsuario) {
-		  // errorToast?.("Completá nombre, email y tipo de usuario.");
-		  console.error("Completá nombre, email y tipo de usuario.");
+		  errorToast("Completá todos los campos obligatorios");
+		  return;
+		}
+
+		// Validación de email
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(payload.email)) {
+		  errorToast("Ingresá un email válido");
 		  return;
 		}
 	  
 		try {
 		  await api.post("/usuarios/invite", payload, { withCredentials: true });
 		  await handleSearch?.();
-		  // successToast?.("Invitación enviada.");
+		  successToast("¡Invitación enviada exitosamente! El usuario recibirá un email para activar su cuenta.");
 		} catch (e) {
 		  const { status, message } = parseAxiosError(e);
 	  
 		  if (status === 403) {
-			// errorToast?.("No tenés permiso para invitar usuarios.");
-			console.error("No tenés permiso para agregar usuarios.");
-			errorToast("No tenés permiso para agregar usuarios.");
+			errorToast("No tenés permiso para invitar usuarios.");
 			return;
 		  }
 	  
-		  // errorToast?.(message);
-		  console.error(message);
+		  errorToast(message);
 		}
 	}
 
 	  const onSaveDelete = async (id: string): Promise<void> => {
-		// Confirmación con SweetAlert (tu hook)
 		const confirmed = await confirm("¿Eliminar este usuario? Esta acción no se puede deshacer.");
 		if (!confirmed) return;
 	  
 		try {
 		  await api.delete(`/usuarios/${id}`, { withCredentials: true });
 		  await handleSearch?.();
-		  // successToast?.("Usuario eliminado correctamente.");
+		  successToast("Usuario eliminado correctamente.");
 		} catch (e) {
 		  const { status, message } = parseAxiosError(e);
 	  
 		  if (status === 403) {
-			// errorToast?.("No tenés permiso para eliminar usuarios.");
-			console.error("No tenés permiso para eliminar usuarios.");
 			errorToast("No tenés permiso para eliminar usuarios.");
 			return;
 		  }
 	  
-		  // errorToast?.(message);
-		  console.error(message);
+		  errorToast(message);
 		}
 	  };
 
@@ -229,6 +228,7 @@ const Usuarios = () => {
 						inputOptions={inputOptions}
 						showFormActions={true}
 						showActions={{create: puedeAgregar, delete: puedeBorrar, edit: puedeEditar}}
+						addPopupDescription="Se enviará un email de invitación al usuario con un enlace para activar su cuenta y establecer su contraseña. El enlace será válido por 24 horas."
 					/>
 				)}
 			</div>

@@ -10,8 +10,9 @@ import { LoadingSpinner } from "@/components";
 
 const PUBLIC_ROUTES = [
   "/login",
-  "/verificarCuenta",    // (por las dudas, si usás camelCase)
+  "/verificarCuenta",
   "/resetPassword",
+  "/olvidarContrasena",
 ];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

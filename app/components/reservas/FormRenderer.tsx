@@ -27,8 +27,13 @@ export default function FormRenderer({
     [fields, formData, mode]
   );
 
+  // Usar una sola columna si hay 4 campos o menos, dos columnas para más
+  const gridClass = visibleFields.length <= 4 
+    ? "space-y-5 pt-4" 
+    : "space-y-4 pt-4 grid grid-cols-2 gap-x-4";
+
   return (
-    <div className="space-y-4 pt-4 grid grid-cols-2 gap-x-4">
+    <div className={gridClass}>
       {visibleFields.map((input) => {
         const value = formData?.[input.key] ?? "";
         const error = errors[input.key];

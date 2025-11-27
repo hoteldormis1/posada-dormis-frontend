@@ -49,6 +49,7 @@ interface TableComponentProps<T> {
   // Función para mapear datos de la fila al formulario de edición
   mapRowToFormData?: (row: T) => Record<string, string>;
   showActions?: { create: boolean; delete: boolean; edit: boolean };
+  addPopupDescription?: string;
 }
 
 const TableComponent = <T extends { id: string }>({
@@ -76,7 +77,8 @@ const TableComponent = <T extends { id: string }>({
   validationSchemaEdit, 
   validationSchemaAdd, 
   mapRowToFormData, 
-  showActions
+  showActions,
+  addPopupDescription
 }: TableComponentProps<T>) => {
   // === Editar ===
   const {
@@ -239,7 +241,8 @@ const TableComponent = <T extends { id: string }>({
         handleFormChangeAdd={handleFormChangeAdd}
         handleSaveAdd={handleSaveAdd}
         errorsAdd={errorsAdd} 
-        validateFormAdd={validateFormAdd} 
+        validateFormAdd={validateFormAdd}
+        addPopupDescription={addPopupDescription}
         customFields={customFields}
         huespedLogic={huespedLogic}
       />

@@ -41,6 +41,7 @@ interface TableButtonsProps<T> {
   handleSaveAdd?: () => void;
   errorsAdd?: Record<string, string>;
   validateFormAdd?: () => boolean;
+  addPopupDescription?: string;
 
   // ✅ renderers custom (Origen, MontoPagado, etc.)
   customFields?: CustomFieldRenderers;
@@ -85,6 +86,7 @@ const TableButtons = <T extends { id: string }>({
   handleSaveAdd,
   errorsAdd = {},
   validateFormAdd,
+  addPopupDescription,
 
   // custom renderers
   customFields = {},
@@ -161,6 +163,7 @@ const TableButtons = <T extends { id: string }>({
           defaultData={formDataAdd}
           validateForm={validateFormAdd}
           hasErrors={hasErrorsAdd}
+          description={addPopupDescription}
         >
           {() => (
             <FormRenderer
