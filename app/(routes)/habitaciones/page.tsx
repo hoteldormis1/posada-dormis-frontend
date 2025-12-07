@@ -18,9 +18,12 @@ import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { useSweetAlert } from "@/hooks/useSweetAlert";
 import { hasPermission } from "@/utils/helpers/permissions";
+import { useRouter } from "next/navigation";
+import { MdCategory } from "react-icons/md";
 
 const Habitaciones = () => {
 	const dispatch: AppDispatch = useAppDispatch();
+	const router = useRouter();
 	const { errorToast, successToast } = useToastAlert();
 	const { status } = useAppSelector((state: RootState) => state.habitaciones);
 	const { confirm } = useSweetAlert();
@@ -217,6 +220,17 @@ const Habitaciones = () => {
 	return (
 		<div className={pantallaPrincipalEstilos}>
 			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
+				{/* Botón para gestionar tipos de habitaciones */}
+				<div className="flex justify-end mb-4">
+					<button
+						onClick={() => router.push("/tipoHabitaciones")}
+						className="flex items-center gap-2 px-4 py-2 bg-main text-white rounded-md hover:bg-main/90 transition-colors duration-200 font-medium shadow-md"
+					>
+						<MdCategory size={20} />
+						Gestionar Tipos de Habitaciones
+					</button>
+				</div>
+
 				{(() => {
 					if (status === StateStatus.loading) {
 						return <LoadingSpinner />;

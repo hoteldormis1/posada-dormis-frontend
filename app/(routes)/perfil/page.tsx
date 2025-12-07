@@ -1,4 +1,4 @@
-import { pantallaPrincipalEstilos } from '@/styles/global-styles'
+/*import { pantallaPrincipalEstilos } from '@/styles/global-styles'
 import React from 'react'
 
 const page = () => {
@@ -9,7 +9,7 @@ const page = () => {
   )
 }
 
-export default page
+export default page*/
 
 
 // "use client";

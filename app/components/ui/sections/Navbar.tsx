@@ -31,6 +31,7 @@ export default function Navbar() {
 
 				{/* Perfil + Logout */}
 				<div className="flex items-center gap-4">
+					{/* 
 					<Image
 						src="/perfil-default.png" // 🔁 Cambia por tu imagen de perfil
 						alt="Profile"
@@ -39,6 +40,7 @@ export default function Navbar() {
 						className="rounded-full cursor-pointer border border-gray-300"
 						onClick={() => router.push("/perfil")}
 					/>
+					*/}
 					<button
 						onClick={handleLogout}
 						className="border-2 border-main text-main hover:bg-main hover:text-white cursor-pointer px-4 py-2 rounded-sm font-bold transition-all duration-[800ms]"

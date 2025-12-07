@@ -170,7 +170,7 @@ export default function CalendarioPage() {
         const pasadoMañana = new Date(hoy.getTime() + 2 * 24 * 60 * 60 * 1000);
         
         return [
-          {
+          /*{
             id: 'ejemplo1',
             roomId: rooms[0]?.id || 1,
             start: hoy.toISOString().slice(0, 10),
@@ -187,7 +187,7 @@ export default function CalendarioPage() {
             guest: 'Otro Cliente',
             price: 750,
             status: 'confirmada',
-          }
+          }*/
         ];
       }
       
