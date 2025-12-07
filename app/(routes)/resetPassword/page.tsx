@@ -24,7 +24,7 @@ const ResetPassword = () => {
     useEffect(() => {
         // Verificar el token cuando se carga la página
         const verifyToken = async () => {
-            if (!token) {
+            if (!token || token.trim() === '') {
                 errorToast("Token no proporcionado");
                 setVerifying(false);
                 setTokenValid(false);
@@ -32,8 +32,11 @@ const ResetPassword = () => {
             }
 
             try {
+                // Limpiar el token de espacios en blanco
+                const cleanToken = token.trim();
                 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
-                const response = await fetch(`${baseURL}/auth/password-reset/verify?token=${token}`, {
+                // Codificar el token en la URL
+                const response = await fetch(`${baseURL}/auth/password-reset/verify?token=${encodeURIComponent(cleanToken)}`, {
                     method: 'GET',
                     credentials: 'include',
                 });
@@ -48,6 +51,7 @@ const ResetPassword = () => {
                     setTokenValid(false);
                 }
             } catch (error: any) {
+                console.error("Error al verificar token:", error);
                 errorToast("Error al verificar el enlace. Por favor intentá nuevamente.");
                 setTokenValid(false);
             } finally {
@@ -56,7 +60,7 @@ const ResetPassword = () => {
         };
 
         verifyToken();
-    }, [token, errorToast]);
+    }, [token]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -80,6 +84,15 @@ const ResetPassword = () => {
         setLoading(true);
 
         try {
+            // Limpiar el token de espacios en blanco
+            const cleanToken = token?.trim();
+            
+            if (!cleanToken) {
+                errorToast("Token no válido. Por favor solicitá un nuevo enlace.");
+                setLoading(false);
+                return;
+            }
+
             const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
             const response = await fetch(`${baseURL}/auth/password-reset/reset`, {
                 method: 'POST',
@@ -87,7 +100,7 @@ const ResetPassword = () => {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',
-                body: JSON.stringify({ token, password })
+                body: JSON.stringify({ token: cleanToken, password })
             });
 
             const data = await response.json();
@@ -108,6 +121,7 @@ const ResetPassword = () => {
             }, 2000);
 
         } catch (error: any) {
+            console.error("Error al restablecer contraseña:", error);
             const message = error.message || "Error al restablecer la contraseña. Intentá nuevamente.";
             errorToast(message);
         } finally {

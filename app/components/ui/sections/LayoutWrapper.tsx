@@ -24,7 +24,8 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     pathname === '/' ||
     pathname === '/verificarCuenta' ||
     pathname === '/login' ||
-    pathname === '/olvidarContrasena';
+    pathname === '/olvidarContrasena' || 
+    pathname === '/resetPassword';
 
   const hideFooter = pathname === '/perfil' || hideNavbar;
 
