@@ -13,6 +13,7 @@ interface CalendarioContainerProps {
   onRangeChange?: (start: Date, end: Date) => void;
   onBookingClick?: (id: string | number) => void;
   onDateRangeSelect?: (range: { start: Date; end: Date; roomId: string | number }) => void;
+  onRefreshCalendar?: () => void;
   className?: string;
   showSelection?: boolean;
 }
@@ -25,13 +26,17 @@ export default function CalendarioContainer({
   onRangeChange,
   onBookingClick,
   onDateRangeSelect,
+  onRefreshCalendar,
   className,
   showSelection = true,
 }: CalendarioContainerProps) {
   const { estados, cambiarEstadoReserva, obtenerEstados } = useEstadoReserva({
     onSuccess: () => {
       console.log('Estado de reserva actualizado exitosamente');
-      // Aquí podrías agregar lógica para refrescar los datos si es necesario
+      // Refrescar los datos del calendario después de actualizar el estado
+      if (onRefreshCalendar) {
+        onRefreshCalendar();
+      }
     },
     onError: (error) => {
       console.error('Error al actualizar estado de reserva:', error);
