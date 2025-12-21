@@ -224,7 +224,7 @@ const Habitaciones = () => {
 				<div className="flex justify-end mb-4">
 					<button
 						onClick={() => router.push("/tipoHabitaciones")}
-						className="flex items-center gap-2 px-4 py-2 bg-main text-white rounded-md hover:bg-main/90 transition-colors duration-200 font-medium shadow-md"
+						className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-main text-white rounded-md hover:bg-main/90 transition-colors duration-200 font-medium shadow-md"
 					>
 						<MdCategory size={20} />
 						Gestionar Tipos de Habitaciones
