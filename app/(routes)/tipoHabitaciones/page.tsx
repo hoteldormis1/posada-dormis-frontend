@@ -96,7 +96,7 @@ const TipoHabitaciones = () => {
 
 	const onSaveEdit = async (
 		formData: Record<string, unknown>,
-		selectedRow: TipoHabitacion | null
+		selectedRow: any
 	) => {
 		const { nombre, precio } = formData;
 
@@ -105,7 +105,7 @@ const TipoHabitaciones = () => {
 			return;
 		}
 
-		const { idTipoHabitacion } = selectedRow;
+		const { idTipoHabitacion } = selectedRow as { idTipoHabitacion: number };
 
 		// Validaciones
 		if (!nombre || typeof nombre !== "string" || nombre.trim() === "") {
@@ -224,7 +224,7 @@ const TipoHabitaciones = () => {
 				<div className="flex justify-start mb-4">
 					<button
 						onClick={() => router.push("/habitaciones")}
-						className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors duration-200 font-medium shadow-md"
+						className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors duration-200 font-medium shadow-md"
 					>
 						<MdArrowBack size={20} />
 						Volver a Habitaciones
