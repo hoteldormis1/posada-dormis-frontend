@@ -27,7 +27,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     pathname === '/olvidarContrasena' || 
     pathname === '/resetPassword';
 
-  const hideFooter = pathname === '/perfil' || hideNavbar;
+  const hideFooter = hideNavbar;
 
   // Si estamos en una ruta de login, usar layout simple
   if (hideNavbar) {
