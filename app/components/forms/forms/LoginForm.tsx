@@ -82,9 +82,13 @@ const LoginForm = () => {
 					{loading ? "Accediendo..." : "Acceder"}
 				</button>
 
-				<a href="/olvidarContrasena" className="text-sm underline">
+				<button
+					type="button"
+					onClick={() => router.push("/olvidarContrasena")}
+					className="text-sm underline hover:text-gray-300 transition-colors"
+				>
 					Olvidé mi contraseña
-				</a>
+				</button>
 			</div>
 		</form>
 	);

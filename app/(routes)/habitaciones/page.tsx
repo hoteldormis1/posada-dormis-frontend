@@ -17,13 +17,17 @@ import { FormFieldInputConfig, Habitacion, SortOrder, StateStatus } from "@/mode
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { useSweetAlert } from "@/hooks/useSweetAlert";
+import { hasPermission } from "@/utils/helpers/permissions";
+import { useRouter } from "next/navigation";
+import { MdCategory } from "react-icons/md";
 
 const Habitaciones = () => {
 	const dispatch: AppDispatch = useAppDispatch();
+	const router = useRouter();
 	const { errorToast, successToast } = useToastAlert();
 	const { status } = useAppSelector((state: RootState) => state.habitaciones);
 	const { confirm } = useSweetAlert();
-	
+
 	const {
 		datos,
 		error,
@@ -39,7 +43,7 @@ const Habitaciones = () => {
 		setSearch,
 		handleSearch,
 		tipoHabitaciones,
-		estadoHabitaciones,
+		EstadoReservas,
 		fetchData,
 	} = useEntityTable({
 		fetchAction: fetchHabitaciones,
@@ -48,7 +52,7 @@ const Habitaciones = () => {
 		selector: (state: RootState) => ({
 			...state.habitaciones,
 			tipoHabitaciones: state.habitaciones.tipoHabitaciones,
-			estadoHabitaciones: state.habitaciones.estadoHabitaciones,
+			EstadoReservas: state.habitaciones.estadosDeReserva,
 		}),
 		defaultSortField: "numero",
 		defaultSortOrder: SortOrder.asc,
@@ -59,28 +63,28 @@ const Habitaciones = () => {
 			key: "numero",
 			type: "number",
 			label: "Número",
-			editable: false
+			editable: true
 		},
 		{
 			key: "tipo",
 			type: "select",
 			label: "Tipo de habitación",
 			options: tipoHabitaciones.map((tipo) => ({
-				value: tipo.tipo,
-				label: `${tipo.tipo} - $${tipo.precio}`,
-			})),
-			editable: false
-		},
-		{
-			key: "estado",
-			type: "select",
-			label: "Estado de habitación",
-			options: estadoHabitaciones.map((estado) => ({
-				value: estado.estado,
-				label: estado.estado.charAt(0).toUpperCase() + estado.estado.slice(1),
+				value: tipo.nombre,
+				label: `${tipo.nombre} - $${tipo.precio}`,
 			})),
 			editable: true
 		},
+		/*{
+			key: "nombre",
+			type: "select",
+			label: "Estado de habitación",
+			options: EstadoReservas.map((nombre) => ({
+				value: nombre.nombre,
+				label: nombre.nombre.charAt(0).toUpperCase() + nombre.nombre.slice(1),
+			})),
+			editable: true
+		},*/
 	];
 
 	const columns = useMemo(
@@ -88,7 +92,7 @@ const Habitaciones = () => {
 			{ header: "Número", key: "numero" },
 			{ header: "Tipo", key: "tipo" },
 			{ header: "Precio", key: "precio" },
-			{ header: "Estado", key: "estado" },
+			//{ header: "Estado", key: "estado" },
 		],
 		[]
 	);
@@ -96,12 +100,12 @@ const Habitaciones = () => {
 	const data = useMemo(() => {
 		if (!datos || !Array.isArray(datos)) return [];
 		return datos.map((h) => ({
-			id: String(h.idHabitacion), 
+			id: String(h.idHabitacion),
 			numero: h.numero,
 			tipo: h.tipo,
 			precio: h.precio,
 			estado: h.estado,
-			idHabitacion: h.idHabitacion, 
+			idHabitacion: h.idHabitacion,
 		}));
 	}, [datos]);
 
@@ -118,27 +122,27 @@ const Habitaciones = () => {
 
 		const { idHabitacion } = selectedRow;
 
-		const tipoSeleccionado = tipoHabitaciones.find((t) => t.tipo === tipo);
-		const estadoSeleccionado = estadoHabitaciones.find(
-			(e) => e.estado === estado
+		const tipoSeleccionado = tipoHabitaciones.find((t) => t.nombre === estado);
+		const estadoSeleccionado = EstadoReservas.find(
+			(e) => e.nombre === tipo
 		);
 
 		if (!tipoSeleccionado || !estadoSeleccionado) {
 			errorToast(
-				"Tipo o estado inválido. Verificá los datos e intentá nuevamente."
+				"Tipo o nombre inválido. Verificá los datos e intentá nuevamente."
 			);
 			return;
 		}
 
 		type PayloadHabitacionEditar = {
 			idTipoHabitacion: number;
-			idEstadoHabitacion: number;
+			idEstadoReserva: number;
 			idHabitacion: number;
 		};
 
 		const payload: PayloadHabitacionEditar = {
 			idTipoHabitacion: tipoSeleccionado.idTipoHabitacion,
-			idEstadoHabitacion: estadoSeleccionado.idEstadoHabitacion,
+			idEstadoReserva: estadoSeleccionado.idEstadoReserva,
 			idHabitacion: Number(idHabitacion),
 		};
 
@@ -154,52 +158,50 @@ const Habitaciones = () => {
 	};
 
 	const onSaveAdd = async (formData: Record<string, unknown>): Promise<void> => {
-		const { tipo, estado, numero } = formData;
+		const { tipo, numero } = formData;
 
-		const tipoSeleccionado = tipoHabitaciones.find((t) => t.tipo === tipo);
-		const estadoSeleccionado = estadoHabitaciones.find(
-			(e) => e.estado === estado
-		);
-
-		if (!tipoSeleccionado || !estadoSeleccionado) {
-			errorToast("Tipo o estado inválido. Verificá los datos.");
+		// Buscar tipo seleccionado
+		const tipoSeleccionado = tipoHabitaciones.find((t) => t.nombre === String(tipo || ""));
+		if (!tipoSeleccionado) {
+			errorToast("Tipo de habitación inválido. Verificá los datos.");
 			return;
 		}
 
-		if (typeof numero !== "number" || isNaN(numero)) {
-			errorToast("Número o precio inválido.");
+		// Coerción a número (los formularios suelen enviar string)
+		const numeroNum = Number(numero);
+		if (!Number.isFinite(numeroNum) || numeroNum <= 0 || !Number.isInteger(numeroNum)) {
+			errorToast("Número de habitación inválido.");
 			return;
 		}
 
 		type PayloadHabitacionAgregar = {
 			idTipoHabitacion: number;
-			idEstadoHabitacion: number;
 			numero: number;
 		};
 
 		const payload: PayloadHabitacionAgregar = {
 			idTipoHabitacion: tipoSeleccionado.idTipoHabitacion,
-			idEstadoHabitacion: estadoSeleccionado.idEstadoHabitacion,
-			numero,
+			numero: numeroNum,
 		};
 
 		try {
 			await dispatch(addHabitacion(payload)).unwrap();
-			await fetchData();
+			await fetchData?.();
 			successToast("Habitación agregada exitosamente.");
 		} catch (error) {
 			errorToast(
-				typeof error === "string" ? error : "Error al agregar habitación."
+				typeof error === "string" ? error : "Error al agregar la habitación."
 			);
 		}
 	};
 
 	const onSaveDelete = async (id: string): Promise<void> => {
 		try {
-			const confirmed = await confirm("Esta acción no se puede deshacer.");
+			const confirmed = await confirm("¿Eliminar esta habitación? Esta acción no se puede deshacer.");
 			if (!confirmed) return;
+
 			await dispatch(deleteHabitacion(Number(id))).unwrap();
-			await fetchData();
+			await fetchData?.();
 			successToast("Habitación eliminada exitosamente.");
 		} catch (err) {
 			errorToast(
@@ -208,9 +210,27 @@ const Habitaciones = () => {
 		}
 	};
 
+	const { currentUser } = useAppSelector((state: RootState) => state.user);
+	const {tiposUsuarios} = useAppSelector((state: RootState) => state.user);
+	const idTipoUsuarioActual = currentUser?.idTipoUsuario;
+	const puedeBorrar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "habitacion", "delete");
+	const puedeEditar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "habitacion", "update"); 
+	const puedeAgregar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "habitacion", "create");
+
 	return (
 		<div className={pantallaPrincipalEstilos}>
 			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
+				{/* Botón para gestionar tipos de habitaciones */}
+				<div className="flex justify-end mb-4">
+					<button
+						onClick={() => router.push("/tipoHabitaciones")}
+						className="flex items-center gap-2 px-4 py-2 bg-main text-white rounded-md hover:bg-main/90 transition-colors duration-200 font-medium shadow-md"
+					>
+						<MdCategory size={20} />
+						Gestionar Tipos de Habitaciones
+					</button>
+				</div>
+
 				{(() => {
 					if (status === StateStatus.loading) {
 						return <LoadingSpinner />;
@@ -246,6 +266,7 @@ const Habitaciones = () => {
 							onSaveAdd={onSaveAdd}
 							onSaveDelete={onSaveDelete}
 							inputOptions={inputOptions}
+							showActions={{create: puedeAgregar, delete: puedeBorrar, edit: puedeEditar}}
 						/>
 					);
 				})()}

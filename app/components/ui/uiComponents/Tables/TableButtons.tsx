@@ -1,14 +1,9 @@
 "use client";
 
 import React from "react";
-import {
-  Paginator,
-  PopupFormEditar,
-  PopupFormAgregar,
-  DynamicInputField,
-  SelectForm,
-} from "@/components";
-import { FieldInputType, FormFieldInputOptionsConfig } from "@/models/types";
+import { Paginator, PopupFormEditar, PopupFormAgregar } from "@/components";
+import { CustomFieldRenderers, FormFieldInputConfig } from "@/components/reservas/types";
+import FormRenderer from "@/components/reservas/FormRenderer";
 
 interface TableButtonsProps<T> {
   title: string | undefined;
@@ -22,44 +17,37 @@ interface TableButtonsProps<T> {
   // Edición
   showEditPopup: boolean;
   selectedRow: T | null;
-  formInputs: Array<{
-    key: string;
-    type: FieldInputType; // ← debe soportar "custom"
-    label: string;
-    options?: FormFieldInputOptionsConfig[];
-    min?: number;
-    max?: number;
-    editable?: boolean; // Nuevo: indica si el campo es editable en modo edición
-  }>;
-  formData: Record<string, string>;
+
+  // ✅ ahora usamos el esquema de campos reutilizable
+  formInputs: FormFieldInputConfig[];
+
+  formData: Record<string, any>;
   handleFormChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
   getUpdatedRow: () => T | null;
   handleSaveEdit: (updated: T) => void;
   setShowEditPopup: (show: boolean) => void;
-  errors?: Record<string, string>; // Nuevo: errores de validación
-  validateForm?: () => boolean; // Nuevo: función de validación
+  errors?: Record<string, string>;
+  validateForm?: () => boolean;
 
   // Agregado
   showAddPopup?: boolean;
   setShowAddPopup?: (show: boolean) => void;
-  formDataAdd?: Record<string, string>;
+  formDataAdd?: Record<string, any>;
   handleFormChangeAdd?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
   handleSaveAdd?: () => void;
-  errorsAdd?: Record<string, string>; // Nuevo: errores de validación para agregar
-  validateFormAdd?: () => boolean; // Nuevo: función de validación para agregar
+  errorsAdd?: Record<string, string>;
+  validateFormAdd?: () => boolean;
+  addPopupDescription?: string;
 
-  customFields?: {
-    [key: string]: (
-      value: string,
-      onChange: (nextValue: string) => void,
-      ctx?: { formData?: Record<string, any>; mode?: "add" | "edit"; row?: any; disabled?: boolean }
-    ) => React.ReactNode;
-  };
+  // ✅ renderers custom (Origen, MontoPagado, etc.)
+  customFields?: CustomFieldRenderers;
 
+  // (Opcional) lógica de huésped previa; ya no es necesaria con FormRenderer,
+  // pero la dejamos para no romper firmas donde se siga pasando.
   huespedLogic?: {
     huespedMode: string;
     handleModeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -77,6 +65,8 @@ const TableButtons = <T extends { id: string }>({
   totalItems,
   onPageChange,
   onPageSizeChange,
+
+  // edit
   showEditPopup,
   selectedRow,
   formInputs,
@@ -85,53 +75,47 @@ const TableButtons = <T extends { id: string }>({
   getUpdatedRow,
   handleSaveEdit,
   setShowEditPopup,
-  errors = {}, // Nuevo
-  validateForm, // Nuevo
+  errors = {},
+  validateForm,
+
+  // add
   showAddPopup,
   setShowAddPopup,
   formDataAdd,
   handleFormChangeAdd,
   handleSaveAdd,
-  errorsAdd = {}, // Nuevo
-  validateFormAdd, // Nuevo
-  customFields, // ✅
-  huespedLogic, // ✅ Nuevo: lógica de huésped
-}: TableButtonsProps<T>) => {
-  // puente para onChange de componentes custom → tus handlers existentes
-  const makeSyntheticChange =
-    (key: string, isAdd = false) =>
-      (nextValue: string) => {
-        const evt = {
-          target: { name: key, value: nextValue },
-        } as unknown as React.ChangeEvent<HTMLInputElement>;
-        if (isAdd) {
-          handleFormChangeAdd?.(evt);
-        } else {
-          handleFormChange(evt);
-        }
-      };
+  errorsAdd = {},
+  validateFormAdd,
+  addPopupDescription,
 
+  // custom renderers
+  customFields = {},
+}: TableButtonsProps<T>) => {
   const handleSaveEditWithValidation = () => {
-    if (validateForm && !validateForm()) {
-      return; // No continuar si la validación falla
-    }
+    if (validateForm && !validateForm()) return;
     const updated = getUpdatedRow();
     if (updated) handleSaveEdit(updated);
   };
 
   const handleSaveAddWithValidation = () => {
-    if (validateFormAdd && !validateFormAdd()) {
-      return; // No continuar si la validación falla
-    }
-    if (handleSaveAdd) {
-      handleSaveAdd();
-    }
+    if (validateFormAdd && !validateFormAdd()) return;
+    if (handleSaveAdd) handleSaveAdd();
   };
 
-
-  // Verificar si hay errores
   const hasErrors = Object.keys(errors).length > 0;
   const hasErrorsAdd = Object.keys(errorsAdd).length > 0;
+
+  // ✅ adaptamos customFields para inyectar "row" cuando estamos en edit
+  const customFieldsWithRowEdit: CustomFieldRenderers = Object.fromEntries(
+    Object.entries(customFields).map(([k, render]) => [
+      k,
+      (value: string, onChange: (next: string) => void, ctx: any) =>
+        render(value, onChange, { ...ctx, row: selectedRow }),
+    ])
+  );
+
+  // ✅ para add no hay row
+  const customFieldsAdd: CustomFieldRenderers = customFields;
 
   return (
     <>
@@ -157,45 +141,14 @@ const TableButtons = <T extends { id: string }>({
           hasErrors={hasErrors}
         >
           {() => (
-            <div className="space-y-4 pt-4 grid grid-cols-2 gap-x-4">
-              {formInputs.map((input) => {
-                const value = formData[input.key] || "";
-                const error = errors[input.key]; // Nuevo
-                // ✅ usar renderer custom si type === "custom" y está definido
-                if (
-                  input.type === ("custom" as FieldInputType) &&
-                  customFields?.[input.key]
-                ) {
-                  return (
-                    <div key={`edit-${input.key}`}>
-                      {customFields[input.key](
-                        value,
-                        makeSyntheticChange(input.key),
-                        { formData, mode: "edit", row: selectedRow, disabled: input.editable === false }
-                      )}
-                      {error && (
-                        <p className="text-red-500 text-xs mt-1">{error}</p>
-                      )}
-                    </div>
-                  );
-                }
-                // default: input normal
-                return (
-                  <DynamicInputField
-                    key={`edit-${input.key}`}
-                    inputKey={input.key}
-                    inputType={input.type}
-                    label={input.label}
-                    placeholder={input.label}
-                    value={value}
-                    onChange={(e) => handleFormChange(e)}
-                    options={input.type === "select" ? input.options : undefined}
-                    error={error} // Nuevo
-                    disabled={input.editable === false} // Deshabilitar si no es editable
-                  />
-                );
-              })}
-            </div>
+            <FormRenderer
+              fields={formInputs}
+              formData={formData}
+              onChange={handleFormChange}
+              errors={errors}
+              mode="edit"
+              customFields={customFieldsWithRowEdit}
+            />
           )}
         </PopupFormEditar>
       )}
@@ -207,102 +160,20 @@ const TableButtons = <T extends { id: string }>({
           onClose={() => setShowAddPopup && setShowAddPopup(false)}
           onSave={handleSaveAddWithValidation}
           title={"Agregar " + title}
-          defaultData={selectedRow}
+          defaultData={formDataAdd}
           validateForm={validateFormAdd}
           hasErrors={hasErrorsAdd}
+          description={addPopupDescription}
         >
           {() => (
-            <div className="space-y-4 pt-4 grid grid-cols-2 gap-x-4">
-              {formInputs.map((input) => {
-                const value = formDataAdd?.[input.key] || "";
-                const error = errorsAdd[input.key]; // Nuevo
-                
-                // Manejar campos especiales del huésped
-                if (input.key === "huespedMode" && huespedLogic) {
-                  return (
-                    <div key={`add-${input.key}`}>
-                      <SelectForm
-                        inputKey={input.key}
-                        label={input.label}
-                        value={huespedLogic.huespedMode}
-                        onChange={huespedLogic.handleModeChange}
-                        options={[
-                          { value: "existente", label: "Huésped existente" },
-                          { value: "nuevo", label: "Nuevo huésped" },
-                        ]}
-                        placeholderOption="Seleccionar tipo..."
-                      />
-                      {error && (
-                        <p className="text-red-500 text-xs mt-1">{error}</p>
-                      )}
-                    </div>
-                  );
-                }
-
-                if (input.key === "idHuesped" && huespedLogic && huespedLogic.huespedMode === "existente") {
-                  return (
-                    <div key={`add-${input.key}`}>
-                      <SelectForm
-                        inputKey={input.key}
-                        label={input.label}
-                        value={value}
-                        onChange={huespedLogic.handleHuespedChange}
-                        options={(huespedLogic.huespedes ?? []).map((h: any) => ({
-                          value: h.idHuesped,
-                          label: `${h.nombre} ${h.apellido}`,
-                        }))}
-                        placeholderOption="Seleccionar huésped..."
-                      />
-                      {error && (
-                        <p className="text-red-500 text-xs mt-1">{error}</p>
-                      )}
-                    </div>
-                  );
-                }
-
-                // Ocultar selector de huésped si no es modo existente
-                if (input.key === "idHuesped" && huespedLogic && huespedLogic.huespedMode !== "existente") {
-                  return null;
-                }
-
-                if (
-                  input.type === ("custom" as FieldInputType) &&
-                  customFields?.[input.key]
-                ) {
-                  return (
-                    <div key={`add-${input.key}`}>
-                      {customFields[input.key](
-                        value,
-                        makeSyntheticChange(input.key, true),
-                        { 
-                          formData: formDataAdd, 
-                          mode: "add", 
-                          row: null, 
-                          disabled: huespedLogic ? !huespedLogic.isFieldEditable(input.key) : false 
-                        }
-                      )}
-                      {error && (
-                        <p className="text-red-500 text-xs mt-1">{error}</p>
-                      )}
-                    </div>
-                  );
-                }
-                return (
-                  <DynamicInputField
-                    key={`add-${input.key}`}
-                    inputKey={input.key}
-                    inputType={input.type}
-                    label={input.label}
-                    placeholder={input.label}
-                    value={value}
-                    onChange={(e) => handleFormChangeAdd && handleFormChangeAdd(e)}
-                    options={input.type === "select" ? input.options : undefined}
-                    error={error} // Nuevo
-                    disabled={huespedLogic ? !huespedLogic.isFieldEditable(input.key) : false}
-                  />
-                );
-              })}
-            </div>
+            <FormRenderer
+              fields={formInputs}
+              formData={formDataAdd ?? {}}
+              onChange={handleFormChangeAdd as any}
+              errors={errorsAdd}
+              mode="add"
+              customFields={customFieldsAdd}
+            />
           )}
         </PopupFormAgregar>
       )}

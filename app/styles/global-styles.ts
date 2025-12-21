@@ -13,21 +13,22 @@ export const fuenteDeSubtitulo = 'text-2xl font-semibold';
 
 // Input base
 export const inputBaseEstilos =
-  'block w-full text-sm rounded-sm bg-[var(--color-light)] border border-[var(--color-border)] ' +
+  'block w-full text-sm rounded-lg bg-[var(--color-light)] border-2 border-gray-300 ' +
   'placeholder-[var(--color-muted)] text-[var(--color-text)] ' +
   'focus:outline-none focus:ring-2 focus:ring-[var(--color-main)] focus:border-[var(--color-main)] ' +
-  'px-4 py-2 ' +
+  'px-4 py-2.5 transition-all duration-200 ' +
+  'hover:border-gray-400 ' +
   'dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white ' +
   'dark:focus:ring-[var(--color-main-light)] dark:focus:border-[var(--color-main-light)]';
 
 // Input con error
 export const inputErrorEstilos =
-  'border-[var(--color-danger)] focus:ring-[var(--color-danger)] focus:border-[var(--color-danger)] ' +
-  'dark:focus:ring-[var(--color-danger)] dark:focus:border-[var(--color-danger)]';
+  'border-red-500 focus:ring-red-500 focus:border-red-500 bg-red-50 ' +
+  'dark:focus:ring-red-500 dark:focus:border-red-500 dark:bg-red-900/20';
 
 // Label base
 export const labelBaseEstilos =
-  'block mb-2 text-sm font-medium text-[var(--color-text)] dark:text-white';
+  'block mb-2 text-sm font-semibold text-gray-700 dark:text-white';
 
 // Mensaje de error
-export const mensajeErrorEstilos = 'text-red-500 text-xs mt-1';
+export const mensajeErrorEstilos = 'text-red-600 text-xs mt-1.5 font-medium flex items-center gap-1';

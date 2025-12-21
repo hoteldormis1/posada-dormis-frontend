@@ -27,7 +27,7 @@ const LoginIzquierda: React.FC<Props> = ({ includeDescription }) => {
 				<Image src={inicio} alt="Logo LLA" width={150} height={50} />
 			</div>
 			<p className="text-xs text-gray-600">
-				© 2024. Todos los derechos reservados.
+				© 2025. Todos los derechos reservados.
 			</p>
 		</div>
 	);

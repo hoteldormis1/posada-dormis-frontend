@@ -11,6 +11,7 @@ interface TableBodyProps<T> {
 	sortField?: string;
 	sortOrder?: SortOrder;
 	handleHeaderClick: (key: string) => void;
+	showActions?: { create: boolean; delete: boolean; edit: boolean };
 }
 
 const TableBody = <T,>({
@@ -19,7 +20,7 @@ const TableBody = <T,>({
 	showFormActions,
 	sortField,
 	sortOrder,
-	handleHeaderClick,
+	handleHeaderClick
 }: TableBodyProps<T>) => {
 	return (
 		<div className="overflow-x-auto h-80 md:h-114 border border-gray-200 bg-gray-200">

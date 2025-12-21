@@ -7,7 +7,7 @@ import { fuenteDeSubtitulo } from "@/styles/global-styles";
 import {
   GraficoCantidadDeReservas,
   GraficoCantidadDeIngresos,
-  // GraficoPieEstadoHabitaciones,
+  // GraficoPieEstadoReservas,
 } from "@/components/index";
 // import TablaHabitaciones from "./Widgets/TablaReservas";
 

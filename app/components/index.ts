@@ -9,7 +9,7 @@ import GraficoCantidadDeIngresos from "./ui/uiComponents/Dashboard/Graficos/Widg
 import GraficoVertical from "./ui/uiComponents/Dashboard/Graficos/Components/GraficoVertical";
 import GraficosContent from "./ui/uiComponents/Dashboard/Graficos";
 import GraficoPie from "./ui/uiComponents/Dashboard/Graficos/Components/GraficoPie"
-import GraficoPieEstadoHabitaciones from "./ui/uiComponents/Dashboard/Graficos/Widgets/PieEstadoHabitaciones";
+import GraficoPieEstadoReservas from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoCantidadDeReservas";
 import Paginator from "./ui/sections/Paginator";
 import LoadingSpinner from "./ui/uiComponents/LoadingSpinner";
 import TableComponent from "./ui/uiComponents/Tables/TableComponent";
@@ -27,7 +27,8 @@ import TableButtons from "./ui/uiComponents/Tables/TableButtons";
 import InputForm from "./forms/formComponents/InputForm";
 import InputDateForm from "./forms/formComponents/InputDateForm";
 import SelectForm from "./forms/formComponents/SelectForm";
-import MainCalendario from "./ui/calendario/MainCalendario";
+import CalendarioContainer from "./ui/calendario/CalendarioContainer";
+import EstadoReservaSelector from "./ui/calendario/EstadoReservaSelector";
 import ButtonForm from "./forms/formComponents/ButtonForm";
 
 export {
@@ -43,7 +44,7 @@ export {
     GraficoVertical,
 	GraficoCantidadDeIngresos,
 	GraficoPie,
-	GraficoPieEstadoHabitaciones,
+	GraficoPieEstadoReservas,
 	Paginator,
 	LoadingSpinner,
 	LoginForm,
@@ -60,6 +61,7 @@ export {
 	InputForm,
 	InputDateForm,
 	SelectForm,
-	MainCalendario,
+	CalendarioContainer,
+	EstadoReservaSelector,
 	ButtonForm
 };

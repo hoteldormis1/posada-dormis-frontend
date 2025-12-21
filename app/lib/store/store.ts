@@ -6,6 +6,7 @@ import huespedesReducer from "./utils/huespedes/huespedesSlice";
 import disponibilidadReducer from "./utils/disponibilidad/disponibilidadSlice";
 import userSlice from "./utils/user/userSlice";
 import habitacionesSlice from "./utils/habitaciones/habitacionesSlice";
+import tipoHabitacionesSlice from "./utils/tipoHabitaciones/tipoHabitacionesSlice";
 import auditoriasSlice from "./utils/auditorias/auditoriasSlice";
 import dashboardSlice from "./utils/dashboard/dashboardSlice";
 
@@ -17,9 +18,10 @@ export const store = configureStore({
     disponibilidad: disponibilidadReducer,
     user: userSlice,
     habitaciones: habitacionesSlice,
+    tipoHabitaciones: tipoHabitacionesSlice,
     auditorias: auditoriasSlice,
     dashboards: dashboardSlice
-  },
+  }
 });
 
 export type RootState = ReturnType<typeof store.getState>;
