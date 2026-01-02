@@ -13,6 +13,7 @@ const PUBLIC_ROUTES = [
   "/verificarCuenta",
   "/resetPassword",
   "/olvidarContrasena",
+  "/reservas-publicas",
 ];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

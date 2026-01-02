@@ -15,9 +15,24 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const pathname = usePathname();
   const dispatch: AppDispatch = useAppDispatch();
 
+  // Lista de rutas públicas (debe coincidir con AuthProvider)
+  const PUBLIC_ROUTES = [
+    '/',
+    '/verificarCuenta',
+    '/login',
+    '/olvidarContrasena',
+    '/resetPassword',
+    '/reservas-publicas',
+  ];
+
+  const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route);
+
   useLayoutEffect(() => {
-    dispatch(fetchTiposUsuarios());
-  }, []);
+    // Solo cargar tipos de usuario si NO estamos en una ruta pública
+    if (!isPublicRoute) {
+      dispatch(fetchTiposUsuarios());
+    }
+  }, [isPublicRoute, dispatch]);
 
   // Rutas donde ocultar el navbar y footer
   const hideNavbar =
@@ -25,7 +40,8 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     pathname === '/verificarCuenta' ||
     pathname === '/login' ||
     pathname === '/olvidarContrasena' || 
-    pathname === '/resetPassword';
+    pathname === '/resetPassword' ||
+    pathname === '/reservas-publicas';
 
   const hideFooter = hideNavbar;
 
