@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { Booking, Room } from "@/components/ui/calendario/Calendario";
 import CalendarioContainer from "@/components/ui/calendario/CalendarioContainer";
 import { toYMDLocal } from "@/utils/helpers/date";
-import { PopupContainer } from "@/components";
+import { LoadingSpinner, PopupContainer } from "@/components";
 import { buildReservaFields } from "@/components/reservas/buildReservaFields";
 import { reservaAddSchema } from "@/utils/validations/reservaSchema";
 import { addReserva, fetchReservas, fetchHuespedes } from "@/lib/store/utils/index";
@@ -326,7 +326,7 @@ export default function CalendarioPage() {
     <div className={"bg-background content-shell " + pantallaPrincipalEstilos}>
       {isLoading ? (
         <div className="p-4 text-sm text-gray-600">
-          Cargando calendario…
+          <LoadingSpinner/>
         </div>
       ) : (
         <>

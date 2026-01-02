@@ -210,7 +210,7 @@ const Reservas: React.FC = () => {
               validationSchemaEdit={reservaEditSchema}
               validationSchemaAdd={reservaAddSchema}
               mapRowToFormData={mapRowToFormDataReservas}
-              showActions={{ create: puedeAgregar, delete: puedeBorrar, edit: puedeEditar }}
+              showActions={{ create: false, delete: puedeBorrar, edit: puedeEditar }}
             />
           );
         })()}
