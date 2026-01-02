@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { FaCalendarAlt, FaBed, FaUsers, FaCheckCircle, FaWifi, FaParking, FaCoffee, FaSignInAlt } from "react-icons/fa";
 import Link from "next/link";
+import { InputForm } from "@/components";
 
 
 interface Habitacion {
@@ -22,6 +23,15 @@ interface FormularioReserva {
   origen: string;
 }
 
+interface FormularioErrores {
+  nombre?: string;
+  apellido?: string;
+  dni?: string;
+  telefono?: string;
+  email?: string;
+  origen?: string;
+}
+
 const ReservasPublicasPage = () => {
   // Estados
   const [paso, setPaso] = useState(1);
@@ -37,6 +47,7 @@ const ReservasPublicasPage = () => {
     email: "",
     origen: "Argentina",
   });
+  const [erroresFormulario, setErroresFormulario] = useState<FormularioErrores>({});
   const [loading, setLoading] = useState(false);
   const [reservaExitosa, setReservaExitosa] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -114,11 +125,80 @@ const ReservasPublicasPage = () => {
     setPaso(3);
   };
 
+  // Validar campo individual
+  const validarCampo = (campo: keyof FormularioReserva, valor: string): string | undefined => {
+    switch (campo) {
+      case "nombre":
+      case "apellido":
+        if (!valor.trim()) return "Este campo es obligatorio";
+        if (valor.trim().length < 2) return "Debe tener al menos 2 caracteres";
+        if (!/^[a-záéíóúñA-ZÁÉÍÓÚÑ\s]+$/.test(valor)) return "Solo se permiten letras";
+        return undefined;
+
+      case "dni":
+        if (!valor.trim()) return "El DNI es obligatorio";
+        if (!/^\d{7,8}$/.test(valor.trim())) return "El DNI debe tener 7 u 8 dígitos";
+        return undefined;
+
+      case "telefono":
+        if (!valor.trim()) return "El teléfono es obligatorio";
+        if (!/^[\d\s\-\+\(\)]{8,20}$/.test(valor.trim())) return "Formato de teléfono inválido";
+        return undefined;
+
+      case "email":
+        if (!valor.trim()) return "El email es obligatorio";
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(valor.trim())) return "Email inválido";
+        return undefined;
+
+      case "origen":
+        if (!valor.trim()) return "El país de origen es obligatorio";
+        if (valor.trim().length < 2) return "Debe tener al menos 2 caracteres";
+        return undefined;
+
+      default:
+        return undefined;
+    }
+  };
+
+  // Validar todos los campos del formulario
+  const validarFormulario = (): boolean => {
+    const errores: FormularioErrores = {};
+    let esValido = true;
+
+    (Object.keys(formulario) as Array<keyof FormularioReserva>).forEach((campo) => {
+      const error = validarCampo(campo, formulario[campo]);
+      if (error) {
+        errores[campo] = error;
+        esValido = false;
+      }
+    });
+
+    setErroresFormulario(errores);
+    return esValido;
+  };
+
+  // Manejar cambio en campos del formulario
+  const handleCampoChange = (campo: keyof FormularioReserva, valor: string) => {
+    setFormulario({ ...formulario, [campo]: valor });
+    
+    // Limpiar error del campo cuando el usuario empiece a escribir
+    if (erroresFormulario[campo]) {
+      setErroresFormulario({ ...erroresFormulario, [campo]: undefined });
+    }
+  };
+
   // Enviar reserva
   const enviarReserva = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!habitacionSeleccionada) return;
+
+    // Validar formulario antes de enviar
+    if (!validarFormulario()) {
+      setError("Por favor corregí los errores en el formulario");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -166,6 +246,7 @@ const ReservasPublicasPage = () => {
       email: "",
       origen: "Argentina",
     });
+    setErroresFormulario({});
     setReservaExitosa(false);
     setError(null);
   };
@@ -258,28 +339,30 @@ const ReservasPublicasPage = () => {
 
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-text mb-2">
-                      Fecha de entrada
+                    <label className="block mb-2 text-sm font-semibold text-gray-700">
+                      Fecha de entrada *
                     </label>
                     <input
                       type="date"
                       min={fechaMinima}
                       value={fechaInicio}
                       onChange={(e) => setFechaInicio(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-border rounded-lg focus:border-main focus:ring-2 focus:ring-main/20 transition-all"
+                      required
+                      className="block w-full text-sm rounded-lg bg-white border-2 border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-main focus:border-main px-4 py-2.5 transition-all duration-200 hover:border-gray-400"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-text mb-2">
-                      Fecha de salida
+                    <label className="block mb-2 text-sm font-semibold text-gray-700">
+                      Fecha de salida *
                     </label>
                     <input
                       type="date"
                       min={fechaInicio || fechaMinima}
                       value={fechaFin}
                       onChange={(e) => setFechaFin(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-border rounded-lg focus:border-main focus:ring-2 focus:ring-main/20 transition-all"
+                      required
+                      className="block w-full text-sm rounded-lg bg-white border-2 border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-main focus:border-main px-4 py-2.5 transition-all duration-200 hover:border-gray-400"
                     />
                   </div>
 
@@ -428,81 +511,87 @@ const ReservasPublicasPage = () => {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-text mb-2">
-                          Nombre *
-                        </label>
-                        <input
-                          type="text"
-                          required
+                        <InputForm
+                          inputKey="nombre"
+                          InputForm="text"
+                          placeholder="Ej: Juan"
                           value={formulario.nombre}
-                          onChange={(e) => setFormulario({ ...formulario, nombre: e.target.value })}
-                          className="w-full px-4 py-3 border-2 border-border rounded-lg focus:border-main focus:ring-2 focus:ring-main/20 transition-all"
-                        />
+                          onChange={(e) => handleCampoChange("nombre", e.target.value)}
+                          error={erroresFormulario.nombre}
+                          required
+                        >
+                          Nombre *
+                        </InputForm>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-text mb-2">
-                          Apellido *
-                        </label>
-                        <input
-                          type="text"
-                          required
+                        <InputForm
+                          inputKey="apellido"
+                          InputForm="text"
+                          placeholder="Ej: Pérez"
                           value={formulario.apellido}
-                          onChange={(e) => setFormulario({ ...formulario, apellido: e.target.value })}
-                          className="w-full px-4 py-3 border-2 border-border rounded-lg focus:border-main focus:ring-2 focus:ring-main/20 transition-all"
-                        />
+                          onChange={(e) => handleCampoChange("apellido", e.target.value)}
+                          error={erroresFormulario.apellido}
+                          required
+                        >
+                          Apellido *
+                        </InputForm>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-text mb-2">
-                          DNI *
-                        </label>
-                        <input
-                          type="text"
-                          required
+                        <InputForm
+                          inputKey="dni"
+                          InputForm="text"
+                          placeholder="Ej: 12345678"
                           value={formulario.dni}
-                          onChange={(e) => setFormulario({ ...formulario, dni: e.target.value })}
-                          className="w-full px-4 py-3 border-2 border-border rounded-lg focus:border-main focus:ring-2 focus:ring-main/20 transition-all"
-                        />
+                          onChange={(e) => handleCampoChange("dni", e.target.value)}
+                          error={erroresFormulario.dni}
+                          required
+                        >
+                          DNI *
+                        </InputForm>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-text mb-2">
-                          Teléfono *
-                        </label>
-                        <input
-                          type="tel"
-                          required
+                        <InputForm
+                          inputKey="telefono"
+                          InputForm="tel"
+                          placeholder="Ej: +54 351 123-4567"
                           value={formulario.telefono}
-                          onChange={(e) => setFormulario({ ...formulario, telefono: e.target.value })}
-                          className="w-full px-4 py-3 border-2 border-border rounded-lg focus:border-main focus:ring-2 focus:ring-main/20 transition-all"
-                        />
+                          onChange={(e) => handleCampoChange("telefono", e.target.value)}
+                          error={erroresFormulario.telefono}
+                          required
+                        >
+                          Teléfono *
+                        </InputForm>
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-text mb-2">
-                          Email *
-                        </label>
-                        <input
-                          type="email"
-                          required
+                        <InputForm
+                          inputKey="email"
+                          InputForm="email"
+                          placeholder="Ej: juan.perez@email.com"
                           value={formulario.email}
-                          onChange={(e) => setFormulario({ ...formulario, email: e.target.value })}
-                          className="w-full px-4 py-3 border-2 border-border rounded-lg focus:border-main focus:ring-2 focus:ring-main/20 transition-all"
-                        />
+                          onChange={(e) => handleCampoChange("email", e.target.value)}
+                          error={erroresFormulario.email}
+                          required
+                        >
+                          Email *
+                        </InputForm>
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-text mb-2">
-                          País de origen *
-                        </label>
-                        <input
-                          type="text"
-                          required
+                        <InputForm
+                          inputKey="origen"
+                          InputForm="text"
+                          placeholder="Ej: Argentina"
                           value={formulario.origen}
-                          onChange={(e) => setFormulario({ ...formulario, origen: e.target.value })}
-                          className="w-full px-4 py-3 border-2 border-border rounded-lg focus:border-main focus:ring-2 focus:ring-main/20 transition-all"
-                        />
+                          onChange={(e) => handleCampoChange("origen", e.target.value)}
+                          error={erroresFormulario.origen}
+                          required
+                        >
+                          País de origen *
+                        </InputForm>
                       </div>
                     </div>
 

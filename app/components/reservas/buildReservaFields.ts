@@ -29,13 +29,43 @@ export function buildReservaFields(
       visibleWhen: ({ formData }) => formData.huespedMode === "existente",
     },
 
-    // Campos del huésped (sólo si modo = nuevo)
-    { key: "nombre",   type: "text",  label: "Nombre",  editable: true, visibleWhen: ({ formData }) => formData.huespedMode !== "existente" },
-    { key: "apellido", type: "text",  label: "Apellido", editable: true, visibleWhen: ({ formData }) => formData.huespedMode !== "existente" },
-    { key: "dni",      type: "text",  label: "DNI",      editable: true, visibleWhen: ({ formData }) => formData.huespedMode !== "existente" },
-    { key: "telefono", type: "text",  label: "Teléfono", editable: true, visibleWhen: ({ formData }) => formData.huespedMode !== "existente" },
-    { key: "email",    type: "text",  label: "Email",    editable: true, visibleWhen: ({ formData }) => formData.huespedMode !== "existente" },
-    { key: "origen",   type: "custom",label: "Origen",   editable: true, visibleWhen: ({ formData }) => formData.huespedMode !== "existente" },
+    // Campos del huésped - siempre visibles pero editables solo en modo nuevo
+    { 
+      key: "nombre",   
+      type: "text",  
+      label: "Nombre",  
+      editable: ({ formData }: any) => formData.huespedMode !== "existente",
+    },
+    { 
+      key: "apellido", 
+      type: "text",  
+      label: "Apellido", 
+      editable: ({ formData }: any) => formData.huespedMode !== "existente",
+    },
+    { 
+      key: "dni",      
+      type: "text",  
+      label: "DNI",      
+      editable: ({ formData }: any) => formData.huespedMode !== "existente",
+    },
+    { 
+      key: "telefono", 
+      type: "text",  
+      label: "Teléfono", 
+      editable: ({ formData }: any) => formData.huespedMode !== "existente",
+    },
+    { 
+      key: "email",    
+      type: "text",  
+      label: "Email",    
+      editable: ({ formData }: any) => formData.huespedMode !== "existente",
+    },
+    { 
+      key: "origen",   
+      type: "custom",
+      label: "Origen",   
+      editable: ({ formData }: any) => formData.huespedMode !== "existente",
+    },
 
     // Reserva
     {

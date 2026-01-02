@@ -37,7 +37,10 @@ export default function FormRenderer({
       {visibleFields.map((input) => {
         const value = formData?.[input.key] ?? "";
         const error = errors[input.key];
-        const disabled = input.editable === false;
+        // Evaluar editable si es una función, sino usar el valor booleano
+        const disabled = typeof input.editable === 'function' 
+          ? !input.editable({ mode, formData })
+          : input.editable === false;
 
         if (input.type === "select") {
           return (

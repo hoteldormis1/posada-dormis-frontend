@@ -17,6 +17,7 @@ import { AxiosError } from "axios";
 import { useSweetAlert } from "@/hooks/useSweetAlert";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { hasPermission } from "@/utils/helpers/permissions";
+import { invitarUsuarioSchema } from "@/utils/validations/usuarioSchema";
 
 /**
  * Componente de administración de usuarios.
@@ -111,19 +112,6 @@ const Usuarios = () => {
 		  email: String(formData.email || "").trim().toLowerCase(),
 		  tipoUsuario: String(formData.tipoUsuario || "").trim(),
 		};
-	  
-		// Validaciones básicas de front
-		if (!payload.nombre || !payload.email || !payload.tipoUsuario) {
-		  errorToast("Completá todos los campos obligatorios");
-		  return;
-		}
-
-		// Validación de email
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(payload.email)) {
-		  errorToast("Ingresá un email válido");
-		  return;
-		}
 	  
 		try {
 		  await api.post("/usuarios/invite", payload, { withCredentials: true });

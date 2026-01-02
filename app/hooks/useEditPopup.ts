@@ -12,6 +12,7 @@ export function useEditPopup<T extends { id: string }>(
   const [selectedRow, setSelectedRow] = useState<T | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
 
   // Agregar
   const [showAddPopup, setShowAddPopup] = useState(false);
@@ -32,6 +33,7 @@ export function useEditPopup<T extends { id: string }>(
         
         setFormData(formatted);
         setErrors({});
+        setTouchedFields(new Set());
         setShowEditPopup(true);
       }
     },
@@ -42,15 +44,40 @@ export function useEditPopup<T extends { id: string }>(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const newFormData = { ...formData, [name]: value };
+    setFormData(newFormData);
     
-    // Limpiar error del campo cuando el usuario empiece a escribir
-    if (errors[name]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
+    // Marcar el campo como tocado
+    setTouchedFields((prev) => new Set(prev).add(name));
+    
+    // Validación en tiempo real solo para campos tocados
+    if (schema) {
+      try {
+        schema.parse(newFormData);
+        // Si la validación pasa, limpiar todos los errores
+        setErrors({});
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const errorMap: Record<string, string> = {};
+          error.issues.forEach((err) => {
+            const field = err.path.join(".");
+            // Solo agregar error si el campo fue tocado
+            if (touchedFields.has(field) || field === name) {
+              errorMap[field] = err.message;
+            }
+          });
+          setErrors(errorMap);
+        }
+      }
+    } else {
+      // Si no hay schema, solo limpiar el error del campo actual
+      if (errors[name]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[name];
+          return newErrors;
+        });
+      }
     }
   };
 
@@ -67,6 +94,8 @@ export function useEditPopup<T extends { id: string }>(
         error.issues.forEach((err) => {
           const field = err.path.join(".");
           errorMap[field] = err.message;
+          // Marcar todos los campos con error como tocados
+          setTouchedFields((prev) => new Set(prev).add(field));
         });
         setErrors(errorMap);
       }
@@ -98,6 +127,8 @@ export function useEditPopup<T extends { id: string }>(
     }));
   }, [editableFields]);
 
+  const hasErrors = Object.keys(errors).length > 0;
+
   return {
     // Editar
     showEditPopup,
@@ -109,6 +140,7 @@ export function useEditPopup<T extends { id: string }>(
     getUpdatedRow,
     errors,
     validateForm,
+    hasErrors,
 
     // Agregar
     showAddPopup,

@@ -1,18 +1,19 @@
 import { z } from "zod";
+import { numeroHabitacionSchema, precioSchema, numeroPositivoSchema } from "./commonValidations";
 
 export const habitacionAddSchema = z.object({
-  numero: z.coerce.number().int().positive("El número debe ser positivo"),
+  numero: numeroHabitacionSchema,
   tipo: z.string().min(1, "Seleccione un tipo de habitación"),
   capacidad: z.coerce.number().int().min(1, "La capacidad debe ser al menos 1"),
-  precio: z.coerce.number().min(0, "El precio no puede ser negativo"),
+  precio: precioSchema,
   descripcion: z.string().optional(),
 });
 
 export const habitacionEditSchema = z.object({
-  numero: z.coerce.number().int().positive("El número debe ser positivo"),
+  numero: numeroHabitacionSchema,
   tipo: z.string().min(1, "Seleccione un tipo de habitación"),
   capacidad: z.coerce.number().int().min(1, "La capacidad debe ser al menos 1"),
-  precio: z.coerce.number().min(0, "El precio no puede ser negativo"),
+  precio: precioSchema,
   descripcion: z.string().optional(),
 });
 

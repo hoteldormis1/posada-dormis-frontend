@@ -8,6 +8,7 @@ import type { AppDispatch, RootState } from "@/lib/store/store";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { setAuthToken } from "@/lib/store/useAuthToken";
 import InputForm from "../formComponents/InputForm";
+import { loginSchema } from "@/utils/validations/authSchema";
 
 const LoginForm = () => {
 	const dispatch: AppDispatch = useAppDispatch();
@@ -16,6 +17,7 @@ const LoginForm = () => {
 
 	const [email, setEmail] = useState("");
 	const [clave, setClave] = useState("");
+	const [errors, setErrors] = useState<{ email?: string; clave?: string }>({});
 	const [submitting, setSubmitting] = useState(false);
 
 	const { loading } = useAppSelector((state: RootState) => state.user);
@@ -23,10 +25,21 @@ const LoginForm = () => {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 	  
-		if (!email || !clave) {
-		  errorToast("Por favor, completá todos los campos.");
-		  return;
+		// Validar con Zod
+		const result = loginSchema.safeParse({ email, clave });
+		
+		if (!result.success) {
+			const errorMap: { email?: string; clave?: string } = {};
+			result.error.issues.forEach((issue) => {
+				const field = issue.path[0] as "email" | "clave";
+				errorMap[field] = issue.message;
+			});
+			setErrors(errorMap);
+			return;
 		}
+
+		// Limpiar errores
+		setErrors({});
 	  
 		try {
 		  setSubmitting(true);
@@ -46,14 +59,17 @@ const LoginForm = () => {
 	  };
 
 	return (
-		<form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
+		<form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 ">
 			<InputForm
 				inputKey="email"
 				InputForm="email"
 				placeholder="usuario@ejemplo.com"
 				value={email}
-				onChange={(e) => setEmail(e.target.value)}
-				required
+				onChange={(e) => {
+					setEmail(e.target.value);
+					if (errors.email) setErrors({ ...errors, email: undefined });
+				}}
+				error={errors.email}
 			>
 				Correo electrónico
 			</InputForm>
@@ -63,8 +79,11 @@ const LoginForm = () => {
 				InputForm="password"
 				placeholder="********"
 				value={clave}
-				onChange={(e) => setClave(e.target.value)}
-				required
+				onChange={(e) => {
+					setClave(e.target.value);
+					if (errors.clave) setErrors({ ...errors, clave: undefined });
+				}}
+				error={errors.clave}
 			>
 				Contraseña
 			</InputForm>
