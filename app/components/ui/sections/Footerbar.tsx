@@ -2,47 +2,47 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaCalendarAlt, FaUserCircle } from "react-icons/fa";
+import { FaCalendarAlt, FaUserCircle, FaUsers } from "react-icons/fa";
 import { FaBed } from "react-icons/fa6";
 import { MdArticle, MdDashboard, MdHistory } from "react-icons/md";
 
 const footerItems = [
+	
 	{
 		name: "Usuarios",
 		label: "Usuarios",
 		icon: <FaUserCircle size={24} />,
-		link: "/usuarios",
-	},
-
-	{
-		name: "Auditorias",
-		label: "Auditorias",
-		icon: <MdHistory size={24} />,
-		link: "/auditorias",
+		link: "/admin/usuarios",
 	},
 	{
 		name: "Habitaciones",
 		label: "Habitaciones",
 		icon: <FaBed size={24} />,
-		link: "/habitaciones",
+		link: "/admin/habitaciones",
+	},
+	{
+		name: "Huespedes",
+		label: "Huéspedes",
+		icon: <FaUsers size={24} />,
+		link: "/admin/huespedes",
 	},
 	{
 		name: "Reservas",
 		label: "Reservas",
 		icon: <MdArticle size={24} />,
-		link: "/reservas",
+		link: "/admin/reservas",
 	},
 	{
 		name: "Calendario",
 		label: "Calendario",
 		icon: <FaCalendarAlt size={24} />,
-		link: "/calendario",
+		link: "/admin/calendario",
 	},
 	{
 		name: "Dashboard",
 		label: "Dashboard",
 		icon: <MdDashboard size={24} />,
-		link: "/dashboard",
+		link: "/admin/dashboard",
 	},
 ];
 

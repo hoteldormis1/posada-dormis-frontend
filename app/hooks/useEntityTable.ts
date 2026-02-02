@@ -42,10 +42,12 @@ export const useEntityTable = <
 }: UseEntityTableParams<F>) => {
 	const dispatch = useAppDispatch();
 	const state = useAppSelector(selector);
+	const { accessToken } = useAppSelector((state: RootState) => state.user);
 
 	const [search, setSearch] = useState("");
 	const [sortField, setSortField] = useState(defaultSortField);
 	const [sortOrder, setSortOrder] = useState<SortOrder.asc | SortOrder.desc>(defaultSortOrder);
+	const [initialFetchDone, setInitialFetchDone] = useState(false);
 
 	const fetchData = useCallback(
 		(params: Partial<EntityFetchParams> = {}) => {
@@ -70,10 +72,21 @@ export const useEntityTable = <
 		]
 	);
 
-	//fetchData adentro hace que cada cambio en el search se ejecute fetchData, evitar
+	// Solo hacer fetch inicial cuando el token esté disponible
 	useEffect(() => {
-		fetchData();
-	}, []);
+		if (accessToken && !initialFetchDone) {
+			dispatch(
+				fetchAction({
+					page: state.page,
+					size: state.pageSize,
+					search: search,
+					sortField: sortField,
+					sortOrder: sortOrder,
+				}) as UnknownAction
+			);
+			setInitialFetchDone(true);
+		}
+	}, [accessToken, initialFetchDone, dispatch, fetchAction, state.page, state.pageSize, search, sortField, sortOrder]);
 
 	const handleSearch = useCallback(() => {
 		dispatch(setPageAction(1));

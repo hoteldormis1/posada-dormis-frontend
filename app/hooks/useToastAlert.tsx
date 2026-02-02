@@ -20,8 +20,19 @@ const icons: Record<ToastType, string> = {
   loading: "⏳",
 };
 
+// Store para evitar duplicados
+const activeToasts = new Map<string, string>();
+
 const createToast = (type: ToastType, message: string) => {
-  toast.custom((t: Toast) => {
+  // Crear un ID único basado en tipo y mensaje
+  const toastKey = `${type}-${message}`;
+  
+  // Si ya existe un toast con este contenido, no crear otro
+  if (activeToasts.has(toastKey)) {
+    return;
+  }
+
+  const toastId = toast.custom((t: Toast) => {
     const visibleStyle = t.visible
       ? "opacity-100 translate-y-0"
       : "opacity-0 -translate-y-2";
@@ -44,7 +55,17 @@ const createToast = (type: ToastType, message: string) => {
         </button>
       </div>
     );
+  }, {
+    duration: 3000,
   });
+
+  // Registrar el toast activo
+  activeToasts.set(toastKey, toastId);
+
+  // Limpiar del registro cuando se cierre
+  setTimeout(() => {
+    activeToasts.delete(toastKey);
+  }, 3100); // Un poco más que la duración para asegurar limpieza
 };
 
 export const useToastAlert = () => {

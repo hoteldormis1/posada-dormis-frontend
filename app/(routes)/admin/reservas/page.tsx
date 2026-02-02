@@ -42,9 +42,11 @@ const Reservas: React.FC = () => {
     { header: "Estado", key: "estadoDeReserva" },
   ];
 
-  // Carga inicial
+  const { accessToken } = useAppSelector((state: RootState) => state.user);
+
+  // Carga inicial - solo si hay token
   useEffect(() => {
-    if (status !== StateStatus.idle) return;
+    if (status !== StateStatus.idle || !accessToken) return;
 
     (async () => {
       const [habRes, resRes, hueRes] = await Promise.all([
@@ -63,7 +65,7 @@ const Reservas: React.FC = () => {
         errorToast(hueRes.payload || "Error al obtener huéspedes");
       }
     })();
-  }, [dispatch, status, errorToast]);
+  }, [dispatch, status, accessToken, errorToast]);
 
   const data = useMemo(() => reservas, [reservas]);
 

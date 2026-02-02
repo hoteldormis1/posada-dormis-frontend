@@ -6,6 +6,7 @@ export interface Huesped {
 	apellido: string;
 	dni: string;
 	telefono: string;
-	email: string;
+	email?: string;
 	origen: string;
+	direccion?: string;
   }

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { FaCalendarAlt, FaBed, FaUsers, FaCheckCircle, FaWifi, FaParking, FaCoffee, FaSignInAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaBed, FaUsers, FaCheckCircle, FaWifi, FaParking, FaCoffee, FaSignInAlt, FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
-import { InputForm } from "@/components";
+import { InputForm, InputDateForm } from "@/components";
 
 
 interface Habitacion {
@@ -35,8 +35,8 @@ interface FormularioErrores {
 const ReservasPublicasPage = () => {
   // Estados
   const [paso, setPaso] = useState(1);
-  const [fechaInicio, setFechaInicio] = useState("");
-  const [fechaFin, setFechaFin] = useState("");
+  const [fechaInicio, setFechaInicio] = useState(""); // formato dd/MM/yyyy
+  const [fechaFin, setFechaFin] = useState(""); // formato dd/MM/yyyy
   const [habitacionesDisponibles, setHabitacionesDisponibles] = useState<Habitacion[]>([]);
   const [habitacionSeleccionada, setHabitacionSeleccionada] = useState<Habitacion | null>(null);
   const [formulario, setFormulario] = useState<FormularioReserva>({
@@ -52,14 +52,20 @@ const ReservasPublicasPage = () => {
   const [reservaExitosa, setReservaExitosa] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Obtener fecha mínima (hoy)
-  const fechaMinima = new Date().toISOString().split("T")[0];
+  // Convertir dd/MM/yyyy a yyyy-mm-dd para la API
+  const convertirAFormatoAPI = (fechaDDMMYYYY: string): string => {
+    if (!fechaDDMMYYYY || fechaDDMMYYYY.length !== 10) return "";
+    const [dia, mes, anio] = fechaDDMMYYYY.split("/");
+    return `${anio}-${mes}-${dia}`;
+  };
 
   // Calcular noches y precio total
   const calcularNoches = () => {
     if (!fechaInicio || !fechaFin) return 0;
-    const inicio = new Date(fechaInicio);
-    const fin = new Date(fechaFin);
+    const [diaI, mesI, anioI] = fechaInicio.split("/").map(Number);
+    const [diaF, mesF, anioF] = fechaFin.split("/").map(Number);
+    const inicio = new Date(anioI, mesI - 1, diaI);
+    const fin = new Date(anioF, mesF - 1, diaF);
     const diff = fin.getTime() - inicio.getTime();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
@@ -74,7 +80,12 @@ const ReservasPublicasPage = () => {
       return;
     }
 
-    if (new Date(fechaFin) <= new Date(fechaInicio)) {
+    const [diaI, mesI, anioI] = fechaInicio.split("/").map(Number);
+    const [diaF, mesF, anioF] = fechaFin.split("/").map(Number);
+    const inicio = new Date(anioI, mesI - 1, diaI);
+    const fin = new Date(anioF, mesF - 1, diaF);
+
+    if (fin <= inicio) {
       setError("La fecha de salida debe ser posterior a la fecha de entrada");
       return;
     }
@@ -84,8 +95,10 @@ const ReservasPublicasPage = () => {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const fechaInicioAPI = convertirAFormatoAPI(fechaInicio);
+      const fechaFinAPI = convertirAFormatoAPI(fechaFin);
       const response = await fetch(
-        `${apiUrl}/api/public/habitaciones/disponibles?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+        `${apiUrl}/api/public/habitaciones/disponibles?fechaInicio=${fechaInicioAPI}&fechaFin=${fechaFinAPI}`
       );
       
       if (!response.ok) {
@@ -205,14 +218,16 @@ const ReservasPublicasPage = () => {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const fechaInicioAPI = convertirAFormatoAPI(fechaInicio);
+      const fechaFinAPI = convertirAFormatoAPI(fechaFin);
       const response = await fetch(`${apiUrl}/api/public/reservas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           huesped: formulario,
           idHabitacion: habitacionSeleccionada.idHabitacion,
-          fechaDesde: fechaInicio,
-          fechaHasta: fechaFin,
+          fechaDesde: fechaInicioAPI,
+          fechaHasta: fechaFinAPI,
         })
       });
 
@@ -251,8 +266,16 @@ const ReservasPublicasPage = () => {
     setError(null);
   };
 
+  // Volver al paso anterior
+  const volverPasoAnterior = () => {
+    if (paso > 1) {
+      setPaso(paso - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-tertiary via-background to-secondary-light">
+    <div className="min-h-screen bg-background from-tertiary via-background to-secondary-light">
       {/* Header Público */}
       <header className="bg-white shadow-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -260,24 +283,10 @@ const ReservasPublicasPage = () => {
             <FaBed className="text-main text-4xl" />
             <div>
               <h1 className="text-2xl font-bold text-main">Posada Dormis</h1>
-              <p className="text-sm text-muted">Carlos Paz - Córdoba</p>
+              <p className="text-sm text-muted">Mina Clavero - Córdoba</p>
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-6 text-sm text-muted">
-              <div className="flex items-center gap-2">
-                <FaWifi className="text-main" />
-                <span>WiFi Gratis</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaParking className="text-main" />
-                <span>Estacionamiento</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCoffee className="text-main" />
-                <span>Desayuno</span>
-              </div>
-            </div>
             <Link 
               href="/login"
               className="flex items-center gap-2 bg-main hover:bg-main-dark text-white font-semibold px-4 py-2 rounded-lg transition-all transform hover:scale-105"
@@ -290,7 +299,7 @@ const ReservasPublicasPage = () => {
       </header>
 
       {/* Progress Bar */}
-      <div className="bg-white shadow-sm">
+      <div className="bg-grayed shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between max-w-3xl mx-auto">
             {[
@@ -304,7 +313,7 @@ const ReservasPublicasPage = () => {
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
                     paso >= item.num 
                       ? "bg-main text-white scale-110" 
-                      : "bg-gray-300 text-gray-600"
+                      : "bg-grayed text-gray-600"
                   }`}>
                     {paso > item.num ? <FaCheckCircle /> : item.num}
                   </div>
@@ -314,7 +323,7 @@ const ReservasPublicasPage = () => {
                 </div>
                 {idx < 3 && (
                   <div className={`flex-1 h-1 mx-2 rounded transition-all ${
-                    paso > item.num ? "bg-main" : "bg-gray-300"
+                    paso > item.num ? "bg-main" : "bg-grayed"
                   }`} />
                 )}
               </React.Fragment>
@@ -327,88 +336,89 @@ const ReservasPublicasPage = () => {
       <main className="container mx-auto px-4 py-12">
         {/* Paso 1: Selección de Fechas */}
         {paso === 1 && (
-          <div className="max-w-2xl mx-auto animate-fade-in">
-              <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
-                <div className="text-center mb-8">
-                  <FaCalendarAlt className="text-5xl text-main mx-auto mb-4" />
-                  <h2 className="text-3xl font-bold text-text mb-2">
-                    ¿Cuándo querés hospedarte?
-                  </h2>
-                  <p className="text-muted">Seleccioná las fechas de tu estadía</p>
-                </div>
+          <div className="max-w-2xl mx-auto animate-fade-in relative">
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px] flex flex-col">
+              <div className="text-center mb-8">
+                <FaCalendarAlt className="text-5xl text-main mx-auto mb-4" />
+                <h2 className="text-3xl font-bold text-text mb-2">
+                  ¿Cuándo querés hospedarte?
+                </h2>
+                <p className="text-muted">Seleccioná las fechas de tu estadía</p>
+              </div>
 
-                <div className="space-y-6">
-                  <div>
-                    <label className="block mb-2 text-sm font-semibold text-gray-700">
-                      Fecha de entrada *
-                    </label>
-                    <input
-                      type="date"
-                      min={fechaMinima}
-                      value={fechaInicio}
-                      onChange={(e) => setFechaInicio(e.target.value)}
-                      required
-                      className="block w-full text-sm rounded-lg bg-white border-2 border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-main focus:border-main px-4 py-2.5 transition-all duration-200 hover:border-gray-400"
-                    />
+              <div className="space-y-6 flex-1">
+                <InputDateForm
+                  inputKey="fechaInicio"
+                  label="Fecha de entrada *"
+                  value={fechaInicio}
+                  onChange={(e) => setFechaInicio(e.target.value)}
+                  minDate={new Date()}
+                />
+
+                <InputDateForm
+                  inputKey="fechaFin"
+                  label="Fecha de salida *"
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value)}
+                  minDate={fechaInicio ? (() => {
+                    const [dia, mes, anio] = fechaInicio.split("/").map(Number);
+                    return new Date(anio, mes - 1, dia);
+                  })() : new Date()}
+                />
+
+                {noches > 0 && (
+                  <div className="bg-tertiary p-4 rounded-lg">
+                    <p className="text-center text-main font-semibold">
+                      {noches} {noches === 1 ? "noche" : "noches"}
+                    </p>
                   </div>
+                )}
 
-                  <div>
-                    <label className="block mb-2 text-sm font-semibold text-gray-700">
-                      Fecha de salida *
-                    </label>
-                    <input
-                      type="date"
-                      min={fechaInicio || fechaMinima}
-                      value={fechaFin}
-                      onChange={(e) => setFechaFin(e.target.value)}
-                      required
-                      className="block w-full text-sm rounded-lg bg-white border-2 border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-main focus:border-main px-4 py-2.5 transition-all duration-200 hover:border-gray-400"
-                    />
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                    {error}
                   </div>
+                )}
 
-                  {noches > 0 && (
-                    <div className="bg-tertiary p-4 rounded-lg">
-                      <p className="text-center text-main font-semibold">
-                        {noches} {noches === 1 ? "noche" : "noches"}
-                      </p>
-                    </div>
-                  )}
-
-                  {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                      {error}
-                    </div>
-                  )}
-
-                  <button
-                    onClick={buscarHabitaciones}
-                    disabled={loading || !fechaInicio || !fechaFin}
-                    className="w-full bg-main hover:bg-main-dark text-white font-bold py-4 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
-                  >
-                    {loading ? "Buscando..." : "Buscar habitaciones disponibles"}
-                  </button>
-                </div>
+                <button
+                  onClick={buscarHabitaciones}
+                  disabled={loading || !fechaInicio || !fechaFin}
+                  className="w-full bg-main hover:bg-main-dark text-white font-bold py-4 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                >
+                  {loading ? "Buscando..." : "Buscar habitaciones disponibles"}
+                </button>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
         {/* Paso 2: Selección de Habitación */}
         {paso === 2 && (
-          <div className="max-w-5xl mx-auto animate-fade-in">
+          <div className="max-w-5xl mx-auto animate-fade-in relative">
+            {/* Botón volver al paso anterior */}
+            <button
+              onClick={volverPasoAnterior}
+              className="absolute top-4 right-4 z-10 bg-white hover:bg-main hover:text-white text-main p-3 rounded-full shadow-lg transition-all transform hover:scale-110"
+              title="Volver al paso anterior"
+            >
+              <FaArrowLeft />
+            </button>
+
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px] flex flex-col">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-text mb-2">
                   Habitaciones disponibles
                 </h2>
                 <p className="text-muted">
-                  Del {new Date(fechaInicio).toLocaleDateString()} al {new Date(fechaFin).toLocaleDateString()} ({noches} {noches === 1 ? "noche" : "noches"})
+                  Del {fechaInicio} al {fechaFin} ({noches} {noches === 1 ? "noche" : "noches"})
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 flex-1">
                 {habitacionesDisponibles.map((habitacion) => (
                   <div
                     key={habitacion.idHabitacion}
-                    className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                    className="bg-grayed rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 h-fit"
                     onClick={() => seleccionarHabitacion(habitacion)}
                   >
                     <div className="bg-gradient-to-br from-main to-main-dark p-8 text-white text-center">
@@ -416,7 +426,7 @@ const ReservasPublicasPage = () => {
                       <h3 className="text-2xl font-bold">Habitación {habitacion.numero}</h3>
                       <p className="text-sm opacity-90">{habitacion.tipo}</p>
                     </div>
-                    <div className="p-6">
+                    <div className="p-6 bg-white">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2 text-muted">
                           <FaUsers />
@@ -447,25 +457,27 @@ const ReservasPublicasPage = () => {
                   </div>
                 ))}
               </div>
-
-              <div className="text-center">
-                <button
-                  onClick={() => setPaso(1)}
-                  className="text-main hover:text-main-dark font-semibold"
-                >
-                  ← Cambiar fechas
-                </button>
-              </div>
             </div>
-          )}
+          </div>
+        )}
 
         {/* Paso 3: Formulario de Datos */}
         {paso === 3 && habitacionSeleccionada && (
-          <div className="max-w-4xl mx-auto animate-fade-in">
+          <div className="max-w-4xl mx-auto animate-fade-in relative">
+            {/* Botón volver al paso anterior */}
+            <button
+              onClick={volverPasoAnterior}
+              className="absolute top-4 right-4 z-10 bg-white hover:bg-main hover:text-white text-main p-3 rounded-full shadow-lg transition-all transform hover:scale-110"
+              title="Volver al paso anterior"
+            >
+              <FaArrowLeft />
+            </button>
+
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px]">
               <div className="grid md:grid-cols-3 gap-6">
                 {/* Resumen */}
                 <div className="md:col-span-1">
-                  <div className="bg-white rounded-xl shadow-lg p-6 sticky top-24">
+                  <div className="bg-grayed rounded-xl shadow-lg p-6">
                     <h3 className="text-xl font-bold text-text mb-4">Resumen</h3>
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
@@ -479,13 +491,13 @@ const ReservasPublicasPage = () => {
                       <div className="flex justify-between">
                         <span className="text-muted">Entrada</span>
                         <span className="font-semibold">
-                          {new Date(fechaInicio).toLocaleDateString()}
+                          {fechaInicio}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted">Salida</span>
                         <span className="font-semibold">
-                          {new Date(fechaFin).toLocaleDateString()}
+                          {fechaFin}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -504,7 +516,7 @@ const ReservasPublicasPage = () => {
 
                 {/* Formulario */}
                 <div className="md:col-span-2">
-                  <form onSubmit={enviarReserva} className="bg-white rounded-xl shadow-lg p-8">
+                  <form onSubmit={enviarReserva} className="bg-grayed rounded-xl shadow-lg p-8">
                     <h3 className="text-2xl font-bold text-text mb-6">
                       Tus datos
                     </h3>
@@ -518,7 +530,6 @@ const ReservasPublicasPage = () => {
                           value={formulario.nombre}
                           onChange={(e) => handleCampoChange("nombre", e.target.value)}
                           error={erroresFormulario.nombre}
-                          required
                         >
                           Nombre *
                         </InputForm>
@@ -532,7 +543,6 @@ const ReservasPublicasPage = () => {
                           value={formulario.apellido}
                           onChange={(e) => handleCampoChange("apellido", e.target.value)}
                           error={erroresFormulario.apellido}
-                          required
                         >
                           Apellido *
                         </InputForm>
@@ -546,7 +556,6 @@ const ReservasPublicasPage = () => {
                           value={formulario.dni}
                           onChange={(e) => handleCampoChange("dni", e.target.value)}
                           error={erroresFormulario.dni}
-                          required
                         >
                           DNI *
                         </InputForm>
@@ -560,7 +569,6 @@ const ReservasPublicasPage = () => {
                           value={formulario.telefono}
                           onChange={(e) => handleCampoChange("telefono", e.target.value)}
                           error={erroresFormulario.telefono}
-                          required
                         >
                           Teléfono *
                         </InputForm>
@@ -574,7 +582,6 @@ const ReservasPublicasPage = () => {
                           value={formulario.email}
                           onChange={(e) => handleCampoChange("email", e.target.value)}
                           error={erroresFormulario.email}
-                          required
                         >
                           Email *
                         </InputForm>
@@ -588,7 +595,6 @@ const ReservasPublicasPage = () => {
                           value={formulario.origen}
                           onChange={(e) => handleCampoChange("origen", e.target.value)}
                           error={erroresFormulario.origen}
-                          required
                         >
                           País de origen *
                         </InputForm>
@@ -625,85 +631,73 @@ const ReservasPublicasPage = () => {
                 </div>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
         {/* Paso 4: Confirmación */}
         {paso === 4 && reservaExitosa && (
-          <div className="max-w-2xl mx-auto animate-fade-in">
-            <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
-              <div className="inline-block animate-bounce-in">
-                <FaCheckCircle className="text-7xl text-success mx-auto mb-6" />
+          <div className="max-w-2xl mx-auto animate-fade-in relative">
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px] flex flex-col justify-center text-center">
+              <div className="inline-block animate-bounce-in mx-auto">
+                <FaCheckCircle className="text-7xl text-success mb-6" />
               </div>
 
-                <h2 className="text-3xl font-bold text-text mb-4">
-                  ¡Reserva solicitada con éxito!
-                </h2>
-                
-                <p className="text-muted mb-6">
-                  Tu reserva ha sido registrada y está en estado <strong className="text-main">PENDIENTE</strong>.
-                </p>
+              <h2 className="text-3xl font-bold text-text mb-4">
+                ¡Reserva solicitada con éxito!
+              </h2>
+              
+              <p className="text-muted mb-6">
+                Tu reserva ha sido registrada y está en estado <strong className="text-main">PENDIENTE</strong>.
+              </p>
 
-                <div className="bg-tertiary rounded-lg p-6 mb-6 text-left">
-                  <h3 className="font-bold text-text mb-3">Próximos pasos:</h3>
-                  <ol className="space-y-2 text-sm text-muted list-decimal list-inside">
-                    <li>La administración revisará tu reserva</li>
-                    <li>Recibirás un email con las instrucciones de pago</li>
-                    <li>Una vez confirmado el pago, tu reserva será confirmada</li>
-                  </ol>
-                </div>
+              <div className="bg-tertiary rounded-lg p-6 mb-6 text-left">
+                <h3 className="font-bold text-text mb-3">Próximos pasos:</h3>
+                <ol className="space-y-2 text-sm text-muted list-decimal list-inside">
+                  <li>La administración revisará tu reserva</li>
+                  <li>Recibirás un email con las instrucciones de pago</li>
+                  <li>Una vez confirmado el pago, tu reserva será confirmada</li>
+                </ol>
+              </div>
 
-                <div className="bg-gray-50 rounded-lg p-4 mb-6 text-sm text-left">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <span className="text-muted block">Habitación</span>
-                      <span className="font-semibold">{habitacionSeleccionada?.numero}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted block">Noches</span>
-                      <span className="font-semibold">{noches}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted block">Entrada</span>
-                      <span className="font-semibold">
-                        {new Date(fechaInicio).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-muted block">Salida</span>
-                      <span className="font-semibold">
-                        {new Date(fechaFin).toLocaleDateString()}
-                      </span>
-                    </div>
+              <div className="bg-grayed rounded-lg p-4 mb-6 text-sm text-left">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-muted block">Habitación</span>
+                    <span className="font-semibold">{habitacionSeleccionada?.numero}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted block">Noches</span>
+                    <span className="font-semibold">{noches}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted block">Entrada</span>
+                    <span className="font-semibold">
+                      {fechaInicio}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted block">Salida</span>
+                    <span className="font-semibold">
+                      {fechaFin}
+                    </span>
                   </div>
                 </div>
-
-                <button
-                  onClick={reiniciar}
-                  className="w-full bg-main hover:bg-main-dark text-white font-bold py-4 px-6 rounded-lg transition-all transform hover:scale-105 active:scale-95"
-                >
-                  Hacer otra reserva
-                </button>
-
-                <p className="text-xs text-muted mt-4">
-                  Recibirás un correo electrónico con todos los detalles a {formulario.email}
-                </p>
               </div>
-            </div>
-          )}
-      </main>
 
-      {/* Footer Público */}
-      <footer className="bg-main-dark text-white py-8 mt-20">
-        <div className="container mx-auto px-4 text-center">
-          <div className="mb-4">
-            <h3 className="text-xl font-bold mb-2">Posada Dormis</h3>
-            <p className="text-sm opacity-90">Carlos Paz - Córdoba, Argentina</p>
+              <button
+                onClick={reiniciar}
+                className="w-full bg-main hover:bg-main-dark text-white font-bold py-4 px-6 rounded-lg transition-all transform hover:scale-105 active:scale-95"
+              >
+                Hacer otra reserva
+              </button>
+
+              <p className="text-xs text-muted mt-4">
+                Recibirás un correo electrónico con todos los detalles a {formulario.email}
+              </p>
+            </div>
           </div>
-          <div className="text-sm opacity-75">
-            <p>© 2026 Posada Dormis. Todos los derechos reservados.</p>
-          </div>
-        </div>
-      </footer>
+        )}
+      </main>
     </div>
   );
 };

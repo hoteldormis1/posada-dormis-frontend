@@ -28,8 +28,12 @@ import DetallesReservaPopup from "@/components/ui/calendario/DetallesReservaPopu
 export default function CalendarioPage() {
   const dispatch: AppDispatch = useAppDispatch();
 
-  // Cargar habitaciones y datos del calendario
+  const { accessToken } = useAppSelector((state: RootState) => state.user);
+
+  // Cargar habitaciones y datos del calendario - solo si hay token
   useEffect(() => {
+    if (!accessToken) return;
+
     dispatch(fetchHabitaciones({}));
     dispatch(fetchHuespedes()); // Cargar huéspedes para el formulario
     
@@ -39,7 +43,7 @@ export default function CalendarioPage() {
     const endDate = toYMDLocal(new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000));
     
     dispatch(fetchReservasCalendar({ startDate, endDate }));
-  }, [dispatch]);
+  }, [dispatch, accessToken]);
 
   // 🔎 Traer datos del store
   const { datos: habitaciones = [], loading: loadingHabitaciones } =

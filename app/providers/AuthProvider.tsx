@@ -7,13 +7,14 @@ import { useRouter, usePathname } from "next/navigation";
 import { AppDispatch } from "@/lib/store/store";
 import { setAuthToken } from "@/lib/store/useAuthToken";
 import { LoadingSpinner } from "@/components";
+import toast from "react-hot-toast";
 
 const PUBLIC_ROUTES = [
+  "/",
   "/login",
   "/verificarCuenta",
   "/resetPassword",
   "/olvidarContrasena",
-  "/reservas-publicas",
 ];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -32,11 +33,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const verifyAuth = async () => {
       try {
         const result = await dispatch(refreshSession()).unwrap();
-        setAuthToken(result.accessToken);
+        
+        // El token ya fue seteado en memoria por refreshSession
+        if (!result.accessToken) {
+          throw new Error("No se recibió token");
+        }
       } catch (error: any) {
-        console.warn("No se pudo refrescar sesión automáticamente.", error);
-        if (error?.message) console.error("Mensaje del error:", error.message);
-        router.push("/login?expired=true");
+        console.warn("No se pudo refrescar sesión:", error);
+        
+        // Mostrar toast de error UNA SOLA VEZ
+        toast.error("Usuario no logueado. Por favor iniciá sesión.", {
+          id: "auth-error", // ID único para evitar duplicados
+          duration: 3000,
+        });
+        
+        // Redirigir al login
+        router.push("/login");
       } finally {
         setLoading(false);
       }

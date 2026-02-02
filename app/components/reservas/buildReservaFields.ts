@@ -57,13 +57,19 @@ export function buildReservaFields(
     { 
       key: "email",    
       type: "text",  
-      label: "Email",    
+      label: "Email (opcional)",    
       editable: ({ formData }: any) => formData.huespedMode !== "existente",
     },
     { 
       key: "origen",   
       type: "custom",
       label: "Origen",   
+      editable: ({ formData }: any) => formData.huespedMode !== "existente",
+    },
+    { 
+      key: "direccion",   
+      type: "text",
+      label: "Dirección (opcional)",   
       editable: ({ formData }: any) => formData.huespedMode !== "existente",
     },
 

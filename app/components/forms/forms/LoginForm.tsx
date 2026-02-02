@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { loginUser, refreshSession } from "@/lib/store/utils/user/userSlice";
 import type { AppDispatch, RootState } from "@/lib/store/store";
@@ -13,6 +13,7 @@ import { loginSchema } from "@/utils/validations/authSchema";
 const LoginForm = () => {
 	const dispatch: AppDispatch = useAppDispatch();
 	const router = useRouter();
+	const searchParams = useSearchParams();
 	const { successToast, errorToast } = useToastAlert();
 
 	const [email, setEmail] = useState("");
@@ -21,6 +22,9 @@ const LoginForm = () => {
 	const [submitting, setSubmitting] = useState(false);
 
 	const { loading } = useAppSelector((state: RootState) => state.user);
+
+	// Obtener la ruta de retorno de los query params
+	const returnTo = searchParams.get("returnTo") || "/admin/usuarios";
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -45,11 +49,12 @@ const LoginForm = () => {
 		  setSubmitting(true);
 		  await dispatch(loginUser({ email, clave })).unwrap();
 	  
-		  // refreshSession ya hace setAuthToken internamente
+		  // refreshSession obtiene el accessToken y lo guarda en memoria + Redux
 		  await dispatch(refreshSession()).unwrap();
 	  
 		  successToast("Inicio de sesión exitoso");
-		  router.replace("/usuarios"); // evita volver con "atrás"
+		  // Redirigir a la ruta original o al dashboard por defecto
+		  router.replace(returnTo);
 		} catch (err) {
 		  const msg = typeof err === "string" ? err : "Error desconocido al iniciar sesión";
 		  errorToast(msg);

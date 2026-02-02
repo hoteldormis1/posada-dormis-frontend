@@ -11,6 +11,7 @@
   --color-main: #43AC6A;              /* verde principal */
   --color-main-dark: #2F8050;         /* para botones activos o hover */
   --color-main-light: #7CD9A3;        /* hover o secciones suaves */
+  --color-grayed: #e5e7eb;        /* hover o secciones suaves */
 
   --color-secondary: #6CE5A9;         /* verde agua fresco */
   --color-secondary-dark: #4fc18b;
