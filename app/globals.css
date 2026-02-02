@@ -11,6 +11,7 @@
   --color-main: #43AC6A;              /* verde principal */
   --color-main-dark: #2F8050;         /* para botones activos o hover */
   --color-main-light: #7CD9A3;        /* hover o secciones suaves */
+  --color-grayed: #e5e7eb;        /* hover o secciones suaves */
 
   --color-secondary: #6CE5A9;         /* verde agua fresco */
   --color-secondary-dark: #4fc18b;
@@ -102,4 +103,36 @@
 input[type="checkbox"] {
   accent-color: var(--color-main);
   color: white; 
+}
+
+/* Animaciones para reservas públicas */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }

@@ -1,42 +1,60 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { loginUser, refreshSession } from "@/lib/store/utils/user/userSlice";
 import type { AppDispatch, RootState } from "@/lib/store/store";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { setAuthToken } from "@/lib/store/useAuthToken";
 import InputForm from "../formComponents/InputForm";
+import { loginSchema } from "@/utils/validations/authSchema";
 
 const LoginForm = () => {
 	const dispatch: AppDispatch = useAppDispatch();
 	const router = useRouter();
+	const searchParams = useSearchParams();
 	const { successToast, errorToast } = useToastAlert();
 
 	const [email, setEmail] = useState("");
 	const [clave, setClave] = useState("");
+	const [errors, setErrors] = useState<{ email?: string; clave?: string }>({});
 	const [submitting, setSubmitting] = useState(false);
 
 	const { loading } = useAppSelector((state: RootState) => state.user);
 
+	// Obtener la ruta de retorno de los query params
+	const returnTo = searchParams.get("returnTo") || "/admin/usuarios";
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 	  
-		if (!email || !clave) {
-		  errorToast("Por favor, completá todos los campos.");
-		  return;
+		// Validar con Zod
+		const result = loginSchema.safeParse({ email, clave });
+		
+		if (!result.success) {
+			const errorMap: { email?: string; clave?: string } = {};
+			result.error.issues.forEach((issue) => {
+				const field = issue.path[0] as "email" | "clave";
+				errorMap[field] = issue.message;
+			});
+			setErrors(errorMap);
+			return;
 		}
+
+		// Limpiar errores
+		setErrors({});
 	  
 		try {
 		  setSubmitting(true);
 		  await dispatch(loginUser({ email, clave })).unwrap();
 	  
-		  // refreshSession ya hace setAuthToken internamente
+		  // refreshSession obtiene el accessToken y lo guarda en memoria + Redux
 		  await dispatch(refreshSession()).unwrap();
 	  
 		  successToast("Inicio de sesión exitoso");
-		  router.replace("/usuarios"); // evita volver con "atrás"
+		  // Redirigir a la ruta original o al dashboard por defecto
+		  router.replace(returnTo);
 		} catch (err) {
 		  const msg = typeof err === "string" ? err : "Error desconocido al iniciar sesión";
 		  errorToast(msg);
@@ -46,14 +64,17 @@ const LoginForm = () => {
 	  };
 
 	return (
-		<form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
+		<form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 ">
 			<InputForm
 				inputKey="email"
 				InputForm="email"
 				placeholder="usuario@ejemplo.com"
 				value={email}
-				onChange={(e) => setEmail(e.target.value)}
-				required
+				onChange={(e) => {
+					setEmail(e.target.value);
+					if (errors.email) setErrors({ ...errors, email: undefined });
+				}}
+				error={errors.email}
 			>
 				Correo electrónico
 			</InputForm>
@@ -63,8 +84,11 @@ const LoginForm = () => {
 				InputForm="password"
 				placeholder="********"
 				value={clave}
-				onChange={(e) => setClave(e.target.value)}
-				required
+				onChange={(e) => {
+					setClave(e.target.value);
+					if (errors.clave) setErrors({ ...errors, clave: undefined });
+				}}
+				error={errors.clave}
 			>
 				Contraseña
 			</InputForm>

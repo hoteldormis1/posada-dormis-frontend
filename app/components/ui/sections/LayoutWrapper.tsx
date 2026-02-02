@@ -4,8 +4,8 @@ import { usePathname } from 'next/navigation';
 import { Footerbar, Navbar } from '@/components/index';
 import { useLayoutEffect } from 'react';
 import { fetchTiposUsuarios } from '@/lib/store/utils';
-import { AppDispatch } from '@/lib/store/store';
-import { useAppDispatch } from '@/lib/store/hooks';
+import { AppDispatch, RootState } from '@/lib/store/store';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 
 interface LayoutWrapperProps {
   children: React.ReactNode;
@@ -14,10 +14,25 @@ interface LayoutWrapperProps {
 export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const pathname = usePathname();
   const dispatch: AppDispatch = useAppDispatch();
+  const { accessToken } = useAppSelector((state: RootState) => state.user);
+
+  // Lista de rutas públicas (debe coincidir con AuthProvider)
+  const PUBLIC_ROUTES = [
+    '/',
+    '/verificarCuenta',
+    '/login',
+    '/olvidarContrasena',
+    '/resetPassword',
+  ];
+
+  const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route);
 
   useLayoutEffect(() => {
-    dispatch(fetchTiposUsuarios());
-  }, []);
+    // Solo cargar tipos de usuario si NO estamos en una ruta pública Y tenemos token
+    if (!isPublicRoute && accessToken) {
+      dispatch(fetchTiposUsuarios());
+    }
+  }, [isPublicRoute, accessToken, dispatch]);
 
   // Rutas donde ocultar el navbar y footer
   const hideNavbar =
@@ -35,7 +50,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   }
 
   // No agregar padding horizontal en calendario
-  const isCalendario = pathname?.startsWith('/calendario');
+  const isCalendario = pathname?.startsWith('/admin/calendario');
 
   return (
     <div className="layout-grid bg-background">

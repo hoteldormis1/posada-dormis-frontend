@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { Booking, Room } from "@/components/ui/calendario/Calendario";
 import CalendarioContainer from "@/components/ui/calendario/CalendarioContainer";
 import { toYMDLocal } from "@/utils/helpers/date";
-import { PopupContainer } from "@/components";
+import { LoadingSpinner, PopupContainer } from "@/components";
 import { buildReservaFields } from "@/components/reservas/buildReservaFields";
 import { reservaAddSchema } from "@/utils/validations/reservaSchema";
 import { addReserva, fetchReservas, fetchHuespedes } from "@/lib/store/utils/index";
@@ -28,8 +28,12 @@ import DetallesReservaPopup from "@/components/ui/calendario/DetallesReservaPopu
 export default function CalendarioPage() {
   const dispatch: AppDispatch = useAppDispatch();
 
-  // Cargar habitaciones y datos del calendario
+  const { accessToken } = useAppSelector((state: RootState) => state.user);
+
+  // Cargar habitaciones y datos del calendario - solo si hay token
   useEffect(() => {
+    if (!accessToken) return;
+
     dispatch(fetchHabitaciones({}));
     dispatch(fetchHuespedes()); // Cargar huéspedes para el formulario
     
@@ -39,7 +43,7 @@ export default function CalendarioPage() {
     const endDate = toYMDLocal(new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000));
     
     dispatch(fetchReservasCalendar({ startDate, endDate }));
-  }, [dispatch]);
+  }, [dispatch, accessToken]);
 
   // 🔎 Traer datos del store
   const { datos: habitaciones = [], loading: loadingHabitaciones } =
@@ -326,7 +330,7 @@ export default function CalendarioPage() {
     <div className={"bg-background content-shell " + pantallaPrincipalEstilos}>
       {isLoading ? (
         <div className="p-4 text-sm text-gray-600">
-          Cargando calendario…
+          <LoadingSpinner/>
         </div>
       ) : (
         <>

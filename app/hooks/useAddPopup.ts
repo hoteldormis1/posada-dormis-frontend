@@ -13,6 +13,7 @@ export function useAddPopup<T extends Record<string, unknown>>(
 
 	const [showAddPopup, setShowAddPopup] = useState(false);
 	const [errors, setErrors] = useState<Record<string, string>>({});
+	const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
 
 	const [formData, setFormData] = useState<Record<string, string>>(() => {
 		return Object.entries(initialValues).reduce((acc, [k, v]) => {
@@ -25,15 +26,40 @@ export function useAddPopup<T extends Record<string, unknown>>(
 		e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
 	) => {
 		const { name, value } = e.target;
-		setFormData((prev) => ({ ...prev, [name]: value }));
+		const newFormData = { ...formData, [name]: value };
+		setFormData(newFormData);
 		
-		// Limpiar error del campo cuando el usuario empiece a escribir
-		if (errors[name]) {
-			setErrors((prev) => {
-				const newErrors = { ...prev };
-				delete newErrors[name];
-				return newErrors;
-			});
+		// Marcar el campo como tocado
+		setTouchedFields((prev) => new Set(prev).add(name));
+		
+		// Validación en tiempo real solo para campos tocados
+		if (schema) {
+			try {
+				schema.parse(newFormData);
+				// Si la validación pasa, limpiar todos los errores
+				setErrors({});
+			} catch (error) {
+				if (error instanceof z.ZodError) {
+					const errorMap: Record<string, string> = {};
+					error.issues.forEach((err) => {
+						const field = err.path.join(".");
+						// Solo agregar error si el campo fue tocado
+						if (touchedFields.has(field) || field === name) {
+							errorMap[field] = err.message;
+						}
+					});
+					setErrors(errorMap);
+				}
+			}
+		} else {
+			// Si no hay schema, solo limpiar el error del campo actual
+			if (errors[name]) {
+				setErrors((prev) => {
+					const newErrors = { ...prev };
+					delete newErrors[name];
+					return newErrors;
+				});
+			}
 		}
 	};
 
@@ -53,6 +79,8 @@ export function useAddPopup<T extends Record<string, unknown>>(
 				error.issues.forEach((err) => {
 					const field = err.path.join(".");
 					errorMap[field] = err.message;
+					// Marcar todos los campos con error como tocados
+					setTouchedFields((prev) => new Set(prev).add(field));
 				});
 				setErrors(errorMap);
 			}
@@ -84,7 +112,10 @@ export function useAddPopup<T extends Record<string, unknown>>(
 			}, {} as Record<string, string>)
 		);
 		setErrors({});
+		setTouchedFields(new Set());
 	};
+
+	const hasErrors = Object.keys(errors).length > 0;
 
 	return {
 		showAddPopup,
@@ -96,6 +127,7 @@ export function useAddPopup<T extends Record<string, unknown>>(
 		resetForm,
 		errors,
 		validateForm,
+		hasErrors,
 		// Exportar la lógica de huésped
 		huespedLogic,
 	};

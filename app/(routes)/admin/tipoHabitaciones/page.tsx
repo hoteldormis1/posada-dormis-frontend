@@ -223,7 +223,7 @@ const TipoHabitaciones = () => {
 				{/* Botón para volver a habitaciones */}
 				<div className="flex justify-start mb-4">
 					<button
-						onClick={() => router.push("/habitaciones")}
+						onClick={() => router.push("/admin/habitaciones")}
 						className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors duration-200 font-medium shadow-md"
 					>
 						<MdArrowBack size={20} />

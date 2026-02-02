@@ -7,7 +7,7 @@ export type FormFieldInputConfig = {
     type: FieldInputType;
     label: string;
     options?: Option[];
-    editable?: boolean; // si false, renderizada pero deshabilitada
+    editable?: boolean | ((ctx: { mode: "add" | "edit"; formData: Record<string, any> }) => boolean); // si false, renderizada pero deshabilitada
     visibleWhen?: (ctx: { mode: "add" | "edit"; formData: Record<string, any> }) => boolean; // condicional
 };
 

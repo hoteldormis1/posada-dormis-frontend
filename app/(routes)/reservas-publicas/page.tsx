@@ -19,6 +19,7 @@ interface FormularioReserva {
   apellido: string;
   dni: string;
   telefono: string;
+  email: string;
   origen: string;
 }
 
@@ -27,6 +28,7 @@ interface FormularioErrores {
   apellido?: string;
   dni?: string;
   telefono?: string;
+  email?: string;
   origen?: string;
 }
 
@@ -42,6 +44,7 @@ const ReservasPublicasPage = () => {
     apellido: "",
     dni: "",
     telefono: "",
+    email: "",
     origen: "Argentina",
   });
   const [erroresFormulario, setErroresFormulario] = useState<FormularioErrores>({});
@@ -155,6 +158,12 @@ const ReservasPublicasPage = () => {
         if (!/^[\d\s\-\+\(\)]{8,20}$/.test(valor.trim())) return "Formato de teléfono inválido";
         return undefined;
 
+      case "email":
+        if (!valor.trim()) return "El email es obligatorio";
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(valor.trim())) return "Email inválido";
+        return undefined;
+
       case "origen":
         if (!valor.trim()) return "El país de origen es obligatorio";
         if (valor.trim().length < 2) return "Debe tener al menos 2 caracteres";
@@ -249,6 +258,7 @@ const ReservasPublicasPage = () => {
       apellido: "",
       dni: "",
       telefono: "",
+      email: "",
       origen: "Argentina",
     });
     setErroresFormulario({});
@@ -566,6 +576,19 @@ const ReservasPublicasPage = () => {
 
                       <div className="md:col-span-2">
                         <InputForm
+                          inputKey="email"
+                          InputForm="email"
+                          placeholder="Ej: juan.perez@email.com"
+                          value={formulario.email}
+                          onChange={(e) => handleCampoChange("email", e.target.value)}
+                          error={erroresFormulario.email}
+                        >
+                          Email *
+                        </InputForm>
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <InputForm
                           inputKey="origen"
                           InputForm="text"
                           placeholder="Ej: Argentina"
@@ -636,6 +659,31 @@ const ReservasPublicasPage = () => {
                 </ol>
               </div>
 
+              <div className="bg-grayed rounded-lg p-4 mb-6 text-sm text-left">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-muted block">Habitación</span>
+                    <span className="font-semibold">{habitacionSeleccionada?.numero}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted block">Noches</span>
+                    <span className="font-semibold">{noches}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted block">Entrada</span>
+                    <span className="font-semibold">
+                      {fechaInicio}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted block">Salida</span>
+                    <span className="font-semibold">
+                      {fechaFin}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               <button
                 onClick={reiniciar}
                 className="w-full bg-main hover:bg-main-dark text-white font-bold py-4 px-6 rounded-lg transition-all transform hover:scale-105 active:scale-95"
@@ -644,7 +692,7 @@ const ReservasPublicasPage = () => {
               </button>
 
               <p className="text-xs text-muted mt-4">
-                Te contactaremos telefónicamente para confirmar los detalles
+                Recibirás un correo electrónico con todos los detalles a {formulario.email}
               </p>
             </div>
           </div>

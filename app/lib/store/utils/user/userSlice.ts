@@ -52,15 +52,23 @@ export const refreshSession = createAsyncThunk<
     const { data } = await api.post("/auth/refresh", {}, { withCredentials: true });
     const token: string | undefined = data?.accessToken;
 
-    if (token) setAuthToken(token);
-
-    let currentUser: UserPerfil | undefined;
-    if (token) {
-      const { data: me } = await api.get<UserPerfil>("/usuarios/me", { withCredentials: true });
-      currentUser = me;
+    if (!token) {
+      return rejectWithValue("No se recibió token del servidor");
     }
 
-    return { accessToken: token ?? "", currentUser };
+    // Setear el token INMEDIATAMENTE para que esté disponible en los interceptores
+    setAuthToken(token);
+
+    let currentUser: UserPerfil | undefined;
+    try {
+      const { data: me } = await api.get<UserPerfil>("/usuarios/me", { withCredentials: true });
+      currentUser = me;
+    } catch (meError) {
+      console.warn("Error al obtener perfil de usuario:", meError);
+      // No rechazar aquí, el token es válido aunque falle el /me
+    }
+
+    return { accessToken: token, currentUser };
   } catch (err) {
     const axiosError = err as AxiosError;
     return rejectWithValue(extractErrorMessage(axiosError, "No se pudo refrescar la sesión"));
