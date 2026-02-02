@@ -23,13 +23,11 @@ const LoginForm = () => {
 
 	const { loading } = useAppSelector((state: RootState) => state.user);
 
-	// Obtener la ruta de retorno de los query params
 	const returnTo = searchParams.get("returnTo") || "/admin/usuarios";
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 	  
-		// Validar con Zod
 		const result = loginSchema.safeParse({ email, clave });
 		
 		if (!result.success) {
@@ -42,18 +40,15 @@ const LoginForm = () => {
 			return;
 		}
 
-		// Limpiar errores
 		setErrors({});
 	  
 		try {
 		  setSubmitting(true);
 		  await dispatch(loginUser({ email, clave })).unwrap();
 	  
-		  // refreshSession obtiene el accessToken y lo guarda en memoria + Redux
 		  await dispatch(refreshSession()).unwrap();
 	  
 		  successToast("Inicio de sesión exitoso");
-		  // Redirigir a la ruta original o al dashboard por defecto
 		  router.replace(returnTo);
 		} catch (err) {
 		  const msg = typeof err === "string" ? err : "Error desconocido al iniciar sesión";

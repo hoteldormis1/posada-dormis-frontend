@@ -3,7 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import StoreProvider from "./providers/StoreProvider";
 import { AuthProvider } from "./providers/AuthProvider";
-import { Toaster } from "react-hot-toast"; // ✅ Importar Toaster
+import { Toaster } from "react-hot-toast";
 import { LayoutWrapper } from "./components";
 
 const poppins = Poppins({

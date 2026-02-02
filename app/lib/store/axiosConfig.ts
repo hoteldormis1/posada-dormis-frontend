@@ -8,7 +8,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Axios limpio para refresh/logout
 const plainAxios = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true,
@@ -28,7 +27,6 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const accessToken = getAuthToken();
 
-    // Token inválido -> Logout
     if (
       error?.response?.status === 401 &&
       accessToken &&
@@ -41,7 +39,7 @@ api.interceptors.response.use(
       try {
         await plainAxios.post("/auth/logout");
       } catch (e) {
-        console.error("Error en logout", e);
+        console.error("Logout error", e);
       }
 
       setAuthToken("");
@@ -49,7 +47,6 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Token expirado -> Refresh
     if (error?.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
@@ -58,7 +55,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(originalRequest);
       } catch (refreshErr) {
-        console.error("Error al refrescar token automáticamente", refreshErr);
+        console.error("Token refresh failed", refreshErr);
         if (!isRedirecting) {
           isRedirecting = true;
           setAuthToken("");

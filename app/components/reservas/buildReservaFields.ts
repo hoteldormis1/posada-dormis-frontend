@@ -1,5 +1,5 @@
 import { FormFieldInputConfig, Option } from "./types";
-import { EstadoReserva, Habitacion } from "@/models/types"; // tus tipos
+import { EstadoReserva, Habitacion } from "@/models/types";
 
 export function buildReservaFields(
   habitaciones: Habitacion[],
@@ -7,7 +7,6 @@ export function buildReservaFields(
   huespedesOpts: Option[]
 ): FormFieldInputConfig[] {
   return [
-    // Selector de modo
     {
       key: "huespedMode",
       type: "select",
@@ -19,7 +18,6 @@ export function buildReservaFields(
       editable: true,
     },
 
-    // Huesped existente (visible sólo si modo = existente)
     {
       key: "idHuesped",
       type: "select",
@@ -29,7 +27,6 @@ export function buildReservaFields(
       visibleWhen: ({ formData }) => formData.huespedMode === "existente",
     },
 
-    // Campos del huésped - siempre visibles pero editables solo en modo nuevo
     { 
       key: "nombre",   
       type: "text",  

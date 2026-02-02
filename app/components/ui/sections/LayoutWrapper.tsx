@@ -16,7 +16,6 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const dispatch: AppDispatch = useAppDispatch();
   const { accessToken } = useAppSelector((state: RootState) => state.user);
 
-  // Lista de rutas públicas (debe coincidir con AuthProvider)
   const PUBLIC_ROUTES = [
     '/',
     '/verificarCuenta',
@@ -28,13 +27,11 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route);
 
   useLayoutEffect(() => {
-    // Solo cargar tipos de usuario si NO estamos en una ruta pública Y tenemos token
     if (!isPublicRoute && accessToken) {
       dispatch(fetchTiposUsuarios());
     }
   }, [isPublicRoute, accessToken, dispatch]);
 
-  // Rutas donde ocultar el navbar y footer
   const hideNavbar =
     pathname === '/' ||
     pathname === '/verificarCuenta' ||
@@ -44,12 +41,10 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
 
   const hideFooter = hideNavbar;
 
-  // Si estamos en una ruta de login, usar layout simple
   if (hideNavbar) {
     return <div className="min-h-screen bg-background">{children}</div>;
   }
 
-  // No agregar padding horizontal en calendario
   const isCalendario = pathname?.startsWith('/admin/calendario');
 
   return (

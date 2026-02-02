@@ -10,11 +10,18 @@ import {
   Usuario,
   UserPerfil,
 } from "@/models/types";
-import { setAuthToken } from "../../useAuthToken";
+import { setAuthToken, TOKEN_KEY } from "../../useAuthToken";
+
+function getInitialAccessToken(): string | null {
+  if (typeof window === "undefined") return null;
+  const token = sessionStorage.getItem(TOKEN_KEY);
+  if (token) setAuthToken(token);
+  return token;
+}
 
 const initialState: UserState = {
   loading: false,
-  accessToken: null,
+  accessToken: getInitialAccessToken(),
   error: null,
   datos: [],
   currentUser: { email: "", idTipoUsuario: 0, idUsuario: 0, nombre: "" },
@@ -26,7 +33,6 @@ const initialState: UserState = {
   tiposUsuarios: [],
 };
 
-// 🔐 LOGIN (cookie httpOnly en backend)
 export const loginUser = createAsyncThunk<void, LoginCredentials, { rejectValue: string }>(
   "user/login",
   async ({ email, clave }, { rejectWithValue }) => {
@@ -42,9 +48,8 @@ export const loginUser = createAsyncThunk<void, LoginCredentials, { rejectValue:
   }
 );
 
-// 🔁 REFRESH
 export const refreshSession = createAsyncThunk<
-  { accessToken: string; currentUser?: UserPerfil }, // ✅ incluye currentUser en el tipo
+  { accessToken: string; currentUser?: UserPerfil },
   void,
   { rejectValue: string }
 >("user/refreshSession", async (_, { rejectWithValue }) => {
@@ -56,7 +61,6 @@ export const refreshSession = createAsyncThunk<
       return rejectWithValue("No se recibió token del servidor");
     }
 
-    // Setear el token INMEDIATAMENTE para que esté disponible en los interceptores
     setAuthToken(token);
 
     let currentUser: UserPerfil | undefined;
@@ -65,7 +69,6 @@ export const refreshSession = createAsyncThunk<
       currentUser = me;
     } catch (meError) {
       console.warn("Error al obtener perfil de usuario:", meError);
-      // No rechazar aquí, el token es válido aunque falle el /me
     }
 
     return { accessToken: token, currentUser };
@@ -75,13 +78,12 @@ export const refreshSession = createAsyncThunk<
   }
 });
 
-// 🔓 LOGOUT
 export const logoutUser = createAsyncThunk<void, void, { rejectValue: string }>(
   "user/logout",
   async (_, { rejectWithValue }) => {
     try {
       await api.post("/auth/logout", {}, { withCredentials: true });
-      setAuthToken(null); // ✅ limpia el header Authorization del cliente
+      setAuthToken(null);
     } catch (err) {
       const axiosError = err as AxiosError;
       return rejectWithValue(extractErrorMessage(axiosError, "No se pudo cerrar sesión"));
@@ -89,7 +91,25 @@ export const logoutUser = createAsyncThunk<void, void, { rejectValue: string }>(
   }
 );
 
-// 🔍 FETCH USUARIOS + TIPOS
+export const fetchCurrentUser = createAsyncThunk<
+  UserPerfil,
+  void,
+  { rejectValue: string }
+>("user/fetchCurrentUser", async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await api.get<UserPerfil>("/usuarios/me", { withCredentials: true });
+    if (!data) {
+      return rejectWithValue("No user profile received");
+    }
+    return data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    return rejectWithValue(
+      extractErrorMessage(axiosError, "Failed to fetch user profile")
+    );
+  }
+});
+
 export const fetchUsuarios = createAsyncThunk<
   {
     data: Usuario[];
@@ -138,7 +158,7 @@ export const fetchUsuarios = createAsyncThunk<
               .map(([accion]) => accion);
             return { modulo, acciones: activos };
           })
-          .filter((m) => m.acciones.length > 0); // ✅ quedate solo con módulos con acciones
+          .filter((m) => m.acciones.length > 0);
       }
 
       const tiposUsuarios: TipoUsuario[] = (Array.isArray(tiposRes) ? tiposRes : tiposRes?.data).map(
@@ -183,7 +203,7 @@ export const fetchTiposUsuarios = createAsyncThunk<
             .map(([accion]) => accion);
           return { modulo, acciones: activos };
         })
-        .filter((m) => m.acciones.length > 0); // ✅ quedate solo con módulos con acciones
+        .filter((m) => m.acciones.length > 0);
     }
 
     const tiposUsuarios: TipoUsuario[] = lista.map((t: any) => ({
@@ -216,23 +236,27 @@ const userSlice = createSlice({
     setUsuarioSortOrder: (state, action: PayloadAction<SortOrder.asc | SortOrder.desc>) => {
       state.sortOrder = action.payload;
     },
+    setAccessTokenInStore: (state, action: PayloadAction<string>) => {
+      state.accessToken = action.payload;
+    },
+    setCurrentUser: (state, action: PayloadAction<UserPerfil>) => {
+      state.currentUser = action.payload;
+    },
   },
   extraReducers: (builder) => {
-    // ---- login ----
     builder
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state) => {
-        state.loading = false; // el token se setea luego con refreshSession
+        state.loading = false;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Error al iniciar sesión";
       });
 
-    // ---- refresh ----
     builder
       .addCase(refreshSession.pending, (state) => {
         state.loading = true;
@@ -242,7 +266,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.accessToken = action.payload.accessToken;
         if (action.payload.currentUser) {
-          state.currentUser = action.payload.currentUser; // ✅ ahora sí viene en el payload
+          state.currentUser = action.payload.currentUser;
         }
       })
       .addCase(refreshSession.rejected, (state, action) => {
@@ -252,7 +276,6 @@ const userSlice = createSlice({
         state.error = action.payload ?? "No se pudo refrescar la sesión";
       });
 
-    // ---- logout ----
     builder
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
@@ -268,7 +291,21 @@ const userSlice = createSlice({
         state.error = action.payload ?? "No se pudo cerrar sesión";
       });
 
-    // ---- fetchUsuarios ----
+    builder
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentUser = action.payload;
+        console.log("[userSlice] currentUser set:", action.payload);
+      })
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
+        state.loading = false;
+        state.currentUser = initialState.currentUser;
+        console.warn("[userSlice] fetchCurrentUser rejected:", action.payload);
+      });
+
     builder
       .addCase(fetchUsuarios.pending, (state) => {
         state.loading = true;
@@ -281,14 +318,12 @@ const userSlice = createSlice({
         state.pageSize = action.payload.pageSize;
         state.total = action.payload.total;
         state.tiposUsuarios = action.payload.tiposUsuarios;
-        // ❌ no toques currentUser acá (este thunk no lo trae)
       })
       .addCase(fetchUsuarios.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Error al obtener los usuarios";
       });
 
-    // ---- fetchUsuarios ----
     builder
       .addCase(fetchTiposUsuarios.pending, (state) => {
         state.error = null;
@@ -307,6 +342,8 @@ export const {
   setUsuarioPageSize,
   setUsuarioSortField,
   setUsuarioSortOrder,
+  setAccessTokenInStore,
+  setCurrentUser,
 } = userSlice.actions;
 
 export default userSlice.reducer;

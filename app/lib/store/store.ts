@@ -27,8 +27,6 @@ export const store = configureStore({
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-// ✅ Tipos globales correctos
 export type AppStore = typeof store;
 
-// 🏭 Para quienes necesiten crear otro store (ej. tests)
 export const makeStore = () => store;
