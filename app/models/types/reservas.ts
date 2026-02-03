@@ -19,7 +19,6 @@ export type Reserva = {
   montoPagado: number; // agregado para claridad en la tabla
   total: number; // monto total calculado
   dniHuesped?: string; // opcional
-  emailHuesped?: string; // opcional
   huespedes?: Huesped[]; // opcional
 };
 
@@ -44,7 +43,6 @@ export type AddReservaPayload = {
     apellido: string;
     dni: string;
     telefono: string;
-    email: string;
     origen: string;
   };
   idHabitacion: number;

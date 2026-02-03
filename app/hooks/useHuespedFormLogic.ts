@@ -28,7 +28,7 @@ export const useHuespedFormLogic = (
 
         if (newMode === "nuevo") {
             // Limpiar campos cuando se cambia a nuevo huésped
-            const fields = ["idHuesped", "nombre", "apellido", "dni", "telefono", "email", "origen", "estadoDeReserva"];
+            const fields = ["idHuesped", "nombre", "apellido", "dni", "telefono", "origen", "estadoDeReserva"];
             fields.forEach(field => {
                 const event = createSyntheticEvent(field, field === "origen" ? "AR" : "");
                 handleFormChange(event);
@@ -49,7 +49,6 @@ export const useHuespedFormLogic = (
                 apellido: huesped.apellido || "",
                 dni: huesped.dni || "",
                 telefono: huesped.telefono || "",
-                email: huesped.email || "",
                 origen: huesped.origen || "AR"
             };
 

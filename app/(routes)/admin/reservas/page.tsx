@@ -126,7 +126,7 @@ const Reservas: React.FC = () => {
   const onSaveAdd = async (formData: Record<string, unknown>) => {
     const {
       huespedMode, idHuesped,
-      nombre, apellido, dni, telefono, email, origen,
+      nombre, apellido, dni, telefono, origen,
       idHabitacion, idEstadoReserva, fechaDesde, fechaHasta, montoPagado
     } = formData;
 
@@ -154,7 +154,6 @@ const Reservas: React.FC = () => {
         apellido: String(apellido || ""),
         dni: String(dni || ""),
         telefono: String(telefono || ""),
-        email: String(email || ""),
         origen: countryName,
       };
       if (idHuesped) {

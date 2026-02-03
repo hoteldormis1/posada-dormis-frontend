@@ -121,7 +121,6 @@ export const huespedSchema = z.object({
   apellido: nombreSchema,
   dni: dniSchema,
   telefono: telefonoSchema,
-  email: emailSchema,
   origen: origenSchema,
 });
 

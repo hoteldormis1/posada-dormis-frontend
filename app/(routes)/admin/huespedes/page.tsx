@@ -60,12 +60,6 @@ const HuespedesPage = () => {
 			editable: true,
 		},
 		{
-			key: "email",
-			type: "text",
-			label: "Email (opcional)",
-			editable: true,
-		},
-		{
 			key: "origen",
 			type: "text",
 			label: "País de origen",
@@ -85,7 +79,6 @@ const HuespedesPage = () => {
 			{ header: "Apellido", key: "apellido" },
 			{ header: "DNI", key: "dni" },
 			{ header: "Teléfono", key: "telefono" },
-			{ header: "Email", key: "email" },
 			{ header: "Origen", key: "origen" },
 			{ header: "Dirección", key: "direccion" },
 		],
@@ -101,7 +94,6 @@ const HuespedesPage = () => {
 			apellido: h.apellido,
 			dni: h.dni,
 			telefono: h.telefono,
-			email: h.email || "-",
 			origen: h.origen,
 			direccion: h.direccion || "-",
 		}));
@@ -119,7 +111,7 @@ const HuespedesPage = () => {
 		const { idHuesped } = selectedRow;
 
 		// Validaciones básicas
-		const { nombre, apellido, dni, telefono, email, origen, direccion } = formData;
+		const { nombre, apellido, dni, telefono, origen, direccion } = formData;
 
 		if (!nombre || !apellido || !dni || !telefono || !origen) {
 			errorToast("Los campos nombre, apellido, DNI, teléfono y origen son obligatorios.");
@@ -132,7 +124,6 @@ const HuespedesPage = () => {
 			apellido: String(apellido).trim(),
 			dni: String(dni).trim(),
 			telefono: String(telefono).trim(),
-			email: email ? String(email).trim() : undefined,
 			origen: String(origen).trim(),
 			direccion: direccion ? String(direccion).trim() : undefined,
 		};
@@ -148,9 +139,8 @@ const HuespedesPage = () => {
 	};
 
 	const onSaveAdd = async (formData: Record<string, unknown>): Promise<void> => {
-		const { nombre, apellido, dni, telefono, email, origen, direccion } = formData;
+		const { nombre, apellido, dni, telefono, origen, direccion } = formData;
 
-		// Validaciones
 		if (!nombre || !apellido || !dni || !telefono || !origen) {
 			errorToast("Los campos nombre, apellido, DNI, teléfono y origen son obligatorios.");
 			return;
@@ -161,7 +151,6 @@ const HuespedesPage = () => {
 			apellido: String(apellido).trim(),
 			dni: String(dni).trim(),
 			telefono: String(telefono).trim(),
-			email: email ? String(email).trim() : undefined,
 			origen: String(origen).trim(),
 			direccion: direccion ? String(direccion).trim() : undefined,
 		};

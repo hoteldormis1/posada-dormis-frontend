@@ -19,8 +19,7 @@ interface FormularioReserva {
   apellido: string;
   dni: string;
   telefono: string;
-  email: string;
-  origen: string;
+  direccion: string;
 }
 
 interface FormularioErrores {
@@ -28,15 +27,13 @@ interface FormularioErrores {
   apellido?: string;
   dni?: string;
   telefono?: string;
-  email?: string;
-  origen?: string;
+  direccion?: string;
 }
 
 const ReservasPublicasPage = () => {
-  // Estados
   const [paso, setPaso] = useState(1);
-  const [fechaInicio, setFechaInicio] = useState(""); // formato dd/MM/yyyy
-  const [fechaFin, setFechaFin] = useState(""); // formato dd/MM/yyyy
+  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
   const [habitacionesDisponibles, setHabitacionesDisponibles] = useState<Habitacion[]>([]);
   const [habitacionSeleccionada, setHabitacionSeleccionada] = useState<Habitacion | null>(null);
   const [formulario, setFormulario] = useState<FormularioReserva>({
@@ -44,8 +41,7 @@ const ReservasPublicasPage = () => {
     apellido: "",
     dni: "",
     telefono: "",
-    email: "",
-    origen: "Argentina",
+    direccion: "",
   });
   const [erroresFormulario, setErroresFormulario] = useState<FormularioErrores>({});
   const [loading, setLoading] = useState(false);
@@ -158,15 +154,7 @@ const ReservasPublicasPage = () => {
         if (!/^[\d\s\-\+\(\)]{8,20}$/.test(valor.trim())) return "Formato de teléfono inválido";
         return undefined;
 
-      case "email":
-        if (!valor.trim()) return "El email es obligatorio";
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(valor.trim())) return "Email inválido";
-        return undefined;
-
-      case "origen":
-        if (!valor.trim()) return "El país de origen es obligatorio";
-        if (valor.trim().length < 2) return "Debe tener al menos 2 caracteres";
+      case "direccion":
         return undefined;
 
       default:
@@ -191,11 +179,9 @@ const ReservasPublicasPage = () => {
     return esValido;
   };
 
-  // Manejar cambio en campos del formulario
   const handleCampoChange = (campo: keyof FormularioReserva, valor: string) => {
     setFormulario({ ...formulario, [campo]: valor });
     
-    // Limpiar error del campo cuando el usuario empiece a escribir
     if (erroresFormulario[campo]) {
       setErroresFormulario({ ...erroresFormulario, [campo]: undefined });
     }
@@ -224,7 +210,10 @@ const ReservasPublicasPage = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          huesped: formulario,
+          huesped: {
+            ...formulario,
+            origen: "Argentina",
+          },
           idHabitacion: habitacionSeleccionada.idHabitacion,
           fechaDesde: fechaInicioAPI,
           fechaHasta: fechaFinAPI,
@@ -258,8 +247,7 @@ const ReservasPublicasPage = () => {
       apellido: "",
       dni: "",
       telefono: "",
-      email: "",
-      origen: "Argentina",
+      direccion: "",
     });
     setErroresFormulario({});
     setReservaExitosa(false);
@@ -576,27 +564,14 @@ const ReservasPublicasPage = () => {
 
                       <div className="md:col-span-2">
                         <InputForm
-                          inputKey="email"
-                          InputForm="email"
-                          placeholder="Ej: juan.perez@email.com"
-                          value={formulario.email}
-                          onChange={(e) => handleCampoChange("email", e.target.value)}
-                          error={erroresFormulario.email}
-                        >
-                          Email *
-                        </InputForm>
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <InputForm
-                          inputKey="origen"
+                          inputKey="direccion"
                           InputForm="text"
-                          placeholder="Ej: Argentina"
-                          value={formulario.origen}
-                          onChange={(e) => handleCampoChange("origen", e.target.value)}
-                          error={erroresFormulario.origen}
+                          placeholder="Ej: Calle 123, Ciudad"
+                          value={formulario.direccion}
+                          onChange={(e) => handleCampoChange("direccion", e.target.value)}
+                          error={erroresFormulario.direccion}
                         >
-                          País de origen *
+                          Dirección
                         </InputForm>
                       </div>
                     </div>
@@ -654,7 +629,7 @@ const ReservasPublicasPage = () => {
                 <h3 className="font-bold text-text mb-3">Próximos pasos:</h3>
                 <ol className="space-y-2 text-sm text-muted list-decimal list-inside">
                   <li>La administración revisará tu reserva</li>
-                  <li>Recibirás un email con las instrucciones de pago</li>
+                  <li>Te contactaremos por teléfono con las instrucciones de pago</li>
                   <li>Una vez confirmado el pago, tu reserva será confirmada</li>
                 </ol>
               </div>
@@ -692,7 +667,7 @@ const ReservasPublicasPage = () => {
               </button>
 
               <p className="text-xs text-muted mt-4">
-                Recibirás un correo electrónico con todos los detalles a {formulario.email}
+                Te contactaremos por teléfono si hace falta.
               </p>
             </div>
           </div>
