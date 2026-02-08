@@ -391,7 +391,7 @@ export default function Calendario({
                 )}
 
                 {/* Reservas existentes */}
-                <div className="absolute inset-0 z-30 pointer-events-none">
+                <div className="absolute inset-0 z-40 pointer-events-none">
                   {(layoutByRoom.get(Number(r.id)) || []).map((b) => {
                     const s = parseD(b.start);
                     const e = addDays(parseD(b.end), -1);
@@ -411,7 +411,6 @@ export default function Calendario({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          console.log("🖱️ Click detectado en reserva:", b.id);
                           onBookingClick?.(b.id);
                         }}
                       >

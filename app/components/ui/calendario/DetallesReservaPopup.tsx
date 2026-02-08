@@ -1,8 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { PopupContainer } from "@/components";
 import { Booking } from "./Calendario";
+import { useAppDispatch } from "@/lib/store/hooks";
+import { checkinReserva, checkoutReserva } from "@/lib/store/utils/reservas/reservasSlice";
+import { AppDispatch } from "@/lib/store/store";
 
 // Función helper para formatear fechas
 const parseD = (d: string | Date): Date => {
@@ -23,9 +26,15 @@ interface DetallesReservaPopupProps {
   booking: Booking | null;
   roomName?: string;
   onClose: () => void;
+  onStatusChange?: () => void;
 }
 
-export default function DetallesReservaPopup({ booking, roomName, onClose }: DetallesReservaPopupProps) {
+export default function DetallesReservaPopup({ booking, roomName, onClose, onStatusChange }: DetallesReservaPopupProps) {
+  const dispatch: AppDispatch = useAppDispatch();
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+
   if (!booking) return null;
 
   const startDate = parseD(booking.start);
@@ -44,7 +53,9 @@ export default function DetallesReservaPopup({ booking, roomName, onClose }: Det
     paid: { label: "Pagada", color: "bg-green-600" },
   };
 
-  const statusInfo = statusStyles[booking.status?.toLowerCase() || ""] || {
+  const statusKey = booking.status?.toLowerCase() || "";
+
+  const statusInfo = statusStyles[statusKey] || {
     label: booking.status || "Sin estado",
     color: "bg-gray-500",
   };
@@ -111,6 +122,70 @@ export default function DetallesReservaPopup({ booking, roomName, onClose }: Det
           <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">ID de Reserva</h3>
           <p className="text-sm text-gray-600">#{booking.id}</p>
         </div>
+
+        {/* Check-in / Check-out actions */}
+        {(statusKey === "confirmada" || statusKey === "checkin") && (
+          <div className="border-t pt-4 space-y-3">
+            {actionError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
+                {actionError}
+              </div>
+            )}
+            {actionSuccess && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-sm">
+                {actionSuccess}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              {statusKey === "confirmada" && (
+                <button
+                  disabled={actionLoading}
+                  onClick={async () => {
+                    setActionLoading(true);
+                    setActionError(null);
+                    try {
+                      await dispatch(checkinReserva(String(booking.id))).unwrap();
+                      setActionSuccess("Check-in registrado correctamente");
+                      onStatusChange?.();
+                      setTimeout(onClose, 1200);
+                    } catch (err: any) {
+                      setActionError(typeof err === "string" ? err : "Error al registrar check-in");
+                    } finally {
+                      setActionLoading(false);
+                    }
+                  }}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-all disabled:opacity-50"
+                >
+                  {actionLoading ? "Procesando..." : "Registrar Check-in"}
+                </button>
+              )}
+
+              {statusKey === "checkin" && (
+                <button
+                  disabled={actionLoading}
+                  onClick={async () => {
+                    setActionLoading(true);
+                    setActionError(null);
+                    try {
+                      await dispatch(checkoutReserva(String(booking.id))).unwrap();
+                      setActionSuccess("Check-out registrado correctamente");
+                      onStatusChange?.();
+                      setTimeout(onClose, 1200);
+                    } catch (err: any) {
+                      setActionError(typeof err === "string" ? err : "Error al registrar check-out");
+                    } finally {
+                      setActionLoading(false);
+                    }
+                  }}
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-all disabled:opacity-50"
+                >
+                  {actionLoading ? "Procesando..." : "Registrar Check-out"}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </PopupContainer>
   );

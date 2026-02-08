@@ -356,6 +356,12 @@ export default function CalendarioPage() {
               booking={selectedBooking}
               roomName={rooms.find(r => String(r.id) === String(selectedBooking.roomId))?.name}
               onClose={() => setSelectedBooking(null)}
+              onStatusChange={() => {
+                const hoy = new Date();
+                const startDate = toYMDLocal(hoy);
+                const endDate = toYMDLocal(new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000));
+                dispatch(fetchReservasCalendar({ startDate, endDate }));
+              }}
             />
           )}
 

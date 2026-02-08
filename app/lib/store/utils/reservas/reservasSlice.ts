@@ -81,6 +81,38 @@ export const deleteReserva = createAsyncThunk<
   }
 });
 
+export const checkinReserva = createAsyncThunk<
+  any,
+  string,
+  { rejectValue: string }
+>("reservas/checkin", async (id, { rejectWithValue }) => {
+  try {
+    const { data } = await api.put(`/reservas/${id}/checkin`);
+    return data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    return rejectWithValue(
+      extractErrorMessage(axiosError, "No se pudo registrar el check-in")
+    );
+  }
+});
+
+export const checkoutReserva = createAsyncThunk<
+  any,
+  string,
+  { rejectValue: string }
+>("reservas/checkout", async (id, { rejectWithValue }) => {
+  try {
+    const { data } = await api.put(`/reservas/${id}/checkout`);
+    return data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    return rejectWithValue(
+      extractErrorMessage(axiosError, "No se pudo registrar el check-out")
+    );
+  }
+});
+
 const reservasSlice = createSlice({
   name: "reservas",
   initialState,

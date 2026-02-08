@@ -9,6 +9,7 @@ import habitacionesSlice from "./utils/habitaciones/habitacionesSlice";
 import tipoHabitacionesSlice from "./utils/tipoHabitaciones/tipoHabitacionesSlice";
 import auditoriasSlice from "./utils/auditorias/auditoriasSlice";
 import dashboardSlice from "./utils/dashboard/dashboardSlice";
+import huespedNoDeseadoSlice from "./utils/huespedNoDeseado/huespedNoDeseadoSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,7 +21,8 @@ export const store = configureStore({
     habitaciones: habitacionesSlice,
     tipoHabitaciones: tipoHabitacionesSlice,
     auditorias: auditoriasSlice,
-    dashboards: dashboardSlice
+    dashboards: dashboardSlice,
+    huespedNoDeseado: huespedNoDeseadoSlice,
   }
 });
 
