@@ -390,7 +390,30 @@ export default function Calendario({
                   </div>
                 )}
 
-                {/* Reservas existentes */}
+                {/* Área de selección de rango (debajo de reservas) */}
+                {showSelection && (
+                  <div
+                    className="absolute inset-0 z-20 hover:bg-blue-50/30 transition-colors"
+                    onMouseDown={(e) => handleMouseDown(e, r.id)}
+                    onMouseMove={(e) => {
+                      handleMouseMove(e, r.id);
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = e.clientX - rect.left;
+                      const dayIndex = Math.floor(x / dayW);
+                      const date = addDays(range.start, dayIndex);
+                      if (isDateOccupied(date, r.id)) {
+                        e.currentTarget.style.cursor = 'default';
+                      } else {
+                        e.currentTarget.style.cursor = 'crosshair';
+                      }
+                    }}
+                    onMouseUp={(e) => handleMouseUp(e, r.id)}
+                    onMouseLeave={handleMouseLeave}
+                    title="Arrastra para seleccionar un rango de fechas y crear una reserva."
+                  />
+                )}
+
+                {/* Reservas existentes (encima del overlay de selección) */}
                 <div className="absolute inset-0 z-40 pointer-events-none">
                   {(layoutByRoom.get(Number(r.id)) || []).map((b) => {
                     const s = parseD(b.start);
@@ -426,30 +449,6 @@ export default function Calendario({
                     );
                   })}
                 </div>
-
-                {/* Área de selección de rango */}
-                {showSelection && (
-                  <div
-                    className="absolute inset-0 z-20 hover:bg-blue-50/30 transition-colors"
-                    onMouseDown={(e) => handleMouseDown(e, r.id)}
-                    onMouseMove={(e) => {
-                      handleMouseMove(e, r.id);
-                      // Cambiar cursor si está sobre una reserva
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const x = e.clientX - rect.left;
-                      const dayIndex = Math.floor(x / dayW);
-                      const date = addDays(range.start, dayIndex);
-                      if (isDateOccupied(date, r.id)) {
-                        e.currentTarget.style.cursor = 'default';
-                      } else {
-                        e.currentTarget.style.cursor = 'crosshair';
-                      }
-                    }}
-                    onMouseUp={(e) => handleMouseUp(e, r.id)}
-                    onMouseLeave={handleMouseLeave}
-                    title="Arrastra para seleccionar un rango de fechas y crear una reserva. El calendario se moverá automáticamente si seleccionas fechas fuera del rango visible."
-                  />
-                )}
 
                 {/* Indicadores de auto-scroll basados en fechas */}
                 {showSelection && isSelecting && selectionEnd && (
