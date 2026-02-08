@@ -327,7 +327,7 @@ export default function CalendarioPage() {
   const isLoading = loadingHabitaciones || loadingCalendario === 'pending';
 
   return (
-    <div className={"bg-background content-shell " + pantallaPrincipalEstilos}>
+    <div className={"bg-background p-4 content-shell " + pantallaPrincipalEstilos}>
       {isLoading ? (
         <div className="p-4 text-sm text-gray-600">
           <LoadingSpinner/>

@@ -1,7 +1,8 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Footerbar, Navbar } from '@/components/index';
+import { Navbar } from '@/components/index';
+import Sidebar from './Sidebar';
 import { useLayoutEffect } from 'react';
 import { fetchTiposUsuarios } from '@/lib/store/utils';
 import { AppDispatch, RootState } from '@/lib/store/store';
@@ -22,9 +23,14 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     '/login',
     '/olvidarContrasena',
     '/resetPassword',
+    '/reservas-publicas',
   ];
 
-  const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route);
+  const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'));
+
+  // Routes that show the top Navbar (logo + login button)
+  const NAVBAR_ROUTES = ['/', '/reservas-publicas'];
+  const showNavbar = NAVBAR_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'));
 
   useLayoutEffect(() => {
     if (!isPublicRoute && accessToken) {
@@ -32,39 +38,37 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     }
   }, [isPublicRoute, accessToken, dispatch]);
 
-  const hideNavbar =
-    pathname === '/' ||
-    pathname === '/verificarCuenta' ||
-    pathname === '/login' ||
-    pathname === '/olvidarContrasena' || 
-    pathname === '/resetPassword';
-
-  const hideFooter = hideNavbar;
-
-  if (hideNavbar) {
-    return <div className="min-h-screen bg-background">{children}</div>;
+  // Public pages: optional navbar on top, no sidebar
+  if (isPublicRoute) {
+    return (
+      <div className="min-h-screen bg-background">
+        {showNavbar && (
+          <header className="layout-header">
+            <Navbar />
+          </header>
+        )}
+        {children}
+      </div>
+    );
   }
 
   const isCalendario = pathname?.startsWith('/admin/calendario');
 
   return (
     <div className="layout-grid bg-background">
-      {/* Header/Navbar */}
-      <header className="layout-header">
-        <Navbar />
-      </header>
+      {/* Sidebar */}
+      <Sidebar />
 
-      {/* Main Content */}
-      <main className={`layout-main ${isCalendario ? '' : 'px-4 py-6'} `}>
-        {children}
-      </main>
+      {/* Right column */}
+      <div className="layout-main flex flex-col">
+        {/* Admin top bar */}
+        <header className="h-14 bg-white border-b border-gray-200 shrink-0" />
 
-      {/* Footer */}
-      {!hideFooter && (
-        <footer className="layout-footer">
-          <Footerbar />
-        </footer>
-      )}
+        {/* Main Content */}
+        <main className={`flex-1 ${isCalendario ? '' : 'px-4 py-6'}`}>
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

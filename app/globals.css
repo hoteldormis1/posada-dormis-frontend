@@ -46,20 +46,47 @@
 
 /* Altura útil para elementos sticky dentro del viewport */
 .sticky-viewport {
-  /* deja 16px de respiración (8 top + 8 bottom) */
-  max-height: calc(100vh - var(--app-header-h) - var(--app-footer-h) - 16px);
+  max-height: calc(100vh - var(--app-header-h) - 16px);
   overflow: auto;
 }
 
 .layout-grid {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
   min-height: 100vh;
 }
 
 :root {
-  --app-header-h: 5rem;  /* 80px */
-  --app-footer-h: 6rem;  /* 96px */
+  --app-header-h: 5rem;  /* 80px — used on public pages */
+  --sidebar-w: 35%;      /* tablet default */
+}
+
+@media (min-width: 1024px) {
+  :root { --sidebar-w: 25%; }   /* lg — desktop */
+}
+
+@media (min-width: 1280px) {
+  :root { --sidebar-w: 20%; }   /* xl — desktop grande */
+}
+
+/* Sidebar — fixed left, visible md+ */
+.layout-sidebar {
+  width: var(--sidebar-w);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 40;
+}
+
+/* Main content — full width on mobile, offset on md+ */
+.layout-main {
+  min-height: 100vh;
+  overflow: auto;
+}
+
+@media (min-width: 768px) {
+  .layout-main {
+    margin-left: var(--sidebar-w);
+  }
 }
 
 /* Layout utilities */
@@ -67,18 +94,6 @@
   height: var(--app-header-h);
   position: sticky;
   top: 0;
-  z-index: 50;
-}
-
-.layout-main {
-  min-height: 0;
-  overflow: auto;
-}
-
-.layout-footer {
-  height: var(--app-footer-h);
-  position: sticky;
-  bottom: 0;
   z-index: 50;
 }
 

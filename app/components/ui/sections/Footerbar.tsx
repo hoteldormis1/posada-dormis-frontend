@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaCalendarAlt, FaUserCircle, FaUsers } from "react-icons/fa";
 import { FaBed } from "react-icons/fa6";
-import { MdArticle, MdDashboard, MdHistory } from "react-icons/md";
+import { MdArticle, MdDashboard, MdHistory, MdPendingActions } from "react-icons/md";
 import { useAppSelector } from "@/lib/store/hooks";
 import { RootState } from "@/lib/store/store";
 
@@ -47,6 +47,12 @@ const footerItems: FooterItem[] = [
 		label: "Calendario",
 		icon: <FaCalendarAlt size={24} />,
 		link: "/admin/calendario",
+	},
+	{
+		name: "Aprobaciones",
+		label: "Aprobaciones",
+		icon: <MdPendingActions size={24} />,
+		link: "/admin/aprobaciones",
 	},
 	{
 		name: "Dashboard",

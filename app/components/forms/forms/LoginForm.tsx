@@ -23,7 +23,7 @@ const LoginForm = () => {
 
 	const { loading } = useAppSelector((state: RootState) => state.user);
 
-	const returnTo = searchParams.get("returnTo") || "/admin/usuarios";
+	const returnTo = searchParams.get("returnTo") || "/admin/calendario";
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();

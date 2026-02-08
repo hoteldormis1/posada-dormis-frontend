@@ -46,24 +46,14 @@ export default function Navbar() {
 	}
 
 	return (
-		<div className="bg-white fixed top-0 w-full h-20 z-50 py-2 rounded-t-3xl">
-			<div className="flex items-center justify-between px-4">
-				<div className="flex items-center gap-3">
-					<FaBed className="text-main text-4xl" />
-					<div>
-						<h1 className="text-2xl font-bold text-main">Posada Dormis</h1>
-						<p className="text-sm text-muted">Carlos Paz - Córdoba</p>
-					</div>
-				</div>
-
-				<div className="flex items-center gap-4">
-					<button
-						onClick={handleLogout}
-						className="border-2 border-main text-main hover:bg-main hover:text-white cursor-pointer px-4 py-2 rounded-sm font-bold transition-all duration-[800ms]"
-					>
-						Logout
-					</button>
-				</div>
+		<div className="bg-white h-20 z-50 py-2 border-b border-gray-200">
+			<div className="flex items-center justify-end px-6 h-full">
+				<button
+					onClick={handleLogout}
+					className="border-2 border-main text-main hover:bg-main hover:text-white cursor-pointer px-4 py-2 rounded-sm font-bold transition-all duration-[800ms]"
+				>
+					Logout
+				</button>
 			</div>
 		</div>
 	);

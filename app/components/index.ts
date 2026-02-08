@@ -2,6 +2,7 @@ import LoginIzquierda from "./ui/sections/LoginIzquierda";
 import LayoutWrapper from "./ui/sections/LayoutWrapper";
 import Navbar from "./ui/sections/Navbar";
 import Footerbar from "./ui/sections/Footerbar";
+import Sidebar from "./ui/sections/Sidebar";
 import FiltroFechas from "./ui/uiComponents/Dashboard/FiltroFechas/FiltroFechas";
 import HotelEstadisticas from "./ui/uiComponents/Dashboard/HotelEstadisticas";
 import GraficoCantidadDeReservas from "./ui/uiComponents/Dashboard/Graficos/Widgets/GraficoCantidadDeReservas";
@@ -34,6 +35,7 @@ import ButtonForm from "./forms/formComponents/ButtonForm";
 export {
 	LoginIzquierda,
 	Footerbar,
+	Sidebar,
 	LayoutWrapper,
 	Navbar,
 	TableComponent,
