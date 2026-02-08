@@ -49,6 +49,8 @@ interface TableComponentProps<T> {
   // Función para mapear datos de la fila al formulario de edición
   mapRowToFormData?: (row: T) => Record<string, string>;
   showActions?: { create: boolean; delete: boolean; edit: boolean };
+  /** Per-row guard: return false to hide the delete button for that row */
+  canDeleteRow?: (row: T) => boolean;
   addPopupDescription?: string;
 }
 
@@ -78,6 +80,7 @@ const TableComponent = <T extends { id: string }>({
   validationSchemaAdd, 
   mapRowToFormData, 
   showActions,
+  canDeleteRow,
   addPopupDescription
 }: TableComponentProps<T>) => {
   // === Editar ===
@@ -160,7 +163,7 @@ const TableComponent = <T extends { id: string }>({
                 <FaEdit className="text-black text-xs cursor-pointer" />
               </button>
             )}
-            {showActions?.delete && (
+            {showActions?.delete && (!canDeleteRow || canDeleteRow(row.original)) && (
               <button
                 onClick={() => handleDelete?.(row.original.id)}
                 className="text-red-500 hover:text-red-700"
@@ -175,7 +178,7 @@ const TableComponent = <T extends { id: string }>({
     }
 
     return baseCols;
-  }, [columns, showFormActions, showActions, data, handleEditClick, onSaveDelete]);
+  }, [columns, showFormActions, showActions, canDeleteRow, data, handleEditClick, onSaveDelete]);
 
 
   const table = useReactTable({
