@@ -14,19 +14,17 @@ export default function Navbar() {
 
 	const handleLogout = async () => {
 		try {
-			await dispatch(logoutUser()).unwrap(); // 🔁 backend: borra cookie
-			router.push("/login"); // 🔁 redirige
+			await dispatch(logoutUser()).unwrap();
+			router.push("/login");
 		} catch (error) {
-			console.error("Error al cerrar sesión:", error);
+			console.error("Logout error:", error);
 		}
 	};
 
-	// Si estamos en la landing pública, mostrar versión simple con "Ingresar"
 	if (pathname === "/") {
 		return (
 			<div className="bg-white fixed top-0 w-full h-20 z-50 py-2 rounded-t-3xl">
 				<div className="flex items-center justify-between px-4">
-					{/* Logo */}
 					<div className="flex items-center gap-3">
 						<FaBed className="text-main text-4xl" />
 						<div>
@@ -35,7 +33,6 @@ export default function Navbar() {
 						</div>
 					</div>
 
-					{/* Botón Ingresar */}
 					<Link
 						href="/login"
 						className="flex items-center gap-2 border-2 border-main text-main hover:bg-main hover:text-white cursor-pointer px-4 py-2 rounded-sm font-bold transition-all duration-[800ms]"
@@ -48,11 +45,9 @@ export default function Navbar() {
 		);
 	}
 
-	// Navbar para rutas admin con logout
 	return (
 		<div className="bg-white fixed top-0 w-full h-20 z-50 py-2 rounded-t-3xl">
 			<div className="flex items-center justify-between px-4">
-				{/* Logo */}
 				<div className="flex items-center gap-3">
 					<FaBed className="text-main text-4xl" />
 					<div>
@@ -61,7 +56,6 @@ export default function Navbar() {
 					</div>
 				</div>
 
-				{/* Perfil + Logout */}
 				<div className="flex items-center gap-4">
 					<button
 						onClick={handleLogout}

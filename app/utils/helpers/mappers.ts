@@ -22,7 +22,6 @@ export const mapRowToFormDataReservas = (reserva: Reserva) => {
     nombre,
     apellido,
     dni: reserva.dniHuesped || "",
-    email: reserva.emailHuesped || "",
     telefono: reserva.telefonoHuesped || "",
     origen: "AR",
 

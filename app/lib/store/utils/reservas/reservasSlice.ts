@@ -81,6 +81,70 @@ export const deleteReserva = createAsyncThunk<
   }
 });
 
+export const checkinReserva = createAsyncThunk<
+  any,
+  string,
+  { rejectValue: string }
+>("reservas/checkin", async (id, { rejectWithValue }) => {
+  try {
+    const { data } = await api.put(`/reservas/${id}/checkin`);
+    return data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    return rejectWithValue(
+      extractErrorMessage(axiosError, "No se pudo registrar el check-in")
+    );
+  }
+});
+
+export const checkoutReserva = createAsyncThunk<
+  any,
+  string,
+  { rejectValue: string }
+>("reservas/checkout", async (id, { rejectWithValue }) => {
+  try {
+    const { data } = await api.put(`/reservas/${id}/checkout`);
+    return data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    return rejectWithValue(
+      extractErrorMessage(axiosError, "No se pudo registrar el check-out")
+    );
+  }
+});
+
+export const confirmarReserva = createAsyncThunk<
+  any,
+  string,
+  { rejectValue: string }
+>("reservas/confirmar", async (id, { rejectWithValue }) => {
+  try {
+    const { data } = await api.put(`/reservas/${id}/confirmar`);
+    return data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    return rejectWithValue(
+      extractErrorMessage(axiosError, "No se pudo confirmar la reserva")
+    );
+  }
+});
+
+export const cancelarReserva = createAsyncThunk<
+  any,
+  string,
+  { rejectValue: string }
+>("reservas/cancelar", async (id, { rejectWithValue }) => {
+  try {
+    const { data } = await api.put(`/reservas/${id}/cancelar`);
+    return data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    return rejectWithValue(
+      extractErrorMessage(axiosError, "No se pudo cancelar la reserva")
+    );
+  }
+});
+
 const reservasSlice = createSlice({
   name: "reservas",
   initialState,

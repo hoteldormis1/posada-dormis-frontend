@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import type { RootState } from "@/lib/store/store";
 import type { UnknownAction } from "@reduxjs/toolkit";
@@ -47,7 +47,8 @@ export const useEntityTable = <
 	const [search, setSearch] = useState("");
 	const [sortField, setSortField] = useState(defaultSortField);
 	const [sortOrder, setSortOrder] = useState<SortOrder.asc | SortOrder.desc>(defaultSortOrder);
-	const [initialFetchDone, setInitialFetchDone] = useState(false);
+
+	const hasFetchedRef = useRef(false);
 
 	const fetchData = useCallback(
 		(params: Partial<EntityFetchParams> = {}) => {
@@ -72,21 +73,25 @@ export const useEntityTable = <
 		]
 	);
 
-	// Solo hacer fetch inicial cuando el token esté disponible
 	useEffect(() => {
-		if (accessToken && !initialFetchDone) {
-			dispatch(
-				fetchAction({
-					page: state.page,
-					size: state.pageSize,
-					search: search,
-					sortField: sortField,
-					sortOrder: sortOrder,
-				}) as UnknownAction
-			);
-			setInitialFetchDone(true);
-		}
-	}, [accessToken, initialFetchDone, dispatch, fetchAction, state.page, state.pageSize, search, sortField, sortOrder]);
+		if (!accessToken) return;
+		if (hasFetchedRef.current) return;
+
+		dispatch(
+			fetchAction({
+				page: state.page,
+				size: state.pageSize,
+				search: search,
+				sortField: sortField,
+				sortOrder: sortOrder,
+			}) as UnknownAction
+		);
+		hasFetchedRef.current = true;
+
+		return () => {
+			hasFetchedRef.current = false;
+		};
+	}, [accessToken]);
 
 	const handleSearch = useCallback(() => {
 		dispatch(setPageAction(1));

@@ -9,6 +9,7 @@ import habitacionesSlice from "./utils/habitaciones/habitacionesSlice";
 import tipoHabitacionesSlice from "./utils/tipoHabitaciones/tipoHabitacionesSlice";
 import auditoriasSlice from "./utils/auditorias/auditoriasSlice";
 import dashboardSlice from "./utils/dashboard/dashboardSlice";
+import huespedNoDeseadoSlice from "./utils/huespedNoDeseado/huespedNoDeseadoSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,15 +21,14 @@ export const store = configureStore({
     habitaciones: habitacionesSlice,
     tipoHabitaciones: tipoHabitacionesSlice,
     auditorias: auditoriasSlice,
-    dashboards: dashboardSlice
+    dashboards: dashboardSlice,
+    huespedNoDeseado: huespedNoDeseadoSlice,
   }
 });
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-// ✅ Tipos globales correctos
 export type AppStore = typeof store;
 
-// 🏭 Para quienes necesiten crear otro store (ej. tests)
 export const makeStore = () => store;

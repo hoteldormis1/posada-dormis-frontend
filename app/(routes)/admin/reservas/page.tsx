@@ -44,28 +44,14 @@ const Reservas: React.FC = () => {
 
   const { accessToken } = useAppSelector((state: RootState) => state.user);
 
-  // Carga inicial - solo si hay token
+  // Carga al montar - siempre refetchea para tener datos actualizados
   useEffect(() => {
-    if (status !== StateStatus.idle || !accessToken) return;
+    if (!accessToken) return;
 
-    (async () => {
-      const [habRes, resRes, hueRes] = await Promise.all([
-        dispatch(fetchHabitaciones({ sortOrder: SortOrder.asc })),
-        dispatch(fetchReservas()),
-        dispatch(fetchHuespedes()),
-      ]);
-
-      if (fetchHabitaciones.rejected.match(habRes)) {
-        errorToast(habRes.payload || "Error al obtener habitaciones");
-      }
-      if (fetchReservas.rejected.match(resRes)) {
-        errorToast(resRes.payload || "Error al obtener reservas");
-      }
-      if (fetchHuespedes.rejected.match(hueRes)) {
-        errorToast(hueRes.payload || "Error al obtener huéspedes");
-      }
-    })();
-  }, [dispatch, status, accessToken, errorToast]);
+    dispatch(fetchHabitaciones({ sortOrder: SortOrder.asc }));
+    dispatch(fetchReservas());
+    dispatch(fetchHuespedes());
+  }, [dispatch, accessToken]);
 
   const data = useMemo(() => reservas, [reservas]);
 
@@ -126,7 +112,7 @@ const Reservas: React.FC = () => {
   const onSaveAdd = async (formData: Record<string, unknown>) => {
     const {
       huespedMode, idHuesped,
-      nombre, apellido, dni, telefono, email, origen,
+      nombre, apellido, dni, telefono, origen,
       idHabitacion, idEstadoReserva, fechaDesde, fechaHasta, montoPagado
     } = formData;
 
@@ -154,7 +140,6 @@ const Reservas: React.FC = () => {
         apellido: String(apellido || ""),
         dni: String(dni || ""),
         telefono: String(telefono || ""),
-        email: String(email || ""),
         origen: countryName,
       };
       if (idHuesped) {

@@ -19,7 +19,7 @@ interface FormularioReserva {
   apellido: string;
   dni: string;
   telefono: string;
-  origen: string;
+  direccion: string;
 }
 
 interface FormularioErrores {
@@ -27,7 +27,7 @@ interface FormularioErrores {
   apellido?: string;
   dni?: string;
   telefono?: string;
-  origen?: string;
+  direccion?: string;
 }
 
 const ReservasPublicasPage = () => {
@@ -42,14 +42,13 @@ const ReservasPublicasPage = () => {
     apellido: "",
     dni: "",
     telefono: "",
-    origen: "Argentina",
+    direccion: "",
   });
   const [erroresFormulario, setErroresFormulario] = useState<FormularioErrores>({});
   const [loading, setLoading] = useState(false);
   const [reservaExitosa, setReservaExitosa] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Convertir dd/MM/yyyy a yyyy-mm-dd para la API
   const convertirAFormatoAPI = (fechaDDMMYYYY: string): string => {
     if (!fechaDDMMYYYY || fechaDDMMYYYY.length !== 10) return "";
     const [dia, mes, anio] = fechaDDMMYYYY.split("/");
@@ -155,9 +154,7 @@ const ReservasPublicasPage = () => {
         if (!/^[\d\s\-\+\(\)]{8,20}$/.test(valor.trim())) return "Formato de teléfono inválido";
         return undefined;
 
-      case "origen":
-        if (!valor.trim()) return "El país de origen es obligatorio";
-        if (valor.trim().length < 2) return "Debe tener al menos 2 caracteres";
+      case "direccion":
         return undefined;
 
       default:
@@ -182,11 +179,9 @@ const ReservasPublicasPage = () => {
     return esValido;
   };
 
-  // Manejar cambio en campos del formulario
   const handleCampoChange = (campo: keyof FormularioReserva, valor: string) => {
     setFormulario({ ...formulario, [campo]: valor });
     
-    // Limpiar error del campo cuando el usuario empiece a escribir
     if (erroresFormulario[campo]) {
       setErroresFormulario({ ...erroresFormulario, [campo]: undefined });
     }
@@ -215,7 +210,10 @@ const ReservasPublicasPage = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          huesped: formulario,
+          huesped: {
+            ...formulario,
+            origen: "Argentina",
+          },
           idHabitacion: habitacionSeleccionada.idHabitacion,
           fechaDesde: fechaInicioAPI,
           fechaHasta: fechaFinAPI,
@@ -249,7 +247,7 @@ const ReservasPublicasPage = () => {
       apellido: "",
       dni: "",
       telefono: "",
-      origen: "Argentina",
+      direccion: "",
     });
     setErroresFormulario({});
     setReservaExitosa(false);
@@ -566,14 +564,14 @@ const ReservasPublicasPage = () => {
 
                       <div className="md:col-span-2">
                         <InputForm
-                          inputKey="origen"
+                          inputKey="direccion"
                           InputForm="text"
-                          placeholder="Ej: Argentina"
-                          value={formulario.origen}
-                          onChange={(e) => handleCampoChange("origen", e.target.value)}
-                          error={erroresFormulario.origen}
+                          placeholder="Ej: Calle 123, Ciudad"
+                          value={formulario.direccion}
+                          onChange={(e) => handleCampoChange("direccion", e.target.value)}
+                          error={erroresFormulario.direccion}
                         >
-                          País de origen *
+                          Dirección
                         </InputForm>
                       </div>
                     </div>
@@ -631,7 +629,7 @@ const ReservasPublicasPage = () => {
                 <h3 className="font-bold text-text mb-3">Próximos pasos:</h3>
                 <ol className="space-y-2 text-sm text-muted list-decimal list-inside">
                   <li>La administración revisará tu reserva</li>
-                  <li>Recibirás un email con las instrucciones de pago</li>
+                  <li>Te contactaremos por teléfono con las instrucciones de pago</li>
                   <li>Una vez confirmado el pago, tu reserva será confirmada</li>
                 </ol>
               </div>

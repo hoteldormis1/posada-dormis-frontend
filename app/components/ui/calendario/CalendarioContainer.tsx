@@ -33,18 +33,15 @@ export default function CalendarioContainer({
   const { estados, cambiarEstadoReserva, obtenerEstados } = useEstadoReserva({
     onSuccess: () => {
       console.log('Estado de reserva actualizado exitosamente');
-      // Refrescar los datos del calendario después de actualizar el estado
       if (onRefreshCalendar) {
         onRefreshCalendar();
       }
     },
     onError: (error) => {
       console.error('Error al actualizar estado de reserva:', error);
-      // Aquí podrías mostrar un toast de error
     }
   });
 
-  // Cargar estados al montar el componente
   useEffect(() => {
     obtenerEstados();
   }, [obtenerEstados]);

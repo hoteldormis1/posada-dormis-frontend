@@ -3,7 +3,6 @@ import {
   nombreSchema, 
   dniSchema, 
   telefonoSchema, 
-  emailOptionalSchema, 
   origenSchema,
   fechaDDMMYYYYSchema,
   precioSchema,
@@ -24,7 +23,6 @@ export const reservaAddSchema = z
 		apellido: z.coerce.string().optional(),
 		dni: z.coerce.string().optional(),
 		telefono: z.coerce.string().optional(),
-		email: z.coerce.string().optional(),
 		origen: z.coerce.string().optional(),
 
 		// RESERVA (siempre requeridos)
@@ -89,15 +87,6 @@ export const reservaAddSchema = z
 					code: z.ZodIssueCode.custom,
 					path: ["telefono"],
 					message: validarTelefono.error.issues[0]?.message || "Campo requerido",
-				});
-			}
-
-			const validarEmail = emailOptionalSchema.safeParse(data.email);
-			if (!validarEmail.success) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					path: ["email"],
-					message: validarEmail.error.issues[0]?.message || "Email inválido",
 				});
 			}
 
