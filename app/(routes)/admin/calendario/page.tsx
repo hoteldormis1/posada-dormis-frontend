@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useCallback, useState } from "react";
 import { pantallaPrincipalEstilos, inputBaseEstilos, labelBaseEstilos } from "@/styles/global-styles";
 import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
 import { fetchReservasCalendar } from "@/lib/store/utils/calendario/calendarioSlice";
-import { AppDispatch } from "@/lib/store/store";
+import { AppDispatch, RootState } from "@/lib/store/store";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { Booking, Room } from "@/components/ui/calendario/Calendario";
 import CalendarioContainer from "@/components/ui/calendario/CalendarioContainer";
