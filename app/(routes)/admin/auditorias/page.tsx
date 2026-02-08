@@ -33,7 +33,7 @@ const Auditorias = () => {
 		setPageSizeAction: setAuditoriaPageSize,
 		selector: (state: RootState) => state.auditorias,
 		defaultSortField: "fecha",
-		defaultSortOrder: SortOrder.desc
+		defaultSortOrder: SortOrder.desc,
 	});
 
 	const columns = useMemo(
@@ -83,9 +83,9 @@ const Auditorias = () => {
 						onSort={handleSort}
 						sortField={sortField}
 						sortOrder={sortOrder}
-						onSaveAdd={()=> null}
-						onSaveEdit={()=> null}
-						onSaveDelete={()=> null}
+						onSaveAdd={() => null}
+						onSaveEdit={() => null}
+						onSaveDelete={() => null}
 					/>
 				)}
 			</div>

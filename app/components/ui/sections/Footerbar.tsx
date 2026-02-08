@@ -1,13 +1,23 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaCalendarAlt, FaUserCircle, FaUsers } from "react-icons/fa";
 import { FaBed } from "react-icons/fa6";
 import { MdArticle, MdDashboard, MdHistory } from "react-icons/md";
+import { useAppSelector } from "@/lib/store/hooks";
+import { RootState } from "@/lib/store/store";
 
-const footerItems = [
-	
+interface FooterItem {
+	name: string;
+	label: string;
+	icon: React.ReactNode;
+	link: string;
+	sysadminOnly?: boolean;
+}
+
+const footerItems: FooterItem[] = [
 	{
 		name: "Usuarios",
 		label: "Usuarios",
@@ -44,15 +54,33 @@ const footerItems = [
 		icon: <MdDashboard size={24} />,
 		link: "/admin/dashboard",
 	},
+	{
+		name: "Auditorias",
+		label: "Auditorías",
+		icon: <MdHistory size={24} />,
+		link: "/admin/auditorias",
+		sysadminOnly: true,
+	},
 ];
 
 export default function Footerbar() {
 	const pathname = usePathname();
+	const { currentUser, tiposUsuarios } = useAppSelector((state: RootState) => state.user);
+
+	const isSysadmin = useMemo(() => {
+		const sysadminType = tiposUsuarios.find((t) => t.nombre === "sysadmin");
+		return sysadminType ? currentUser?.idTipoUsuario === sysadminType.idTipoUsuario : false;
+	}, [currentUser?.idTipoUsuario, tiposUsuarios]);
+
+	const visibleItems = useMemo(
+		() => footerItems.filter((item) => !item.sysadminOnly || isSysadmin),
+		[isSysadmin]
+	);
 
 	return (
 		<div className="fixed bottom-0 w-full z-50 bg-white py-2 rounded-t-3xl">
 			<div className="flex justify-around">
-				{footerItems.map(({ name, label, icon, link }) => {
+				{visibleItems.map(({ name, label, icon, link }) => {
 					const isActive = pathname === link || pathname.startsWith(link + "/");
 
 					return (
