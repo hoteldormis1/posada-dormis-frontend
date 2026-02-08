@@ -11,5 +11,6 @@ export interface FormFieldInputConfig {
   type?: FieldInputType;
   options?: FormFieldInputOptionsConfig[];
   placeholder?: string;
-  editable?: boolean; // Nuevo: indica si el campo es editable en modo edición
+  editable?: boolean | ((ctx: { mode: "add" | "edit"; formData: Record<string, any> }) => boolean);
+  visibleWhen?: (ctx: { mode: "add" | "edit"; formData: Record<string, any> }) => boolean;
 }
