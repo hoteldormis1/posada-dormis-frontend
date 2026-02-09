@@ -12,6 +12,7 @@ interface EntityFetchParams {
 	search?: string;
 	sortField?: string;
 	sortOrder?: SortOrder.asc | SortOrder.desc;
+	[key: string]: unknown;
 }
 
 interface UseEntityTableParams<F> {
@@ -21,6 +22,8 @@ interface UseEntityTableParams<F> {
 	selector: (state: RootState) => F;
 	defaultSortField?: string;
 	defaultSortOrder?: SortOrder.asc | SortOrder.desc;
+	/** Extra params merged into every fetch call (e.g. filters) */
+	extraParams?: Record<string, unknown>;
 }
 
 export const useEntityTable = <
@@ -39,6 +42,7 @@ export const useEntityTable = <
 	selector,
 	defaultSortField = "fecha",
 	defaultSortOrder = SortOrder.desc,
+	extraParams = {},
 }: UseEntityTableParams<F>) => {
 	const dispatch = useAppDispatch();
 	const state = useAppSelector(selector);
@@ -59,6 +63,7 @@ export const useEntityTable = <
 					search: params.search ?? search,
 					sortField: params.sortField ?? sortField,
 					sortOrder: params.sortOrder ?? sortOrder,
+					...extraParams,
 				}) as UnknownAction
 			);
 		},
@@ -70,6 +75,7 @@ export const useEntityTable = <
 			sortOrder,
 			state.page,
 			state.pageSize,
+			extraParams,
 		]
 	);
 
@@ -84,6 +90,7 @@ export const useEntityTable = <
 				search: search,
 				sortField: sortField,
 				sortOrder: sortOrder,
+				...extraParams,
 			}) as UnknownAction
 		);
 		hasFetchedRef.current = true;

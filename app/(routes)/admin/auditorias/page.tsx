@@ -33,7 +33,7 @@ const Auditorias = () => {
 		setPageSizeAction: setAuditoriaPageSize,
 		selector: (state: RootState) => state.auditorias,
 		defaultSortField: "fecha",
-		defaultSortOrder: SortOrder.desc
+		defaultSortOrder: SortOrder.desc,
 	});
 
 	const columns = useMemo(
@@ -64,7 +64,7 @@ const Auditorias = () => {
 
 	return (
 		<div className={pantallaPrincipalEstilos}>
-			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
+			<div className="m-auto w-full sm:w-11/12 md:w-10/12 pt-6">
 				{loading && <LoadingSpinner />}
 				{!loading && !error && (
 					<TableComponent
@@ -83,9 +83,9 @@ const Auditorias = () => {
 						onSort={handleSort}
 						sortField={sortField}
 						sortOrder={sortOrder}
-						onSaveAdd={()=> null}
-						onSaveEdit={()=> null}
-						onSaveDelete={()=> null}
+						onSaveAdd={() => null}
+						onSaveEdit={() => null}
+						onSaveDelete={() => null}
 					/>
 				)}
 			</div>

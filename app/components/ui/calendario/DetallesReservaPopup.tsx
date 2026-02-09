@@ -46,7 +46,7 @@ export default function DetallesReservaPopup({ booking, roomName, onClose, onSta
 
   const statusStyles: Record<string, { label: string; color: string }> = {
     pendiente: { label: "Pendiente", color: "bg-yellow-500" },
-    confirmada: { label: "Confirmada", color: "bg-blue-600" },
+    confirmada: { label: "Confirmada", color: "bg-blue-300" },
     checkin: { label: "Check-in", color: "bg-green-600" },
     checkout: { label: "Check-out", color: "bg-indigo-500" },
     cancelada: { label: "Cancelada", color: "bg-red-500" },

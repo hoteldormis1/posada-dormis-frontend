@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import api from "@/lib/store/axiosConfig";
 import { RootState } from "@/lib/store/store";
 import {
@@ -189,9 +189,25 @@ const Usuarios = () => {
 	const puedeEditar = false; //nunca poder editar usuario acá
 	const puedeAgregar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "usuario", "create");
 
+	// IDs de tipos sysadmin (no se pueden borrar)
+	const idsSysadmin = useMemo(
+		() => tiposUsuarios.filter((t) => t.nombre === "sysadmin").map((t) => t.idTipoUsuario),
+		[tiposUsuarios]
+	);
+
+	// No permitir borrar usuarios sysadmin ni al usuario actual
+	const canDeleteRow = useCallback(
+		(row: Record<string, any>) => {
+			if (String(row.idUsuario) === String(currentUser?.idUsuario)) return false;
+			if (idsSysadmin.includes(row.idTipoUsuario)) return false;
+			return true;
+		},
+		[currentUser?.idUsuario, idsSysadmin]
+	);
+
 	return (
 		<div className={pantallaPrincipalEstilos}>
-			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
+			<div className="m-auto w-full sm:w-11/12 md:w-10/12 pt-6">
 				{loading && <LoadingSpinner />}
 				{!loading && !error && (
 					<TableComponent
@@ -216,6 +232,7 @@ const Usuarios = () => {
 						inputOptions={inputOptions}
 						showFormActions={true}
 						showActions={{create: puedeAgregar, delete: puedeBorrar, edit: puedeEditar}}
+					canDeleteRow={canDeleteRow}
 						addPopupDescription="Se enviará un email de invitación al usuario con un enlace para activar su cuenta y establecer su contraseña. El enlace será válido por 24 horas."
 					/>
 				)}

@@ -219,7 +219,7 @@ const Habitaciones = () => {
 
 	return (
 		<div className={pantallaPrincipalEstilos}>
-			<div className="w-11/12 sm:w-10/12 md:w-9/12 xl:w-8/12 m-auto">
+			<div className="m-auto w-full sm:w-11/12 md:w-10/12 pt-6">
 				{/* Botón para gestionar tipos de habitaciones */}
 				<div className="flex justify-end mb-4">
 					<button
