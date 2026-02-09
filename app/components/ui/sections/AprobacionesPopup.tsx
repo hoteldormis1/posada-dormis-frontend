@@ -137,7 +137,7 @@ export default function AprobacionesPopup() {
           ${open
             ? 'text-white bg-black  '
             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
-        title="Aprobaciones pendientes"
+        title="Reservas pendientes de aprobación"
       >
         <FaBell size={22} />
         <span className={`absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[20px] h-5 px-1 text-[11px] font-bold rounded-full
@@ -151,7 +151,7 @@ export default function AprobacionesPopup() {
         <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
           {/* Header */}
           <div className="px-4 py-3 border-b ">
-            <h3 className="text-sm font-semibold">Aprobaciones pendientes</h3>
+            <h3 className="text-sm font-semibold">Reservas pendientes de aprobación</h3>
           </div>
 
           {/* Content */}
@@ -202,7 +202,7 @@ export default function AprobacionesPopup() {
                       <button
                         onClick={() => handleAprobar(r.id)}
                         disabled={actionLoading === r.id}
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-green-600 border-1  hover:bg-green-700 disabled:opacity-50 transition-colors cursor-pointer"
+                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-green-600 border-1  hover:bg-green-700 hover:text-white disabled:opacity-50 transition-colors cursor-pointer"
                       >
                         <FaCheck size={10} />
                         Aprobar
@@ -210,7 +210,7 @@ export default function AprobacionesPopup() {
                       <button
                         onClick={() => handleRechazar(r.id)}
                         disabled={actionLoading === r.id}
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-red-600 border-1 hover:bg-red-700 disabled:opacity-50 transition-colors cursor-pointer"
+                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-red-600 border-1 hover:bg-red-700 hover:text-white disabled:opacity-50 transition-colors cursor-pointer"
                       >
                         <FaTimes size={10} />
                         Rechazar
