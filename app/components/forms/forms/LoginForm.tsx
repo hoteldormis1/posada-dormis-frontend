@@ -69,6 +69,7 @@ const LoginForm = () => {
 					setEmail(e.target.value);
 					if (errors.email) setErrors({ ...errors, email: undefined });
 				}}
+				labelStyles="text-white"
 				error={errors.email}
 			>
 				Correo electrónico
@@ -83,6 +84,7 @@ const LoginForm = () => {
 					setClave(e.target.value);
 					if (errors.clave) setErrors({ ...errors, clave: undefined });
 				}}
+				labelStyles="text-white"
 				error={errors.clave}
 			>
 				Contraseña
