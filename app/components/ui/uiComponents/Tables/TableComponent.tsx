@@ -199,7 +199,7 @@ const TableComponent = <T extends { id: string }>({
   };
 
   return (
-    <div className="flex flex-col mx-auto w-full max-w-[1000px]">
+    <div className="flex flex-col mx-auto w-full max-w-[1400px]">
       <TableHeader
         title={title}
         search={search}

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FaBars, FaCalendarAlt, FaSignOutAlt, FaTimes, FaUserCircle, FaUsers } from "react-icons/fa";
 import { FaBed } from "react-icons/fa6";
-import { MdArticle, MdDashboard, MdHistory, MdPendingActions } from "react-icons/md";
+import { MdArticle, MdDashboard, MdHistory } from "react-icons/md";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
 import { logoutUser } from "@/lib/store/utils/user/userSlice";
@@ -33,13 +33,6 @@ const navSections: NavSection[] = [
 				icon: <FaCalendarAlt size={18} />,
 				link: "/admin/calendario",
 			},
-			{
-				name: "Aprobaciones",
-				label: "Aprobaciones",
-				icon: <MdPendingActions size={18} />,
-				link: "/admin/aprobaciones",
-			},
-			
 			{
 				name: "Dashboard",
 				label: "Dashboard",

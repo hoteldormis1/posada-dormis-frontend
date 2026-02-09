@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { Navbar } from '@/components/index';
 import Sidebar from './Sidebar';
+import AprobacionesPopup from './AprobacionesPopup';
 import { useLayoutEffect } from 'react';
 import { fetchTiposUsuarios } from '@/lib/store/utils';
 import { AppDispatch, RootState } from '@/lib/store/store';
@@ -29,7 +30,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'));
 
   // Routes that show the top Navbar (logo + login button)
-  const NAVBAR_ROUTES = ['/', '/reservas-publicas'];
+  const NAVBAR_ROUTES: string[] = [];
   const showNavbar = NAVBAR_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'));
 
   useLayoutEffect(() => {
@@ -62,7 +63,9 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
       {/* Right column */}
       <div className="layout-main flex flex-col">
         {/* Admin top bar */}
-        <header className="h-14 bg-white border-b border-gray-200 shrink-0" />
+        <header className="h-14 bg-white border-b border-gray-200 shrink-0 flex items-center justify-end px-6">
+          <AprobacionesPopup />
+        </header>
 
         {/* Main Content */}
         <main className={`flex-1 ${isCalendario ? '' : 'px-4 py-6'}`}>

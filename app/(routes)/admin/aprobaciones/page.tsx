@@ -155,7 +155,7 @@ export default function AprobacionesPage() {
 									<button
 										onClick={() => handleAprobar(r.id)}
 										disabled={actionLoading === r.id}
-										className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+										className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
 									>
 										<FaCheck size={12} />
 										Aprobar
