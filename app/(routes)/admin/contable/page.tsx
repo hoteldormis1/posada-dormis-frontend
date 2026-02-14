@@ -6,7 +6,20 @@ import { AppDispatch, RootState } from "@/lib/store/store";
 import { fetchContableResumen } from "@/lib/store/utils";
 import { StateStatus } from "@/models/types";
 import { LoadingSpinner } from "@/components";
-import { toYMDLocal } from "@/utils/helpers/date";
+import PresetTabs from "@/components/ui/uiComponents/Dashboard/FiltroFechas/PresetTabs";
+import {
+  type Preset,
+  toYMDLocal,
+  toDDMMYYYY,
+  ddmmToISO,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+  startOfWeekMonday,
+  endOfWeekMonday,
+} from "@/utils/helpers/date";
+import InputDateForm from "@/components/forms/formComponents/InputDateForm";
 import {
   FaDollarSign,
   FaCheckCircle,
@@ -72,6 +85,42 @@ const fmtDate = (iso: string) => {
   return `${d}/${m}/${y}`;
 };
 
+/** Calcula from/to en ISO y dd/mm/yyyy a partir de un preset. */
+const getRangeFromPreset = (preset: Preset) => {
+  const now = new Date();
+  let s: Date;
+  let e: Date;
+
+  switch (preset) {
+    case "HOY":
+      s = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      e = s;
+      break;
+    case "SEMANA":
+      s = startOfWeekMonday(now);
+      e = endOfWeekMonday(now);
+      break;
+    case "MES":
+      s = startOfMonth(now);
+      e = endOfMonth(now);
+      break;
+    case "ANIO":
+      s = startOfYear(now);
+      e = endOfYear(now);
+      break;
+    default:
+      s = startOfMonth(now);
+      e = endOfMonth(now);
+      break;
+  }
+  return {
+    fromISO: toYMDLocal(s),
+    toISO: toYMDLocal(e),
+    fromUI: toDDMMYYYY(s),
+    toUI: toDDMMYYYY(e),
+  };
+};
+
 // ─────────────────────────── Componente ───────────────────────────
 
 const ContablePage: React.FC = () => {
@@ -80,21 +129,47 @@ const ContablePage: React.FC = () => {
     (state: RootState) => state.contable
   );
 
-  // Rango de fechas local
-  const [fromDate, setFromDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 30);
-    return toYMDLocal(d);
-  });
-  const [toDate, setToDate] = useState(() => toYMDLocal(new Date()));
+  // Preset activo — default "MES"
+  const [preset, setPreset] = useState<Preset>("MES");
 
-  // Fetch inicial
+  // Rango de fechas en dd/mm/yyyy (para UI) — se inicializa con "Este mes"
+  const [fromUI, setFromUI] = useState(() => getRangeFromPreset("MES").fromUI);
+  const [toUI, setToUI] = useState(() => getRangeFromPreset("MES").toUI);
+
+  // Fetch inicial con rango del mes actual
   useEffect(() => {
-    dispatch(fetchContableResumen({ from: fromDate, to: toDate }));
+    const { fromISO, toISO } = getRangeFromPreset("MES");
+    dispatch(fetchContableResumen({ from: fromISO, to: toISO }));
   }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Handler de preset
+  const handlePreset = (p: Preset) => {
+    setPreset(p);
+    if (p === "PERSONALIZADO") {
+      // Poner inicio/fin del mes actual como default en los inputs
+      const { fromUI: fUI, toUI: tUI } = getRangeFromPreset("MES");
+      setFromUI(fUI);
+      setToUI(tUI);
+      return; // no fetchear, espera al botón
+    }
+    const { fromISO, toISO, fromUI: fUI, toUI: tUI } = getRangeFromPreset(p);
+    setFromUI(fUI);
+    setToUI(tUI);
+    dispatch(fetchContableResumen({ from: fromISO, to: toISO }));
+  };
+
+  // Handler del input dd/mm/yyyy
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.name === "from") setFromUI(e.target.value);
+    if (e.target.name === "to") setToUI(e.target.value);
+  };
+
+  // Handler de personalizado
   const handleFiltrar = () => {
-    dispatch(fetchContableResumen({ from: fromDate, to: toDate }));
+    const fromISO = ddmmToISO(fromUI);
+    const toISO = ddmmToISO(toUI);
+    if (!fromISO || !toISO) return;
+    dispatch(fetchContableResumen({ from: fromISO, to: toISO }));
   };
 
   // Datos
@@ -115,39 +190,44 @@ const ContablePage: React.FC = () => {
         </div>
 
         {/* Filtro de fechas */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-6">
-          <div className="flex flex-col sm:flex-row items-end gap-4">
-            <div className="flex-1 min-w-0">
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Fecha desde
-              </label>
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="block w-full text-sm rounded-lg bg-gray-50 border-2 border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-6 space-y-4">
+          {/* Preset tabs */}
+          <PresetTabs preset={preset} onSelect={handlePreset} />
+
+          {/* Inputs manuales — solo en modo personalizado */}
+          {preset === "PERSONALIZADO" && (
+            <div className="flex flex-col sm:flex-row items-end gap-4 pt-2">
+              <div className="flex-1 min-w-0">
+                <InputDateForm
+                  inputKey="from"
+                  label="Fecha desde"
+                  value={fromUI}
+                  onChange={handleDateChange}
+                  placeholder="dd/mm/yyyy"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <InputDateForm
+                  inputKey="to"
+                  label="Fecha hasta"
+                  value={toUI}
+                  onChange={handleDateChange}
+                  placeholder="dd/mm/yyyy"
+                />
+              </div>
+              <div className="flex items-end pb-1">
+                <button
+                  onClick={handleFiltrar}
+                  className="px-6 py-2.5 bg-blue-600 text-white font-medium text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
+                >
+                  Filtrar
+                </button>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Fecha hasta
-              </label>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="block w-full text-sm rounded-lg bg-gray-50 border-2 border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              />
-            </div>
-            <button
-              onClick={handleFiltrar}
-              className="px-6 py-2.5 bg-blue-600 text-white font-medium text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
-            >
-              Filtrar
-            </button>
-          </div>
+          )}
+
           {resumen?.range && (
-            <p className="text-xs text-gray-400 mt-3">
+            <p className="text-xs text-gray-400">
               Mostrando datos del {fmtDate(resumen.range.from)} al {fmtDate(resumen.range.to)}
             </p>
           )}
