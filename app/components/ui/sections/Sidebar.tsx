@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { FaBars, FaCalendarAlt, FaSignOutAlt, FaTimes, FaUserCircle, FaUsers } from "react-icons/fa";
+import { FaBars, FaCalendarAlt, FaSignOutAlt, FaTimes, FaUserCircle, FaUsers, FaDollarSign, FaFileAlt } from "react-icons/fa";
 import { FaBed } from "react-icons/fa6";
 import { MdArticle, MdDashboard, MdHistory } from "react-icons/md";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
@@ -33,14 +33,26 @@ const navSections: NavSection[] = [
 				icon: <FaCalendarAlt size={18} />,
 				link: "/admin/calendario",
 			},
-			{
-				name: "Dashboard",
-				label: "Dashboard",
-				icon: <MdDashboard size={18} />,
-				link: "/admin/dashboard",
-			},
-		],
-	},
+		/*{
+			name: "Dashboard",
+			label: "Dashboard",
+			icon: <MdDashboard size={18} />,
+			link: "/admin/dashboard",
+		},*/
+		{
+			name: "Contable",
+			label: "Contable",
+			icon: <FaDollarSign size={18} />,
+			link: "/admin/contable",
+		},
+		{
+			name: "Reportes",
+			label: "Reportes",
+			icon: <FaFileAlt size={18} />,
+			link: "/admin/reportes",
+		},
+	],
+},
 	{
 		title: "Admin",
 		items: [
