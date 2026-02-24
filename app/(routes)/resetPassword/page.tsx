@@ -6,6 +6,7 @@ import { useToastAlert } from "@/hooks/useToastAlert";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
+
 const ResetPassword = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -34,9 +35,10 @@ const ResetPassword = () => {
             try {
                 // Limpiar el token de espacios en blanco
                 const cleanToken = token.trim();
-                const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
+                const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
                 // Codificar el token en la URL
-                const response = await fetch(`${baseURL}/auth/password-reset/verify?token=${encodeURIComponent(cleanToken)}`, {
+                const response = await fetch(`${apiUrl}/auth/password-reset/verify?token=${encodeURIComponent(cleanToken)}`, {
                     method: 'GET',
                     credentials: 'include',
                 });
@@ -85,7 +87,9 @@ const ResetPassword = () => {
 
         try {
             // Limpiar el token de espacios en blanco
+            const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
             const cleanToken = token?.trim();
+            
             
             if (!cleanToken) {
                 errorToast("Token no válido. Por favor solicitá un nuevo enlace.");
@@ -93,8 +97,7 @@ const ResetPassword = () => {
                 return;
             }
 
-            const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
-            const response = await fetch(`${baseURL}/auth/password-reset/reset`, {
+            const response = await fetch(`${apiUrl}/auth/password-reset/reset`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
