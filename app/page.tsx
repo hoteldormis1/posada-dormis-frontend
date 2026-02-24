@@ -95,7 +95,7 @@ const ReservasPublicasPage = () => {
       const fechaInicioAPI = convertirAFormatoAPI(fechaInicio);
       const fechaFinAPI = convertirAFormatoAPI(fechaFin);
       const response = await fetch(
-        `${apiUrl}/api/public/habitaciones/disponibles?fechaInicio=${fechaInicioAPI}&fechaFin=${fechaFinAPI}`
+        `${apiUrl}/public/habitaciones/disponibles?fechaInicio=${fechaInicioAPI}&fechaFin=${fechaFinAPI}`
       );
       
       if (!response.ok) {
