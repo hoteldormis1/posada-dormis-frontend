@@ -203,10 +203,10 @@ const ReservasPublicasPage = () => {
     setError(null);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
       const fechaInicioAPI = convertirAFormatoAPI(fechaInicio);
       const fechaFinAPI = convertirAFormatoAPI(fechaFin);
-      const response = await fetch(`${apiUrl}/api/public/reservas`, {
+      const response = await fetch(`${apiUrl}/public/reservas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
