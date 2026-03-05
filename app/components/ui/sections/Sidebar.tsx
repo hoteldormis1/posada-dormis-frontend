@@ -135,7 +135,7 @@ export default function Sidebar() {
 			<div className="px-5 py-5 border-b border-gray-100 flex items-center justify-between">
 				<div>
 					<h1 className="text-xl font-bold text-main leading-tight">Posada Dormi&apos;s</h1>
-					<p className="text-xs text-muted">Carlos Paz — Córdoba</p>
+					<p className="text-xs text-muted">Mina Clavero — Córdoba</p>
 				</div>
 				{/* Close button — mobile only */}
 				<button

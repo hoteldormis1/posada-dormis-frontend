@@ -29,7 +29,7 @@ export default function Navbar() {
 						<FaBed className="text-main text-4xl" />
 						<div>
 							<h1 className="text-2xl font-bold text-main">Posada Dormis</h1>
-							<p className="text-sm text-muted">Carlos Paz - Córdoba</p>
+							<p className="text-sm text-muted">Mina Clavero - Córdoba</p>
 						</div>
 					</div>
 
