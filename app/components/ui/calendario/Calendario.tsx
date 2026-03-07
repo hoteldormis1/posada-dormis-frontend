@@ -20,6 +20,7 @@ export type Booking = {
   end: string | Date;   // exclusive
   guest?: string;
   price?: number;
+  montoPagado?: number;
   status?: string;
   idEstadoReserva?: number;
   rightTopLabel?: string;     // p.ej. "Llegado" / "Confirmado"

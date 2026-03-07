@@ -35,48 +35,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useLayoutEffect(() => {
     let isMounted = true;
 
-    console.log("[AuthProvider] Effect running, pathname:", pathname);
-
     if (isPublicRoute(pathname)) {
-      console.log("[AuthProvider] Public route detected, skipping auth");
       if (isMounted) setIsReady(true);
       return;
     }
 
     const verifyAuth = async () => {
-      console.log("[AuthProvider] Starting auth verification...");
       
       try {
         const existingToken = getAuthToken();
-        console.log("[AuthProvider] Token in sessionStorage:", existingToken ? "✓ EXISTS" : "✗ MISSING");
 
         if (existingToken) {
-          console.log("[AuthProvider] Restoring token to Redux...");
           dispatch(setAccessTokenInStore(existingToken));
 
           try {
-            console.log("[AuthProvider] Fetching currentUser with existing token...");
             const user = await dispatch(fetchCurrentUser()).unwrap();
-            console.log("[AuthProvider] ✓ CurrentUser loaded:", user);
           } catch (fetchError) {
-            console.warn("[AuthProvider] ✗ fetchCurrentUser failed, trying refreshSession...");
             const refreshResult = await dispatch(refreshSession()).unwrap();
-            console.log("[AuthProvider] ✓ refreshSession succeeded, currentUser should be in state");
           }
         } else {
-          console.log("[AuthProvider] No token, calling refreshSession (uses httpOnly cookie)...");
           const refreshResult = await dispatch(refreshSession()).unwrap();
-          console.log("[AuthProvider] ✓ refreshSession succeeded:", {
-            hasToken: !!refreshResult.accessToken,
-            hasUser: !!refreshResult.currentUser
-          });
+          
           
           if (!refreshResult.accessToken) {
             throw new Error("No token received from refreshSession");
           }
         }
 
-        console.log("[AuthProvider] ✓ Auth complete, setting ready");
         if (isMounted) setIsReady(true);
 
       } catch (error: any) {
@@ -87,7 +72,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           duration: 3000,
         });
 
-        console.log("[AuthProvider] Redirecting to /login...");
         router.push("/login");
         
         if (isMounted) setIsReady(true);
@@ -97,7 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     verifyAuth();
     
     return () => {
-      console.log("[AuthProvider] Cleanup");
       isMounted = false;
     };
   }, [dispatch, router, pathname]);

@@ -170,41 +170,21 @@ export default function CalendarioPage() {
       // Si no hay bookings del backend, usar datos de ejemplo para debug
       if (calendarioBookings.length === 0) {
         const hoy = new Date();
-        const mañana = new Date(hoy.getTime() + 24 * 60 * 60 * 1000);
-        const pasadoMañana = new Date(hoy.getTime() + 2 * 24 * 60 * 60 * 1000);
-        
-        return [
-          /*{
-            id: 'ejemplo1',
-            roomId: rooms[0]?.id || 1,
-            start: hoy.toISOString().slice(0, 10),
-            end: mañana.toISOString().slice(0, 10),
-            guest: 'Cliente de Prueba',
-            price: 500,
-            status: 'pendiente',
-          },
-          {
-            id: 'ejemplo2', 
-            roomId: rooms[1]?.id || 2,
-            start: mañana.toISOString().slice(0, 10),
-            end: pasadoMañana.toISOString().slice(0, 10),
-            guest: 'Otro Cliente',
-            price: 750,
-            status: 'confirmada',
-          }*/
-        ];
       }
       
-      return (calendarioBookings as any[]).map((b) => ({
-        id: b.id ?? b.idReserva,
-        roomId: b.roomId ?? b.roomNumber ?? b.idHabitacion, // Incluir roomNumber del backend
-        start: b.start ?? b.fechaDesde,
-        end: b.end ?? b.fechaHasta,
-        guest: b.guest ?? b.huespedNombre,
-        price: b.price ?? b.montoTotal,
-        status: b.status ?? b.estadoReserva,
-        idEstadoReserva: b.idEstadoReserva,
-      }));
+      return (calendarioBookings as any[]).map((b) => {
+        return {
+          id: b.id ?? b.idReserva,
+          roomId: b.roomId ?? b.roomNumber ?? b.idHabitacion,
+          start: b.start ?? b.fechaDesde,
+          end: b.end ?? b.fechaHasta,
+          guest: b.guest ?? b.huespedNombre,
+          price: b.price ?? b.montoTotal,
+          montoPagado: Number(b.montoPagado ?? 0),
+          status: b.status ?? b.estadoReserva,
+          idEstadoReserva: b.idEstadoReserva,
+        }
+      });
     },
     [calendarioBookings, rooms.length] // Solo dependemos de la longitud de rooms, no del objeto completo
   );

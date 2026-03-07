@@ -14,6 +14,7 @@ export type CalendarioBooking = {
   end: string;   // YYYY-MM-DD (tratar como end-exclusive en el front)
   guest?: string | null;
   price?: number | null;
+  montoPagado?: number | null;
   status?: string | null;
 };
 
