@@ -3,11 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { FaBell, FaCheck, FaTimes } from 'react-icons/fa';
-import { useAppSelector } from '@/lib/store/hooks';
-import { RootState } from '@/lib/store/store';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { AppDispatch, RootState } from '@/lib/store/store';
 import api from '@/lib/store/axiosConfig';
 import { useSweetAlert } from '@/hooks/useSweetAlert';
 import { useToastAlert } from '@/hooks/useToastAlert';
+import { fetchReservas } from '@/lib/store/utils/reservas/reservasSlice';
+import { fetchReservasCalendar } from '@/lib/store/utils/calendario/calendarioSlice';
+import { useReservasSocket } from '@/hooks/useReservasSocket';
+import { toYMDLocal } from '@/utils/helpers/date';
 
 interface ReservaPendiente {
   id: number;
@@ -24,14 +28,19 @@ interface ReservaPendiente {
 
 export default function AprobacionesPopup() {
   const pathname = usePathname();
+  const dispatch = useAppDispatch<AppDispatch>();
   const { accessToken } = useAppSelector((state: RootState) => state.user);
 
   const [open, setOpen] = useState(false);
   const [reservas, setReservas] = useState<ReservaPendiente[]>([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
+  // true mientras haya reservas pendientes que el usuario aún no abrió el popup para ver
+  const [hasUnseen, setHasUnseen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const hasFetchedRef = useRef(false);
+  // ref sincronizado con `open` para leerlo dentro de fetchPendientes sin recrearla
+  const openRef = useRef(false);
 
   const { confirm } = useSweetAlert();
   const { successToast, errorToast } = useToastAlert();
@@ -40,13 +49,37 @@ export default function AprobacionesPopup() {
     try {
       setLoading(true);
       const { data } = await api.get('/reservas/pendientes');
-      setReservas(Array.isArray(data) ? data : []);
+      const lista: ReservaPendiente[] = Array.isArray(data) ? data : [];
+      setReservas(lista);
+      // Solo activa la animación si el popup está cerrado — si está abierto el usuario ya las está viendo
+      if (lista.length > 0 && !openRef.current) setHasUnseen(true);
     } catch {
       setReservas([]);
     } finally {
       setLoading(false);
     }
   }, []);
+
+  /** Refresca el calendario y la tabla de reservas en el store */
+  const refreshStore = useCallback(() => {
+    const hoy = new Date();
+    const startDate = toYMDLocal(hoy);
+    const endDate = toYMDLocal(new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000));
+    dispatch(fetchReservasCalendar({ startDate, endDate }));
+    dispatch(fetchReservas());
+  }, [dispatch]);
+
+  // ─── WebSocket ────────────────────────────────────────────────────────────
+  useReservasSocket({
+    enabled: !!accessToken,
+    onNuevaReserva: () => {
+      fetchPendientes(); // refresca lista y activa hasUnseen automáticamente
+    },
+    onReservaActualizada: () => {
+      refreshStore();
+      fetchPendientes();
+    },
+  });
 
   // Fetch on first mount
   useEffect(() => {
@@ -65,6 +98,7 @@ export default function AprobacionesPopup() {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+        openRef.current = false;
         setOpen(false);
       }
     };
@@ -74,12 +108,18 @@ export default function AprobacionesPopup() {
 
   // Close popup on route change
   useEffect(() => {
+    openRef.current = false;
     setOpen(false);
   }, [pathname]);
 
   const togglePopup = () => {
-    setOpen((v) => !v);
-    if (!open) fetchPendientes();
+    const willOpen = !open;
+    openRef.current = willOpen;
+    setOpen(willOpen);
+    if (willOpen) {
+      setHasUnseen(false); // primero apaga la animación...
+      fetchPendientes();   // ...luego refresca (openRef ya es true, no la reactivará)
+    }
   };
 
   const handleAprobar = useCallback(
@@ -91,13 +131,14 @@ export default function AprobacionesPopup() {
         await api.put(`/reservas/${id}/confirmar`);
         successToast('Reserva aprobada correctamente.');
         setReservas((prev) => prev.filter((r) => r.id !== id));
+        refreshStore();
       } catch {
         errorToast('Error al aprobar la reserva.');
       } finally {
         setActionLoading(null);
       }
     },
-    [confirm, successToast, errorToast]
+    [confirm, successToast, errorToast, refreshStore]
   );
 
   const handleRechazar = useCallback(
@@ -109,13 +150,14 @@ export default function AprobacionesPopup() {
         await api.put(`/reservas/${id}/cancelar`);
         successToast('Reserva rechazada correctamente.');
         setReservas((prev) => prev.filter((r) => r.id !== id));
+        refreshStore();
       } catch {
         errorToast('Error al rechazar la reserva.');
       } finally {
         setActionLoading(null);
       }
     },
-    [confirm, successToast, errorToast]
+    [confirm, successToast, errorToast, refreshStore]
   );
 
   const formatDate = (iso: string) => {
@@ -135,22 +177,32 @@ export default function AprobacionesPopup() {
         onClick={togglePopup}
         className={`relative p-2 rounded-full transition-all duration-150 cursor-pointer
           ${open
-            ? 'text-white bg-black  '
+            ? 'text-white bg-black'
             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
         title="Reservas pendientes de aprobación"
       >
-        <FaBell size={22} />
-        <span className={`absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[20px] h-5 px-1 text-[11px] font-bold rounded-full
+        {/* Icono: se sacude mientras haya pendientes no vistos */}
+        <span className={hasUnseen ? 'block animate-[bellShake_0.7s_ease-in-out_infinite]' : 'block'}>
+          <FaBell size={22} />
+        </span>
+
+        {/* Badge con contador */}
+        <span className={`absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[20px] h-5 px-1 text-[11px] font-bold rounded-full transition-all
           ${pendingCount > 0 ? 'bg-black text-white' : 'bg-gray-300 text-gray-600'}`}>
           {pendingCount}
         </span>
+
+        {/* Aro pulsante mientras haya pendientes no vistos */}
+        {hasUnseen && (
+          <span className="absolute inset-0 rounded-full ring-2 ring-amber-400 animate-ping pointer-events-none" />
+        )}
       </button>
 
       {/* Dropdown popup */}
       {open && (
         <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
           {/* Header */}
-          <div className="px-4 py-3 border-b ">
+          <div className="px-4 py-3 border-b">
             <h3 className="text-sm font-semibold">Reservas pendientes de aprobación</h3>
           </div>
 
@@ -202,17 +254,25 @@ export default function AprobacionesPopup() {
                       <button
                         onClick={() => handleAprobar(r.id)}
                         disabled={actionLoading === r.id}
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-green-600 border-1  hover:bg-green-700 hover:text-white disabled:opacity-50 transition-colors cursor-pointer"
+                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-green-600 border border-green-300 hover:bg-green-700 hover:text-white hover:border-green-700 disabled:opacity-50 transition-colors cursor-pointer"
                       >
-                        <FaCheck size={10} />
+                        {actionLoading === r.id ? (
+                          <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <FaCheck size={10} />
+                        )}
                         Aprobar
                       </button>
                       <button
                         onClick={() => handleRechazar(r.id)}
                         disabled={actionLoading === r.id}
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-red-600 border-1 hover:bg-red-700 hover:text-white disabled:opacity-50 transition-colors cursor-pointer"
+                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-red-600 border border-red-300 hover:bg-red-700 hover:text-white hover:border-red-700 disabled:opacity-50 transition-colors cursor-pointer"
                       >
-                        <FaTimes size={10} />
+                        {actionLoading === r.id ? (
+                          <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <FaTimes size={10} />
+                        )}
                         Rechazar
                       </button>
                     </div>
