@@ -1,6 +1,6 @@
 "use client";
 
-import { getEstadoReservaTheme } from "@/utils/helpers/reservaEstado";
+import { getEstadoReservaTheme, normalizeEstadoReserva } from "@/utils/helpers/reservaEstado";
 
 export interface EstadoReserva {
   idEstadoReserva: number;
@@ -26,12 +26,17 @@ export default function EstadoSlider({
   error = null,
   success = null,
 }: EstadoSliderProps) {
-  const currentIndex = estados.findIndex(e => e.nombre.toLowerCase() === estadoActual.toLowerCase());
-  const current = estados[Math.max(currentIndex, 0)];
+  const estadosMostrables = estados.filter(
+    (e) => normalizeEstadoReserva(e.nombre) !== "rechazada"
+  );
+  const currentIndex = estadosMostrables.findIndex(
+    (e) => e.nombre.toLowerCase() === estadoActual.toLowerCase()
+  );
+  const current = estadosMostrables[Math.max(currentIndex, 0)];
   const currentColors = getEstadoReservaTheme(current?.nombre).hex;
-  const pct = estados.length > 1 ? (Math.max(currentIndex, 0) / (estados.length - 1)) * 100 : 0;
+  const pct = estadosMostrables.length > 1 ? (Math.max(currentIndex, 0) / (estadosMostrables.length - 1)) * 100 : 0;
 
-  if (!estados.length) return null;
+  if (!estadosMostrables.length) return null;
 
   return (
     <div
@@ -76,7 +81,7 @@ export default function EstadoSlider({
       <div style={{ position: "relative", paddingBottom: 4 }}>
         {/* Dots */}
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-          {estados.map((e, i) => (
+          {estadosMostrables.map((e, i) => (
             <button
               key={e.idEstadoReserva}
               onClick={() => !loading && onChange?.(e.nombre.toLowerCase())}
@@ -128,7 +133,7 @@ export default function EstadoSlider({
 
         {/* Labels */}
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-          {estados.map((e, i) => (
+          {estadosMostrables.map((e, i) => (
             <span
               key={e.idEstadoReserva}
               onClick={() => !loading && onChange?.(e.nombre.toLowerCase())}

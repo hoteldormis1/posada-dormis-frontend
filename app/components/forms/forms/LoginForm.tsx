@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { loginUser, refreshSession } from "@/lib/store/utils/user/userSlice";
 import type { AppDispatch, RootState } from "@/lib/store/store";
 import { useToastAlert } from "@/hooks/useToastAlert";
-import { setAuthToken } from "@/lib/store/useAuthToken";
-import InputForm from "../formComponents/InputForm";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { loginSchema } from "@/utils/validations/authSchema";
 
 const LoginForm = () => {
@@ -18,8 +17,8 @@ const LoginForm = () => {
 
 	const [email, setEmail] = useState("");
 	const [clave, setClave] = useState("");
+	const [showPass, setShowPass] = useState(false);
 	const [errors, setErrors] = useState<{ email?: string; clave?: string }>({});
-	const [submitting, setSubmitting] = useState(false);
 
 	const { loading } = useAppSelector((state: RootState) => state.user);
 
@@ -43,7 +42,6 @@ const LoginForm = () => {
 		setErrors({});
 	  
 		try {
-		  setSubmitting(true);
 		  await dispatch(loginUser({ email, clave })).unwrap();
 	  
 		  await dispatch(refreshSession()).unwrap();
@@ -54,63 +52,67 @@ const LoginForm = () => {
 		  const msg = typeof err === "string" ? err : "Error desconocido al iniciar sesión";
 		  errorToast(msg);
 		} finally {
-		  setSubmitting(false);
 		}
 	  };
 
 	return (
-		<form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 ">
-			<InputForm
-				inputKey="email"
-				InputForm="email"
-				placeholder="usuario@ejemplo.com"
-				value={email}
-				onChange={(e) => {
-					setEmail(e.target.value);
-					if (errors.email) setErrors({ ...errors, email: undefined });
-				}}
-				labelStyles="text-white"
-				error={errors.email}
-			>
-				Correo electrónico
-			</InputForm>
-
-			<InputForm
-				inputKey="password"
-				InputForm="password"
-				placeholder="********"
-				value={clave}
-				onChange={(e) => {
-					setClave(e.target.value);
-					if (errors.clave) setErrors({ ...errors, clave: undefined });
-				}}
-				labelStyles="text-white"
-				error={errors.clave}
-			>
-				Contraseña
-			</InputForm>
-
-			<div className="flex items-center justify-between gap-4 pt-4">
-				<button
-					type="submit"
-					disabled={loading}
-					className={`w-1/3 text-center text-white py-2 px-4 rounded transition duration-200 ${
-						loading
-							? "bg-gray-400 cursor-not-allowed"
-							: "bg-[#43AC6A] hover:bg-[#369658]"
-					}`}
-				>
-					{loading ? "Accediendo..." : "Acceder"}
-				</button>
-
-				<button
-					type="button"
-					onClick={() => router.push("/olvidarContrasena")}
-					className="text-sm underline hover:text-gray-300 transition-colors"
-				>
-					Olvidé mi contraseña
-				</button>
+		<form onSubmit={handleSubmit} className="w-full space-y-4">
+			<div>
+				<label htmlFor="email" className="login-field-label">Correo electrónico</label>
+				<input
+					id="email"
+					name="email"
+					type="email"
+					placeholder="usuario@ejemplo.com"
+					value={email}
+					onChange={(e) => {
+						setEmail(e.target.value);
+						if (errors.email) setErrors({ ...errors, email: undefined });
+					}}
+					className="login-field-input"
+				/>
+				{errors.email && <p className="text-red-300 text-xs mt-1.5">{errors.email}</p>}
 			</div>
+
+			<div>
+				<div className="flex items-center justify-between mb-1.5">
+					<label htmlFor="password" className="login-field-label !mb-0">Contraseña</label>
+					<button
+						type="button"
+						onClick={() => router.push("/olvidarContrasena")}
+						className="text-[11.5px] text-emerald-300 hover:opacity-80 transition"
+					>
+						¿Olvidaste tu contraseña?
+					</button>
+				</div>
+				<div className="relative">
+					<input
+						id="password"
+						name="password"
+						type={showPass ? "text" : "password"}
+						placeholder="••••••••"
+						value={clave}
+						onChange={(e) => {
+							setClave(e.target.value);
+							if (errors.clave) setErrors({ ...errors, clave: undefined });
+						}}
+						className="login-field-input pr-11"
+					/>
+					<button
+						type="button"
+						onClick={() => setShowPass((s) => !s)}
+						className="absolute inset-y-0 right-3 flex items-center text-white/50 hover:text-white/80"
+						aria-label={showPass ? "Ocultar contraseña" : "Mostrar contraseña"}
+					>
+						{showPass ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+					</button>
+				</div>
+				{errors.clave && <p className="text-red-300 text-xs mt-1.5">{errors.clave}</p>}
+			</div>
+
+			<button type="submit" disabled={loading} className="login-cta mt-2">
+				{loading ? "Accediendo..." : "Acceder al sistema →"}
+			</button>
 		</form>
 	);
 };

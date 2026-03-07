@@ -25,6 +25,7 @@ import { EstadoReserva } from "@/models/types";
 import FormRenderer from "@/components/reservas/FormRenderer";
 import { useHuespedFormLogic } from "@/hooks/useHuespedFormLogic";
 import DetallesReservaPopup from "@/components/ui/calendario/DetallesReservaPopup";
+import EstadoSlider from "@/components/ui/calendario/EstadoSlider";
 
 export default function CalendarioPage() {
   const dispatch: AppDispatch = useAppDispatch();
@@ -155,6 +156,22 @@ export default function CalendarioPage() {
       return field;
     });
   }, [habitacionesOrdenadas, EstadoReservas, huespedesOpts]);
+  const inputOptionsSinEstado = useMemo(
+    () => inputOptions.filter((field) => field.key !== "idEstadoReserva"),
+    [inputOptions]
+  );
+  const estadoPendienteId = useMemo(() => {
+    const pendiente = (EstadoReservas ?? []).find(
+      (e: any) => String(e?.nombre || "").toLowerCase() === "pendiente"
+    );
+    return pendiente?.idEstadoReserva ?? "";
+  }, [EstadoReservas]);
+  const estadoActualNombre = useMemo(() => {
+    const estado = (EstadoReservas ?? []).find(
+      (e: any) => Number(e?.idEstadoReserva) === Number(formData?.idEstadoReserva)
+    );
+    return String(estado?.nombre || "");
+  }, [EstadoReservas, formData?.idEstadoReserva]);
 
   // ✅ custom fields (Origen, MontoPagado)
   const customFields = useMemo(() => {
@@ -251,7 +268,7 @@ export default function CalendarioPage() {
       idHabitacion: habitacionSeleccionada?.idHabitacion || range.roomId,
       fechaDesde: formatToDDMMYYYY(range.start),
       fechaHasta: formatToDDMMYYYY(range.end),
-      idEstadoReserva: "",
+      idEstadoReserva: estadoPendienteId,
       montoPagado: "",
       // Campos de huésped
       nombre: "",
@@ -267,7 +284,7 @@ export default function CalendarioPage() {
     setFormData(newFormData);
     setSelectedRange(range);
     setShowAddPopup(true);
-  }, [habitacionesOrdenadas]);
+  }, [habitacionesOrdenadas, estadoPendienteId]);
 
   // 💾 Función para guardar nueva reserva
   const onSaveAdd = useCallback(async (formData: Record<string, unknown>) => {
@@ -380,7 +397,7 @@ export default function CalendarioPage() {
                 {/* Contenido del formulario */}
                 <div className="flex-1 overflow-auto pr-1 pb-20">
                   <FormRenderer
-                    fields={inputOptions}
+                    fields={inputOptionsSinEstado}
                     formData={formData}
                     onChange={(e) => {
                       const { name, value } = e.target;
@@ -448,6 +465,36 @@ export default function CalendarioPage() {
                     mode="add"
                     customFields={customFields}
                   />
+                  {/* Estado con slider (reemplaza el select de estado para calendario) */}
+                  <div className="mt-5">
+                    <EstadoSlider
+                      estadoActual={estadoActualNombre}
+                      estados={(EstadoReservas ?? []).filter(
+                        (e: any) => String(e?.nombre || "").toLowerCase() !== "rechazada"
+                      )}
+                      onChange={(estadoNombre) => {
+                        const estadoDestino = (EstadoReservas ?? []).find(
+                          (e: any) =>
+                            String(e?.nombre || "").toLowerCase() === String(estadoNombre).toLowerCase()
+                        );
+                        if (!estadoDestino?.idEstadoReserva) return;
+                        setFormData((prev) => ({
+                          ...prev,
+                          idEstadoReserva: Number(estadoDestino.idEstadoReserva),
+                        }));
+                        if (errors.idEstadoReserva) {
+                          setErrors((prev) => {
+                            const next = { ...prev };
+                            delete next.idEstadoReserva;
+                            return next;
+                          });
+                        }
+                      }}
+                    />
+                    {errors.idEstadoReserva && (
+                      <p className="text-red-500 text-xs mt-2">{errors.idEstadoReserva}</p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Footer con botones */}
