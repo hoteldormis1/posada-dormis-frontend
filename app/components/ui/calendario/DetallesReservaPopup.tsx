@@ -3,15 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { PopupContainer } from "@/components";
 import { Booking } from "./Calendario";
-import { useAppDispatch } from "@/lib/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import {
-  checkinReserva,
-  checkoutReserva,
-  confirmarReserva,
-  cancelarReserva,
   editReserva,
 } from "@/lib/store/utils/reservas/reservasSlice";
-import { AppDispatch } from "@/lib/store/store";
+import { AppDispatch, RootState } from "@/lib/store/store";
+import EstadoSlider from "./EstadoSlider";
 
 const parseD = (d: string | Date): Date => {
   const x = d instanceof Date ? d : new Date(d + (d.toString().length === 10 ? "T00:00:00" : ""));
@@ -35,9 +32,16 @@ interface DetallesReservaPopupProps {
 
 export default function DetallesReservaPopup({ booking, roomName, onClose, onStatusChange }: DetallesReservaPopupProps) {
   const dispatch: AppDispatch = useAppDispatch();
-  const [actionLoading, setActionLoading] = useState(false);
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const estadosDeReserva = useAppSelector((s: RootState) => (s.habitaciones as any).estadosDeReserva ?? []);
+  const [estadoLocal, setEstadoLocal] = useState<string>("");
+  const [estadoLoading, setEstadoLoading] = useState(false);
+  const [estadoError, setEstadoError] = useState<string | null>(null);
+  const [estadoSuccess, setEstadoSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!booking) return;
+    setEstadoLocal(booking.status?.toLowerCase() || "");
+  }, [booking?.id, booking?.status]);
 
   // Estado para editar pago
   const [showEditPago, setShowEditPago] = useState(false);
@@ -86,41 +90,49 @@ export default function DetallesReservaPopup({ booking, roomName, onClose, onSta
   const endDate = parseD(booking.end);
   const noches = diffNoches(startDate, endDate);
 
-  const statusStyles: Record<string, { label: string; color: string }> = {
-    pendiente: { label: "Pendiente", color: "bg-yellow-500" },
-    confirmada: { label: "Confirmada", color: "bg-blue-300" },
-    checkin: { label: "Check-in", color: "bg-green-600" },
-    checkout: { label: "Check-out", color: "bg-indigo-500" },
-    cancelada: { label: "Cancelada", color: "bg-red-500" },
+  const ESTADO_DOT: Record<string, string> = {
+    pendiente:  "bg-yellow-400",
+    confirmada: "bg-blue-400",
+    checkin:    "bg-green-500",
+    checkout:   "bg-indigo-400",
+    cancelada:  "bg-red-400",
+  };
+  const ESTADO_LABEL: Record<string, string> = {
+    pendiente:  "Pendiente",
+    confirmada: "Confirmada",
+    checkin:    "Check-in",
+    checkout:   "Check-out",
+    cancelada:  "Cancelada",
   };
 
-  const statusKey = booking.status?.toLowerCase() || "";
-  const statusInfo = statusStyles[statusKey] || {
-    label: booking.status || "Sin estado",
-    color: "bg-gray-500",
-  };
-
-  const handleAction = async (
-    action: (id: string) => any,
-    successMsg: string,
-    errorMsg: string
-  ) => {
-    setActionLoading(true);
-    setActionError(null);
-    setActionSuccess(null);
+  const handleSetEstado = async (nuevoEstado: string) => {
+    if (nuevoEstado === estadoLocal || estadoLoading) return;
+    setEstadoLoading(true);
+    setEstadoError(null);
+    setEstadoSuccess(null);
     try {
-      await dispatch(action(String(booking.id))).unwrap();
-      setActionSuccess(successMsg);
+      const estadoDestino = (estadosDeReserva as any[]).find(
+        (e) => String(e?.nombre || "").toLowerCase() === nuevoEstado.toLowerCase()
+      );
+      if (!estadoDestino?.idEstadoReserva) {
+        throw new Error("No se encontró el estado destino en la API.");
+      }
+      await dispatch(
+        editReserva({
+          id: String(booking.id),
+          idEstadoReserva: Number(estadoDestino.idEstadoReserva),
+        })
+      ).unwrap();
+      setEstadoLocal(nuevoEstado);
+      setEstadoSuccess(`Estado cambiado a "${nuevoEstado}"`);
       onStatusChange?.();
-      setTimeout(onClose, 1200);
+      setTimeout(() => setEstadoSuccess(null), 2000);
     } catch (err: any) {
-      setActionError(typeof err === "string" ? err : errorMsg);
+      setEstadoError(typeof err === "string" ? err : "Error al cambiar el estado.");
     } finally {
-      setActionLoading(false);
+      setEstadoLoading(false);
     }
   };
-
-  const showActions = statusKey !== "checkout" && statusKey !== "cancelada";
 
   return (
     <PopupContainer onClose={onClose} title="Detalles de la Reserva">
@@ -154,8 +166,8 @@ export default function DetallesReservaPopup({ booking, roomName, onClose, onSta
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">Estado</h3>
             <div className="flex items-center gap-2">
-              <span className={`w-3 h-3 rounded-full ${statusInfo.color}`}></span>
-              <p className="text-lg font-medium text-gray-900">{statusInfo.label}</p>
+              <span className={`w-3 h-3 rounded-full ${ESTADO_DOT[estadoLocal] ?? "bg-gray-400"}`}></span>
+              <p className="text-lg font-medium text-gray-900">{ESTADO_LABEL[estadoLocal] ?? estadoLocal}</p>
             </div>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
@@ -270,65 +282,17 @@ export default function DetallesReservaPopup({ booking, roomName, onClose, onSta
           <p className="text-sm text-gray-600">#{booking.id}</p>
         </div>
 
-        {/* Acciones */}
-        {showActions && (
-          <div className="border-t pt-4 space-y-3">
-            {actionError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
-                {actionError}
-              </div>
-            )}
-            {actionSuccess && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-sm">
-                {actionSuccess}
-              </div>
-            )}
-
-            <div className="flex flex-col gap-3">
-              {/* Botón principal según estado */}
-              <div className="flex gap-3">
-                {statusKey === "pendiente" && (
-                  <button
-                    disabled={actionLoading}
-                    onClick={() => handleAction(confirmarReserva, "Reserva confirmada correctamente", "Error al confirmar la reserva")}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-all disabled:opacity-50"
-                  >
-                    {actionLoading ? "Procesando..." : "Confirmar Reserva"}
-                  </button>
-                )}
-
-                {(statusKey === "pendiente" || statusKey === "confirmada") && (
-                  <button
-                    disabled={actionLoading}
-                    onClick={() => handleAction(checkinReserva, "Check-in registrado correctamente", "Error al registrar check-in")}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-all disabled:opacity-50"
-                  >
-                    {actionLoading ? "Procesando..." : "Registrar Check-in"}
-                  </button>
-                )}
-
-                {statusKey === "checkin" && (
-                  <button
-                    disabled={actionLoading}
-                    onClick={() => handleAction(checkoutReserva, "Check-out registrado correctamente", "Error al registrar check-out")}
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-all disabled:opacity-50"
-                  >
-                    {actionLoading ? "Procesando..." : "Registrar Check-out"}
-                  </button>
-                )}
-              </div>
-
-              {/* Botón cancelar (siempre disponible si no está cancelada o checkout) */}
-              <button
-                disabled={actionLoading}
-                onClick={() => handleAction(cancelarReserva, "Reserva cancelada", "Error al cancelar la reserva")}
-                className="w-full bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2.5 px-4 rounded-lg transition-all disabled:opacity-50 border border-red-300"
-              >
-                {actionLoading ? "Procesando..." : "Cancelar Reserva"}
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Slider de estado */}
+        <div className="border-t pt-4">
+          <EstadoSlider
+            estadoActual={estadoLocal}
+            estados={estadosDeReserva}
+            onChange={handleSetEstado}
+            loading={estadoLoading}
+            error={estadoError}
+            success={estadoSuccess}
+          />
+        </div>
       </div>
     </PopupContainer>
   );
