@@ -3,9 +3,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
-import { fetchContableResumen } from "@/lib/store/utils";
+import { fetchContableResumen, fetchDashboardSummary } from "@/lib/store/utils";
 import { StateStatus } from "@/models/types";
-import { LoadingSpinner } from "@/components";
+import { LoadingSpinner, GraficoCantidadDeReservas, GraficoPie } from "@/components";
 import PresetTabs from "@/components/ui/uiComponents/Dashboard/FiltroFechas/PresetTabs";
 import {
   type Preset,
@@ -128,6 +128,10 @@ const ContablePage: React.FC = () => {
   const { resumen, statusResumen, errorResumen } = useAppSelector(
     (state: RootState) => state.contable
   );
+  // Telemetría de ventas (ingresos + reservas) desde el endpoint del dashboard
+  const teleVentas = useAppSelector(
+    (state: RootState) => state.dashboards?.datos?.totals?.telemetria?.ventas ?? []
+  );
 
   // Preset activo — default "MES"
   const [preset, setPreset] = useState<Preset>("MES");
@@ -136,26 +140,31 @@ const ContablePage: React.FC = () => {
   const [fromUI, setFromUI] = useState(() => getRangeFromPreset("MES").fromUI);
   const [toUI, setToUI] = useState(() => getRangeFromPreset("MES").toUI);
 
+  /** Despacha ambos fetches con el mismo rango */
+  const fetchAmbos = (fromISO: string, toISO: string) => {
+    dispatch(fetchContableResumen({ from: fromISO, to: toISO }));
+    dispatch(fetchDashboardSummary({ from: fromISO, to: toISO, agruparPor: "day" }));
+  };
+
   // Fetch inicial con rango del mes actual
   useEffect(() => {
     const { fromISO, toISO } = getRangeFromPreset("MES");
-    dispatch(fetchContableResumen({ from: fromISO, to: toISO }));
+    fetchAmbos(fromISO, toISO);
   }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handler de preset
   const handlePreset = (p: Preset) => {
     setPreset(p);
     if (p === "PERSONALIZADO") {
-      // Poner inicio/fin del mes actual como default en los inputs
       const { fromUI: fUI, toUI: tUI } = getRangeFromPreset("MES");
       setFromUI(fUI);
       setToUI(tUI);
-      return; // no fetchear, espera al botón
+      return;
     }
     const { fromISO, toISO, fromUI: fUI, toUI: tUI } = getRangeFromPreset(p);
     setFromUI(fUI);
     setToUI(tUI);
-    dispatch(fetchContableResumen({ from: fromISO, to: toISO }));
+    fetchAmbos(fromISO, toISO);
   };
 
   // Handler del input dd/mm/yyyy
@@ -169,12 +178,31 @@ const ContablePage: React.FC = () => {
     const fromISO = ddmmToISO(fromUI);
     const toISO = ddmmToISO(toUI);
     if (!fromISO || !toISO) return;
-    dispatch(fetchContableResumen({ from: fromISO, to: toISO }));
+    fetchAmbos(fromISO, toISO);
   };
 
-  // Datos
+  // Datos contables
   const estados = useMemo(() => resumen?.estados ?? [], [resumen]);
   const totalGeneral = resumen?.totalGeneral;
+  const labelsEstados = useMemo(
+    () => estados.map((e) => e.nombre.charAt(0).toUpperCase() + e.nombre.slice(1)),
+    [estados]
+  );
+  const cantidadPorEstado = useMemo(() => estados.map((e) => e.cantidad), [estados]);
+
+  // Datos para el gráfico de ingresos por fecha (del endpoint /dashboards/summary)
+  const fallbackLabel = (iso: string) => {
+    const d = new Date(iso);
+    return `${d.getUTCDate()}/${d.getUTCMonth() + 1}`;
+  };
+  const ingresosPorFechaData = useMemo(
+    () =>
+      teleVentas.map((p: { bucket: string; label?: string; sum: number }) => ({
+        label: p.label || fallbackLabel(p.bucket),
+        value: p.sum,
+      })),
+    [teleVentas]
+  );
 
   return (
     <div className="bg-background w-full min-h-full overflow-auto pb-20">
@@ -280,6 +308,56 @@ const ContablePage: React.FC = () => {
                   <p className="text-xs text-orange-600 font-medium mt-1">Saldo Pendiente</p>
                 </div>
               </div>
+            </div>
+
+            
+
+            {/* Graficos contables */}
+            <div className="grid grid-cols-1 md:grid-cols-2  gap-4 pt-2 w-full bg-white/70 shadow-md rounded-xl p-6 mb-8">
+              <div className="gap-8">
+                <div className="flex flex-col p-6 border border-gray-300 shadow-md h-[400px] bg-white">
+                  <label className="text-2xl font-semibold">Reservas por estado</label>
+                  <div className="mt-4 flex-1 flex items-center justify-center">
+                    {estados.length > 0 ? (
+                      <div className="w-full max-w-xs">
+                        <GraficoPie
+                          labels={labelsEstados}
+                          data={cantidadPorEstado}
+                          title=""
+                          backgroundColors={[
+                            "rgba(245, 158, 11, 0.7)",
+                            "rgba(16, 185, 129, 0.7)",
+                            "rgba(239, 68, 68, 0.7)",
+                            "rgba(59, 130, 246, 0.7)",
+                            "rgba(139, 92, 246, 0.7)",
+                            "rgba(107, 114, 128, 0.7)",
+                          ]}
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-sm text-gray-500">Sin datos en el rango seleccionado.</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+                <div className="flex flex-col p-6 border border-gray-300 shadow-md h-[400px] bg-white">
+                  <label className="text-2xl font-semibold">Ingresos por fecha</label>
+                  <div className="mt-4 flex-1">
+                    {ingresosPorFechaData.length > 0 ? (
+                      <GraficoCantidadDeReservas
+                        data={ingresosPorFechaData}
+                        className="h-full"
+                        color="#10b981"
+                        datasetLabel="Ingresos"
+                        yType="money"
+                      />
+                    ) : (
+                      <div className="text-sm text-gray-500">Sin datos en el rango seleccionado.</div>
+                    )}
+                  </div>
+                </div>
+              
             </div>
 
             {/* Tarjetas por estado */}

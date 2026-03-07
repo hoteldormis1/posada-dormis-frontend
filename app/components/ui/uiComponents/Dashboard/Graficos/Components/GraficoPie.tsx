@@ -15,6 +15,7 @@ type GraficoPieProps = {
   data: number[];
   title?: string;
   backgroundColors?: string[];
+  height?: number;
 };
 
 export default function GraficoPie({

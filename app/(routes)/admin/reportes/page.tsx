@@ -3,9 +3,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
-import { fetchContableExportar } from "@/lib/store/utils";
+import { fetchContableExportar, fetchDashboardSummary } from "@/lib/store/utils";
+import { fetchContableOcupacion } from "@/lib/store/utils/contable/contableSlice";
 import { StateStatus } from "@/models/types";
-import { LoadingSpinner } from "@/components";
+import { LoadingSpinner, GraficoCantidadDeReservas } from "@/components";
 import PresetTabs from "@/components/ui/uiComponents/Dashboard/FiltroFechas/PresetTabs";
 import {
   type Preset,
@@ -27,6 +28,7 @@ import {
   FaFilter,
   FaDownload,
   FaTable,
+  FaChartBar,
 } from "react-icons/fa";
 import type { ReservaExportable } from "@/lib/store/utils/contable/contableSlice";
 
@@ -113,8 +115,11 @@ const getRangeFromPreset = (preset: Preset) => {
 
 const ReportesPage: React.FC = () => {
   const dispatch = useAppDispatch<AppDispatch>();
-  const { exportData, statusExport, errorExport } = useAppSelector(
+  const { exportData, statusExport, errorExport, ocupacion } = useAppSelector(
     (state: RootState) => state.contable
+  );
+  const teleReservas = useAppSelector(
+    (state: RootState) => state.dashboards?.datos?.totals?.telemetria?.reservas ?? []
   );
 
   // Preset activo — default "MES"
@@ -129,10 +134,17 @@ const ReportesPage: React.FC = () => {
   const currentFromISO = ddmmToISO(fromUI) || getRangeFromPreset("MES").fromISO;
   const currentToISO = ddmmToISO(toUI) || getRangeFromPreset("MES").toISO;
 
+  /** Despacha los tres fetches en simultáneo */
+  const fetchTodos = (fromISO: string, toISO: string, estadoFiltro?: string) => {
+    dispatch(fetchContableExportar({ from: fromISO, to: toISO, ...(estadoFiltro ? { estado: estadoFiltro } : {}) }));
+    dispatch(fetchDashboardSummary({ from: fromISO, to: toISO, agruparPor: "day" }));
+    dispatch(fetchContableOcupacion({ from: fromISO, to: toISO }));
+  };
+
   // Fetch inicial con rango del mes actual
   useEffect(() => {
     const { fromISO, toISO } = getRangeFromPreset("MES");
-    dispatch(fetchContableExportar({ from: fromISO, to: toISO }));
+    fetchTodos(fromISO, toISO);
   }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handler de preset
@@ -147,7 +159,7 @@ const ReportesPage: React.FC = () => {
     const { fromISO, toISO, fromUI: fUI, toUI: tUI } = getRangeFromPreset(p);
     setFromUI(fUI);
     setToUI(tUI);
-    dispatch(fetchContableExportar({ from: fromISO, to: toISO, ...(estado ? { estado } : {}) }));
+    fetchTodos(fromISO, toISO, estado || undefined);
   };
 
   // Handler del input dd/mm/yyyy
@@ -161,13 +173,7 @@ const ReportesPage: React.FC = () => {
     const fromISO = ddmmToISO(fromUI);
     const toISO = ddmmToISO(toUI);
     if (!fromISO || !toISO) return;
-    dispatch(
-      fetchContableExportar({
-        from: fromISO,
-        to: toISO,
-        ...(estado ? { estado } : {}),
-      })
-    );
+    fetchTodos(fromISO, toISO, estado || undefined);
   };
 
   // Preparar datos con formatos de texto para export
@@ -194,6 +200,30 @@ const ReportesPage: React.FC = () => {
       saldoPendiente: reservas.reduce((acc, r) => acc + r.saldoPendiente, 0),
     };
   }, [exportData]);
+
+  // Datos para gráficos
+  const fallbackLabel = (iso: string) => {
+    const d = new Date(iso);
+    return `${d.getUTCDate()}/${d.getUTCMonth() + 1}`;
+  };
+
+  const reservasPorFechaData = useMemo(
+    () =>
+      teleReservas.map((p: { bucket: string; label?: string; count: number }) => ({
+        label: p.label || fallbackLabel(p.bucket),
+        value: p.count,
+      })),
+    [teleReservas]
+  );
+
+  const ocupacionPorFechaData = useMemo(
+    () =>
+      (ocupacion?.serie ?? []).map((p) => ({
+        label: fallbackLabel(p.fecha + "T00:00:00Z"),
+        value: p.porcentaje,
+      })),
+    [ocupacion]
+  );
 
   // Handlers de exportación
   const estadoLabel = estado ? ESTADOS_OPCIONES.find((e) => e.value === estado)?.label : "Todos";
@@ -289,13 +319,7 @@ const ReportesPage: React.FC = () => {
                 onChange={(e) => {
                   const nuevoEstado = e.target.value;
                   setEstado(nuevoEstado);
-                  dispatch(
-                    fetchContableExportar({
-                      from: currentFromISO,
-                      to: currentToISO,
-                      ...(nuevoEstado ? { estado: nuevoEstado } : {}),
-                    })
-                  );
+                  fetchTodos(currentFromISO, currentToISO, nuevoEstado || undefined);
                 }}
                 className="block w-full text-sm rounded-lg bg-gray-50 border-2 border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               >
@@ -308,6 +332,59 @@ const ReportesPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Gráficos */}
+        {(reservasPorFechaData.length > 0 || ocupacionPorFechaData.length > 0) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {/* Reservas por fecha */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <FaChartBar className="text-blue-500" size={16} />
+                <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                  Reservas por fecha
+                </h2>
+              </div>
+              <div className="h-[260px]">
+                {reservasPorFechaData.length > 0 ? (
+                  <GraficoCantidadDeReservas
+                    data={reservasPorFechaData}
+                    className="h-full"
+                    color="#3b82f6"
+                    datasetLabel="Reservas"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-sm text-gray-400">
+                    Sin datos en el rango seleccionado
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Ocupación por fecha */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <FaChartBar className="text-violet-500" size={16} />
+                <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                  Ocupación de habitaciones (%)
+                </h2>
+              </div>
+              <div className="h-[260px]">
+                {ocupacionPorFechaData.length > 0 ? (
+                  <GraficoCantidadDeReservas
+                    data={ocupacionPorFechaData}
+                    className="h-full"
+                    color="#8b5cf6"
+                    datasetLabel="Ocupación %"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-sm text-gray-400">
+                    Sin datos en el rango seleccionado
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Loading / Error */}
         {statusExport === StateStatus.loading && (
