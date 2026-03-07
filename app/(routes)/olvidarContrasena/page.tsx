@@ -28,7 +28,7 @@ const OlvidarContrasena = () => {
         setLoading(true);
 
         try {
-            const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
+            const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
             
             const response = await fetch(`${baseURL}/auth/password-reset/request`, {
                 method: 'POST',
