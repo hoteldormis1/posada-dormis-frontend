@@ -2,6 +2,7 @@
 
 
 import React, { useState } from 'react';
+import { ESTADOS_RESERVA_FLUJO, getEstadoReservaTheme, normalizeEstadoReserva } from '@/utils/helpers/reservaEstado';
 
 export interface EstadoReserva {
   id: number;
@@ -18,9 +19,6 @@ interface EstadoReservaSelectorProps {
   className?: string;
 }
 
-// Estados predefinidos en orden de flujo
-const ESTADOS_FLUJO = ['pendiente', 'confirmada', 'checkin', 'checkout'];
-
 export default function EstadoReservaSelector({
   estadoActual,
   estados,
@@ -34,9 +32,9 @@ export default function EstadoReservaSelector({
   const estadoActualObj = estados.find(e => e.nombre === estadoActual);
   
   // Encontrar el siguiente estado en el flujo
-  const indiceActual = ESTADOS_FLUJO.indexOf(estadoActual);
-  const siguienteEstado = indiceActual >= 0 && indiceActual < ESTADOS_FLUJO.length - 1 
-    ? ESTADOS_FLUJO[indiceActual + 1] 
+  const indiceActual = ESTADOS_RESERVA_FLUJO.indexOf(normalizeEstadoReserva(estadoActual));
+  const siguienteEstado = indiceActual >= 0 && indiceActual < ESTADOS_RESERVA_FLUJO.length - 1 
+    ? ESTADOS_RESERVA_FLUJO[indiceActual + 1] 
     : null;
 
   const handleSiguienteEstado = () => {
@@ -48,18 +46,6 @@ export default function EstadoReservaSelector({
   const handleEstadoSeleccionado = (estado: string) => {
     onEstadoChange(estado);
     setIsOpen(false);
-  };
-
-  // Estilos de estado
-  const getEstadoStyle = (nombre: string) => {
-    const styles = {
-      pendiente: "bg-yellow-500 text-white border border-yellow-600",
-      confirmada: "bg-blue-600 text-white border border-blue-700", 
-      checkin: "bg-green-600 text-white border border-green-700",
-      checkout: "bg-indigo-500 text-white border border-indigo-600",
-      cancelada: "bg-red-500 text-white border border-red-600",
-    };
-    return styles[nombre as keyof typeof styles] || "bg-gray-500 text-white border border-gray-600";
   };
 
   return (
@@ -100,7 +86,7 @@ export default function EstadoReservaSelector({
                 e.stopPropagation();
                 handleEstadoSeleccionado(estado.nombre);
               }}
-              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 ${getEstadoStyle(estado.nombre)} ${
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 ${getEstadoReservaTheme(estado.nombre).tw.badgeSolid} ${
                 estado.nombre === estadoActual ? 'font-semibold ring-2 ring-blue-300' : ''
               }`}
               title={estado.descripcion}

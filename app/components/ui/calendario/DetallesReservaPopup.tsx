@@ -9,6 +9,7 @@ import {
 } from "@/lib/store/utils/reservas/reservasSlice";
 import { AppDispatch, RootState } from "@/lib/store/store";
 import EstadoSlider from "./EstadoSlider";
+import { getEstadoReservaLabel, getEstadoReservaTheme } from "@/utils/helpers/reservaEstado";
 
 const parseD = (d: string | Date): Date => {
   const x = d instanceof Date ? d : new Date(d + (d.toString().length === 10 ? "T00:00:00" : ""));
@@ -90,21 +91,6 @@ export default function DetallesReservaPopup({ booking, roomName, onClose, onSta
   const endDate = parseD(booking.end);
   const noches = diffNoches(startDate, endDate);
 
-  const ESTADO_DOT: Record<string, string> = {
-    pendiente:  "bg-yellow-400",
-    confirmada: "bg-blue-400",
-    checkin:    "bg-green-500",
-    checkout:   "bg-indigo-400",
-    cancelada:  "bg-red-400",
-  };
-  const ESTADO_LABEL: Record<string, string> = {
-    pendiente:  "Pendiente",
-    confirmada: "Confirmada",
-    checkin:    "Check-in",
-    checkout:   "Check-out",
-    cancelada:  "Cancelada",
-  };
-
   const handleSetEstado = async (nuevoEstado: string) => {
     if (nuevoEstado === estadoLocal || estadoLoading) return;
     setEstadoLoading(true);
@@ -166,8 +152,8 @@ export default function DetallesReservaPopup({ booking, roomName, onClose, onSta
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">Estado</h3>
             <div className="flex items-center gap-2">
-              <span className={`w-3 h-3 rounded-full ${ESTADO_DOT[estadoLocal] ?? "bg-gray-400"}`}></span>
-              <p className="text-lg font-medium text-gray-900">{ESTADO_LABEL[estadoLocal] ?? estadoLocal}</p>
+              <span className={`w-3 h-3 rounded-full ${getEstadoReservaTheme(estadoLocal).tw.dot}`}></span>
+              <p className="text-lg font-medium text-gray-900">{getEstadoReservaLabel(estadoLocal)}</p>
             </div>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">

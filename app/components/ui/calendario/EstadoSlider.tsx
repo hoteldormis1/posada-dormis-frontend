@@ -1,15 +1,6 @@
 "use client";
 
-// Paleta de colores por nombre de estado (extensible)
-const COLOR_MAP: Record<string, { color: string; accent: string; bg: string }> = {
-  pendiente:  { color: "#eab308", accent: "#a16207", bg: "#fefce8" },
-  confirmada: { color: "#3b82f6", accent: "#1d4ed8", bg: "#eff6ff" },
-  checkin:    { color: "#22c55e", accent: "#15803d", bg: "#f0fdf4" },
-  checkout:   { color: "#6366f1", accent: "#4338ca", bg: "#eef2ff" },
-  cancelada:  { color: "#ef4444", accent: "#b91c1c", bg: "#fef2f2" },
-};
-
-const DEFAULT_COLOR = { color: "#94a3b8", accent: "#475569", bg: "#f8fafc" };
+import { getEstadoReservaTheme } from "@/utils/helpers/reservaEstado";
 
 export interface EstadoReserva {
   idEstadoReserva: number;
@@ -37,7 +28,7 @@ export default function EstadoSlider({
 }: EstadoSliderProps) {
   const currentIndex = estados.findIndex(e => e.nombre.toLowerCase() === estadoActual.toLowerCase());
   const current = estados[Math.max(currentIndex, 0)];
-  const currentColors = current ? (COLOR_MAP[current.nombre.toLowerCase()] ?? DEFAULT_COLOR) : DEFAULT_COLOR;
+  const currentColors = getEstadoReservaTheme(current?.nombre).hex;
   const pct = estados.length > 1 ? (Math.max(currentIndex, 0) / (estados.length - 1)) * 100 : 0;
 
   if (!estados.length) return null;

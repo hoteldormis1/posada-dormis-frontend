@@ -22,6 +22,7 @@ import {
 } from "@/utils/helpers/date";
 import InputDateForm from "@/components/forms/formComponents/InputDateForm";
 import { exportarCSV, exportarPDF, ColumnaExport } from "@/utils/helpers/exportar";
+import { ESTADOS_RESERVA_OPCIONES, getEstadoReservaTheme } from "@/utils/helpers/reservaEstado";
 import {
   FaFileCsv,
   FaFilePdf,
@@ -65,15 +66,6 @@ const fmtDate = (iso: string) => {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 };
-
-const ESTADOS_OPCIONES = [
-  { value: "", label: "Todos los estados" },
-  { value: "pendiente", label: "Pendiente" },
-  { value: "confirmada", label: "Confirmada" },
-  { value: "cancelada", label: "Cancelada" },
-  { value: "checkin", label: "Check-in" },
-  { value: "checkout", label: "Check-out" },
-];
 
 /** Calcula from/to en ISO y dd/mm/yyyy a partir de un preset. */
 const getRangeFromPreset = (preset: Preset) => {
@@ -226,7 +218,7 @@ const ReportesPage: React.FC = () => {
   );
 
   // Handlers de exportación
-  const estadoLabel = estado ? ESTADOS_OPCIONES.find((e) => e.value === estado)?.label : "Todos";
+  const estadoLabel = estado ? ESTADOS_RESERVA_OPCIONES.find((e) => e.value === estado)?.label : "Todos";
   const rangoLabel =
     exportData?.range
       ? `${fmtDate(exportData.range.from)} al ${fmtDate(exportData.range.to)}`
@@ -323,7 +315,7 @@ const ReportesPage: React.FC = () => {
                 }}
                 className="block w-full text-sm rounded-lg bg-gray-50 border-2 border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               >
-                {ESTADOS_OPCIONES.map((opt) => (
+                {ESTADOS_RESERVA_OPCIONES.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>
@@ -496,14 +488,7 @@ const ReportesPage: React.FC = () => {
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {datosFormateados.map((r) => {
-                        const estadoColor: Record<string, string> = {
-                          pendiente: "bg-amber-100 text-amber-700",
-                          confirmada: "bg-emerald-100 text-emerald-700",
-                          cancelada: "bg-red-100 text-red-700",
-                          checkin: "bg-blue-100 text-blue-700",
-                          checkout: "bg-violet-100 text-violet-700",
-                        };
-                        const badge = estadoColor[r.estado as string] ?? "bg-gray-100 text-gray-700";
+                        const badge = getEstadoReservaTheme(r.estado as string).tw.badgeSoft;
 
                         return (
                           <tr key={r.idReserva as number} className="hover:bg-gray-50 transition-colors">

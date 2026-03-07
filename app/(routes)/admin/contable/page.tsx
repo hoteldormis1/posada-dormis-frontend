@@ -29,50 +29,39 @@ import {
   FaSignOutAlt,
   FaChartBar,
 } from "react-icons/fa";
+import {
+  getEstadoReservaTheme,
+  normalizeEstadoReserva,
+  getEstadoReservaLabel,
+  getEstadoReservaChartColor,
+} from "@/utils/helpers/reservaEstado";
 
 // ─────────────────────────── Mapa de iconos/colores por estado ───────────────────────────
-
-const estadoConfig: Record<
-  string,
-  { icon: React.ReactNode; color: string; bg: string; border: string }
-> = {
-  pendiente: {
-    icon: <FaClock size={22} />,
-    color: "text-amber-600",
-    bg: "bg-amber-50",
-    border: "border-amber-200",
-  },
-  confirmada: {
-    icon: <FaCheckCircle size={22} />,
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
-  },
-  cancelada: {
-    icon: <FaTimesCircle size={22} />,
-    color: "text-red-600",
-    bg: "bg-red-50",
-    border: "border-red-200",
-  },
-  checkin: {
-    icon: <FaSignInAlt size={22} />,
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-    border: "border-blue-200",
-  },
-  checkout: {
-    icon: <FaSignOutAlt size={22} />,
-    color: "text-violet-600",
-    bg: "bg-violet-50",
-    border: "border-violet-200",
-  },
+const estadoIconMap: Record<string, React.ReactNode> = {
+  pendiente: <FaClock size={22} />,
+  confirmada: <FaCheckCircle size={22} />,
+  cancelada: <FaTimesCircle size={22} />,
+  checkin: <FaSignInAlt size={22} />,
+  checkout: <FaSignOutAlt size={22} />,
 };
 
-const defaultConfig = {
+const defaultConfig: { icon: React.ReactNode; color: string; bg: string; border: string } = {
   icon: <FaChartBar size={22} />,
   color: "text-gray-600",
   bg: "bg-gray-50",
   border: "border-gray-200",
+};
+
+const getEstadoConfig = (estadoNombre: string) => {
+  const key = normalizeEstadoReserva(estadoNombre);
+  const theme = getEstadoReservaTheme(estadoNombre);
+
+  return {
+    icon: estadoIconMap[key] ?? defaultConfig.icon,
+    color: theme.tw.text,
+    bg: theme.tw.bg,
+    border: theme.tw.border,
+  };
 };
 
 // ─────────────────────────── Helpers de formato ───────────────────────────
@@ -185,10 +174,14 @@ const ContablePage: React.FC = () => {
   const estados = useMemo(() => resumen?.estados ?? [], [resumen]);
   const totalGeneral = resumen?.totalGeneral;
   const labelsEstados = useMemo(
-    () => estados.map((e) => e.nombre.charAt(0).toUpperCase() + e.nombre.slice(1)),
+    () => estados.map((e) => getEstadoReservaLabel(e.nombre)),
     [estados]
   );
   const cantidadPorEstado = useMemo(() => estados.map((e) => e.cantidad), [estados]);
+  const coloresEstados = useMemo(
+    () => estados.map((e) => getEstadoReservaChartColor(e.nombre, 0.7)),
+    [estados]
+  );
 
   // Datos para el gráfico de ingresos por fecha (del endpoint /dashboards/summary)
   const fallbackLabel = (iso: string) => {
@@ -324,14 +317,7 @@ const ContablePage: React.FC = () => {
                           labels={labelsEstados}
                           data={cantidadPorEstado}
                           title=""
-                          backgroundColors={[
-                            "rgba(245, 158, 11, 0.7)",
-                            "rgba(16, 185, 129, 0.7)",
-                            "rgba(239, 68, 68, 0.7)",
-                            "rgba(59, 130, 246, 0.7)",
-                            "rgba(139, 92, 246, 0.7)",
-                            "rgba(107, 114, 128, 0.7)",
-                          ]}
+                          backgroundColors={coloresEstados}
                         />
                       </div>
                     ) : (
@@ -364,7 +350,7 @@ const ContablePage: React.FC = () => {
             <h2 className="text-lg font-bold text-gray-800 mb-4">Desglose por Estado</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
               {estados.map((estado) => {
-                const cfg = estadoConfig[estado.nombre] ?? defaultConfig;
+                const cfg = getEstadoConfig(estado.nombre);
                 return (
                   <div
                     key={estado.idEstadoReserva}
@@ -429,7 +415,7 @@ const ContablePage: React.FC = () => {
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {estados.map((estado) => {
-                      const cfg = estadoConfig[estado.nombre] ?? defaultConfig;
+                      const cfg = getEstadoConfig(estado.nombre);
                       return (
                         <tr key={estado.idEstadoReserva} className="hover:bg-gray-50 transition-colors">
                           <td className="px-5 py-3">

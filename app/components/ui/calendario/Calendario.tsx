@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useCallback, useState } from "react";
+import { getEstadoReservaTheme } from "@/utils/helpers/reservaEstado";
 
 /**
  * Calendario – estilo "Gantt" por habitación
@@ -62,18 +63,6 @@ const fmtLong = (d: Date) =>
 
 const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const diffDays = (a: Date, b: Date) => Math.round((parseD(b).getTime() - parseD(a).getTime()) / 86400000);
-
-// Estilos de estado
-const statusStyles = {
-  pendiente: "bg-yellow-500 text-white border border-yellow-600",
-  confirmada: "bg-blue-600 text-white border border-blue-700",
-  checkin: "bg-green-600 text-white border border-green-700",
-  checkout: "bg-indigo-500 text-white border border-indigo-600",
-  cancelada: "bg-red-500 text-white border border-red-600 line-through opacity-90",
-  unconfirmed: "bg-yellow-500 text-white border border-yellow-600",
-  confirmed: "bg-blue-600 text-white border border-blue-700",
-  paid: "bg-green-600 text-white border border-green-700",
-};
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
@@ -419,8 +408,7 @@ export default function Calendario({
                   {(layoutByRoom.get(Number(r.id)) || []).map((b) => {
                     const s = parseD(b.start);
                     const e = addDays(parseD(b.end), -1);
-                    const badgeClass =
-                      (b.status && (statusStyles as any)[b.status]) || "bg-sky-400 text-white border border-sky-600";
+                    const badgeClass = getEstadoReservaTheme(b.status).tw.badgeSolid;
 
                     return (
                       <div
