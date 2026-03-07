@@ -147,7 +147,7 @@ export default function AprobacionesPopup() {
       if (!ok) return;
       setActionLoading(id);
       try {
-        await api.put(`/reservas/${id}/cancelar`);
+        await api.put(`/reservas/${id}/rechazar`);
         successToast('Reserva rechazada correctamente.');
         setReservas((prev) => prev.filter((r) => r.id !== id));
         refreshStore();

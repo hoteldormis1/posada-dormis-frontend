@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
+import { useReservasSocket } from "@/hooks/useReservasSocket";
 import { fetchContableResumen, fetchDashboardSummary } from "@/lib/store/utils";
 import { StateStatus } from "@/models/types";
 import { LoadingSpinner, GraficoCantidadDeReservas, GraficoPie } from "@/components";
@@ -140,6 +141,20 @@ const ContablePage: React.FC = () => {
     const { fromISO, toISO } = getRangeFromPreset("MES");
     fetchAmbos(fromISO, toISO);
   }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Siempre apunta al refetch con los filtros actuales (evita stale closure)
+  const refreshRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    const fromISO = ddmmToISO(fromUI) || getRangeFromPreset("MES").fromISO;
+    const toISO = ddmmToISO(toUI) || getRangeFromPreset("MES").toISO;
+    refreshRef.current = () => fetchAmbos(fromISO, toISO);
+  });
+
+  // Socket: actualiza los datos contables en tiempo real
+  useReservasSocket({
+    onNuevaReserva: () => refreshRef.current(),
+    onReservaActualizada: () => refreshRef.current(),
+  });
 
   // Handler de preset
   const handlePreset = (p: Preset) => {

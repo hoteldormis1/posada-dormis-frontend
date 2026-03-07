@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useCallback, useState } from "react";
+import React, { useEffect, useMemo, useCallback, useState, useRef } from "react";
 import { pantallaPrincipalEstilos, inputBaseEstilos, labelBaseEstilos } from "@/styles/global-styles";
 import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
 import { fetchReservasCalendar } from "@/lib/store/utils/calendario/calendarioSlice";
 import { AppDispatch, RootState } from "@/lib/store/store";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { useReservasSocket } from "@/hooks/useReservasSocket";
 import { Booking, Room } from "@/components/ui/calendario/Calendario";
 import CalendarioContainer from "@/components/ui/calendario/CalendarioContainer";
 import { toYMDLocal } from "@/utils/helpers/date";
@@ -29,6 +30,26 @@ export default function CalendarioPage() {
   const dispatch: AppDispatch = useAppDispatch();
 
   const { accessToken } = useAppSelector((state: RootState) => state.user);
+
+  // Ref que guarda el rango visible actual del calendario para usarlo en el socket
+  const calRangeRef = useRef({
+    startDate: toYMDLocal(new Date()),
+    endDate: toYMDLocal(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
+  });
+
+  // Siempre apunta al refetch con el rango actual (evita stale closure)
+  const refreshRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    refreshRef.current = () =>
+      dispatch(fetchReservasCalendar(calRangeRef.current));
+  });
+
+  // Socket: actualiza el calendario en tiempo real
+  useReservasSocket({
+    enabled: !!accessToken,
+    onNuevaReserva: () => refreshRef.current(),
+    onReservaActualizada: () => refreshRef.current(),
+  });
 
   // Cargar habitaciones y datos del calendario - solo si hay token
   useEffect(() => {
@@ -204,6 +225,7 @@ export default function CalendarioPage() {
   const handleRangeChange = useCallback((start: Date, end: Date) => {
     const startDate = toYMDLocal(start);
     const endDate = toYMDLocal(end);
+    calRangeRef.current = { startDate, endDate }; // mantener ref sincronizada
     dispatch(fetchReservasCalendar({ startDate, endDate }));
   }, [dispatch]);
 

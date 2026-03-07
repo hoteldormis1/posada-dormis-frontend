@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
+import { useReservasSocket } from "@/hooks/useReservasSocket";
 import { fetchContableExportar, fetchDashboardSummary } from "@/lib/store/utils";
 import { fetchContableOcupacion } from "@/lib/store/utils/contable/contableSlice";
 import { StateStatus } from "@/models/types";
@@ -138,6 +139,20 @@ const ReportesPage: React.FC = () => {
     const { fromISO, toISO } = getRangeFromPreset("MES");
     fetchTodos(fromISO, toISO);
   }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Siempre apunta al refetch con los filtros actuales (evita stale closure)
+  const refreshRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    const fromISO = ddmmToISO(fromUI) || getRangeFromPreset("MES").fromISO;
+    const toISO = ddmmToISO(toUI) || getRangeFromPreset("MES").toISO;
+    refreshRef.current = () => fetchTodos(fromISO, toISO, estado || undefined);
+  });
+
+  // Socket: actualiza los reportes en tiempo real
+  useReservasSocket({
+    onNuevaReserva: () => refreshRef.current(),
+    onReservaActualizada: () => refreshRef.current(),
+  });
 
   // Handler de preset
   const handlePreset = (p: Preset) => {

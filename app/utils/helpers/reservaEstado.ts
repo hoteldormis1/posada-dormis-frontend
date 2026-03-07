@@ -4,6 +4,7 @@ export type EstadoReservaKey =
   | "checkin"
   | "checkout"
   | "cancelada"
+  | "rechazada"
   | "desconocido";
 
 type EstadoReservaTheme = {
@@ -34,6 +35,8 @@ const ESTADO_ALIAS: Record<string, EstadoReservaKey> = {
   checkout: "checkout",
   cancelada: "cancelada",
   canceled: "cancelada",
+  rechazada: "rechazada",
+  rejected: "rechazada",
 };
 
 const ESTADO_THEME: Record<EstadoReservaKey, EstadoReservaTheme> = {
@@ -102,6 +105,19 @@ const ESTADO_THEME: Record<EstadoReservaKey, EstadoReservaTheme> = {
       border: "border-red-200",
     },
   },
+  rechazada: {
+    key: "rechazada",
+    label: "Rechazada",
+    hex: { color: "#f97316", accent: "#c2410c", bg: "#fff7ed" },
+    tw: {
+      dot: "bg-orange-400",
+      badgeSolid: "bg-orange-500 text-white border border-orange-600 line-through opacity-90",
+      badgeSoft: "bg-orange-100 text-orange-700 border border-orange-200",
+      text: "text-orange-600",
+      bg: "bg-orange-50",
+      border: "border-orange-200",
+    },
+  },
   desconocido: {
     key: "desconocido",
     label: "Desconocido",
@@ -129,6 +145,7 @@ export const ESTADOS_RESERVA_OPCIONES = [
   { value: "pendiente", label: "Pendiente" },
   { value: "confirmada", label: "Confirmada" },
   { value: "cancelada", label: "Cancelada" },
+  { value: "rechazada", label: "Rechazada" },
   { value: "checkin", label: "Check-in" },
   { value: "checkout", label: "Check-out" },
 ] as const;

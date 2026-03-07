@@ -6,6 +6,7 @@ import { LoadingSpinner, TableComponent } from "@/components";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { AppDispatch, RootState } from "@/lib/store/store";
 import { addReserva, deleteReserva, editReserva, fetchHuespedes, fetchReservas } from "@/lib/store/utils/index";
+import { useReservasSocket } from "@/hooks/useReservasSocket";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { EstadoReserva, Habitacion, Reserva, SortOrder, StateStatus } from "@/models/types";
 import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
@@ -52,6 +53,13 @@ const Reservas: React.FC = () => {
     dispatch(fetchReservas());
     dispatch(fetchHuespedes());
   }, [dispatch, accessToken]);
+
+  // Socket: actualiza la tabla en tiempo real
+  useReservasSocket({
+    enabled: !!accessToken,
+    onNuevaReserva: () => dispatch(fetchReservas()),
+    onReservaActualizada: () => dispatch(fetchReservas()),
+  });
 
   const data = useMemo(() => reservas, [reservas]);
 
