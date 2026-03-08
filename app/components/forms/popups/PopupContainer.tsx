@@ -19,17 +19,17 @@ export default function PopupContainer({
 	showHeader = true,
 }: PopupContainerProps) {
 	return (
-		<div className="fixed inset-0 z-[999] flex items-end justify-center bg-gray-900/50 backdrop-blur-md px-2">
+		<div className="fixed inset-0 z-[999] flex items-end justify-center bg-black/65 backdrop-blur-md px-2">
 			<div
-				className={`bg-white w-full max-w-[800px] max-h-[90vh] min-h-[60vh] rounded-t-3xl overflow-y-auto animate-slide-up relative p-6 shadow-2xl ${className}`}
+				className={`bg-[#071e14] border border-white/12 w-full max-w-[800px] max-h-[90vh] min-h-[60vh] rounded-t-3xl overflow-y-auto animate-slide-up relative p-6 shadow-2xl ${className}`}
 			>
 				{showHeader && (
-					<div className="flex justify-between items-center border-b-2 border-gray-200 pb-4 mb-2">
+					<div className="flex justify-between items-center border-b border-white/10 pb-4 mb-2">
 						<div className="flex items-center gap-3">
-							<div className="w-1 h-8 bg-[var(--color-main)] rounded-full"></div>
-							<p className="text-2xl font-bold text-gray-800">{title}</p>
+							<div className="w-1 h-8 bg-emerald-400 rounded-full"></div>
+							<p className="text-2xl font-bold text-white">{title}</p>
 						</div>
-						<CloseButton onClose={onClose} size={24} className="text-gray-600 hover:text-gray-900 transition-colors" />
+						<CloseButton onClose={onClose} size={24} className="text-emerald-100/60 hover:text-white transition-colors" />
 					</div>
 				)}
 				{children}

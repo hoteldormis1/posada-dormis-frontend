@@ -175,10 +175,10 @@ export default function AprobacionesPopup() {
       {/* Bell button */}
       <button
         onClick={togglePopup}
-        className={`relative p-2 rounded-full transition-all duration-150 cursor-pointer
+        className={`relative p-2.5 rounded-xl border transition-all duration-150 cursor-pointer
           ${open
-            ? 'text-white bg-black'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
+            ? 'text-white bg-white/12 border-white/20'
+            : 'text-emerald-100/60 border-white/10 bg-white/5 hover:bg-white/10 hover:text-white'}`}
         title="Reservas pendientes de aprobación"
       >
         {/* Icono: se sacude mientras haya pendientes no vistos */}
@@ -187,8 +187,8 @@ export default function AprobacionesPopup() {
         </span>
 
         {/* Badge con contador */}
-        <span className={`absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[20px] h-5 px-1 text-[11px] font-bold rounded-full transition-all
-          ${pendingCount > 0 ? 'bg-black text-white' : 'bg-gray-300 text-gray-600'}`}>
+        <span className={`absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[20px] h-5 px-1 text-[11px] font-bold rounded-full transition-all border
+          ${pendingCount > 0 ? 'bg-amber-400 text-[#1f1303] border-amber-300' : 'bg-white/20 text-white/70 border-white/20'}`}>
           {pendingCount}
         </span>
 
@@ -200,10 +200,10 @@ export default function AprobacionesPopup() {
 
       {/* Dropdown popup */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-[#071d13]/98 rounded-xl shadow-2xl border border-white/12 z-50 overflow-hidden backdrop-blur-xl">
           {/* Header */}
-          <div className="px-4 py-3 border-b">
-            <h3 className="text-sm font-semibold">Reservas pendientes de aprobación</h3>
+          <div className="px-4 py-3 border-b border-white/10">
+            <h3 className="text-sm font-semibold text-white">Reservas pendientes de aprobación</h3>
           </div>
 
           {/* Content */}
@@ -216,36 +216,36 @@ export default function AprobacionesPopup() {
 
             {!loading && reservas.length === 0 && (
               <div className="py-8 text-center">
-                <FaCheck className="mx-auto text-gray-300 mb-2" size={24} />
-                <p className="text-sm text-gray-400">Sin reservas pendientes</p>
+                <FaCheck className="mx-auto text-emerald-300/50 mb-2" size={24} />
+                <p className="text-sm text-emerald-100/45">Sin reservas pendientes</p>
               </div>
             )}
 
             {!loading && reservas.length > 0 && (
-              <ul className="divide-y divide-gray-100">
+              <ul className="divide-y divide-white/8">
                 {reservas.map((r) => (
-                  <li key={r.id} className="px-4 py-3 hover:bg-gray-50 transition-colors">
+                  <li key={r.id} className="px-4 py-3 hover:bg-white/6 transition-colors">
                     {/* Guest info */}
                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <span className="text-sm font-medium text-gray-900 truncate">
+                      <span className="text-sm font-medium text-white truncate">
                         {r.huespedNombre}
                       </span>
                       {r.emailHuesped && (
-                        <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full shrink-0">
+                        <span className="text-[10px] bg-emerald-400/15 text-emerald-300 border border-emerald-300/25 px-1.5 py-0.5 rounded-full shrink-0">
                           email
                         </span>
                       )}
                     </div>
 
                     {/* Details */}
-                    <div className="text-xs text-gray-500 space-y-0.5 mb-2">
+                    <div className="text-xs text-emerald-100/50 space-y-0.5 mb-2">
                       <p>
-                        <span className="font-medium text-gray-700">Hab. {r.numeroHab}</span>
+                        <span className="font-medium text-emerald-200">Hab. {r.numeroHab}</span>
                         {' — '}
                         {formatDate(r.ingreso)} al {formatDate(r.egreso)}
                       </p>
                       <p>
-                        Total: <span className="font-medium text-gray-700">${Number(r.total).toLocaleString('es-AR')}</span>
+                        Total: <span className="font-medium text-emerald-200">${Number(r.total).toLocaleString('es-AR')}</span>
                       </p>
                     </div>
 
@@ -254,7 +254,7 @@ export default function AprobacionesPopup() {
                       <button
                         onClick={() => handleAprobar(r.id)}
                         disabled={actionLoading === r.id}
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-green-600 border border-green-300 hover:bg-green-700 hover:text-white hover:border-green-700 disabled:opacity-50 transition-colors cursor-pointer"
+                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-emerald-300 border border-emerald-400/35 hover:bg-emerald-500 hover:text-[#062317] hover:border-emerald-400 disabled:opacity-50 transition-colors cursor-pointer"
                       >
                         {actionLoading === r.id ? (
                           <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -266,7 +266,7 @@ export default function AprobacionesPopup() {
                       <button
                         onClick={() => handleRechazar(r.id)}
                         disabled={actionLoading === r.id}
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-red-600 border border-red-300 hover:bg-red-700 hover:text-white hover:border-red-700 disabled:opacity-50 transition-colors cursor-pointer"
+                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-red-300 border border-red-400/35 hover:bg-red-500 hover:text-white hover:border-red-400 disabled:opacity-50 transition-colors cursor-pointer"
                       >
                         {actionLoading === r.id ? (
                           <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />

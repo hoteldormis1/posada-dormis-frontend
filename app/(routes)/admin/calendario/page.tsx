@@ -346,9 +346,9 @@ export default function CalendarioPage() {
   const isLoading = loadingHabitaciones || loadingCalendario === 'pending';
 
   return (
-    <div className={"bg-background p-4 content-shell " + pantallaPrincipalEstilos}>
+    <div className={"p-4 content-shell " + pantallaPrincipalEstilos}>
       {isLoading ? (
-        <div className="p-4 text-sm text-gray-600">
+        <div className="p-4 text-sm text-emerald-100/70">
           <LoadingSpinner/>
         </div>
       ) : (
@@ -492,7 +492,7 @@ export default function CalendarioPage() {
                       }}
                     />
                     {errors.idEstadoReserva && (
-                      <p className="text-red-500 text-xs mt-2">{errors.idEstadoReserva}</p>
+                      <p className="text-red-300 text-xs mt-2">{errors.idEstadoReserva}</p>
                     )}
                   </div>
                 </div>
@@ -505,7 +505,7 @@ export default function CalendarioPage() {
                       setShowAddPopup(false);
                       setSelectedRange(null);
                     }}
-                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+                    className="px-4 py-2 admin-button-ghost rounded-md"
                   >
                     Cancelar
                   </button>
@@ -517,10 +517,10 @@ export default function CalendarioPage() {
                       }
                     }}
                     disabled={Object.keys(errors).length > 0}
-                    className={`px-4 py-2 text-white rounded-md ${
+                    className={`px-4 py-2 rounded-md ${
                       Object.keys(errors).length > 0
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-[var(--color-main)] hover:bg-green-700'
+                        ? 'bg-white/20 text-white/55 cursor-not-allowed'
+                        : 'admin-button-primary'
                     }`}
                   >
                     Agregar

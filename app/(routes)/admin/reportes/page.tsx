@@ -259,23 +259,23 @@ const ReportesPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-background w-full min-h-full overflow-auto pb-20">
+    <div className="w-full min-h-full overflow-auto pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Reportes</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold admin-title">Reportes</h1>
+            <p className="text-sm admin-subtitle mt-1">
               Exportación de listados de reservas a CSV y PDF
             </p>
           </div>
         </div>
 
         {/* Filtros */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-6 space-y-4">
+        <div className="admin-glass-card p-4 sm:p-5 mb-6 space-y-4">
           <div className="flex items-center gap-2">
-            <FaFilter className="text-gray-400" size={14} />
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+            <FaFilter className="text-emerald-100/55" size={14} />
+            <h2 className="text-sm font-semibold text-emerald-100/75 uppercase tracking-wider">
               Filtros
             </h2>
           </div>
@@ -307,7 +307,7 @@ const ReportesPage: React.FC = () => {
               <div className="flex items-end pb-1">
                 <button
                   onClick={handleFiltrar}
-                  className="px-6 py-2.5 bg-blue-600 text-white font-medium text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
+                  className="px-6 py-2.5 admin-button-primary font-medium text-sm rounded-lg transition-colors shadow-sm cursor-pointer"
                 >
                   Buscar
                 </button>
@@ -318,7 +318,7 @@ const ReportesPage: React.FC = () => {
           {/* Filtro por estado — siempre visible */}
           <div className="flex flex-col sm:flex-row items-end gap-4">
             <div className="sm:w-64">
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label className="block text-sm font-semibold text-emerald-100/80 mb-1.5">
                 Estado
               </label>
               <select
@@ -328,10 +328,10 @@ const ReportesPage: React.FC = () => {
                   setEstado(nuevoEstado);
                   fetchTodos(currentFromISO, currentToISO, nuevoEstado || undefined);
                 }}
-                className="block w-full text-sm rounded-lg bg-gray-50 border-2 border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="admin-input block w-full text-sm rounded-lg border-2 px-4 py-2.5 transition-all"
               >
                 {ESTADOS_RESERVA_OPCIONES.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
+                  <option key={opt.value} value={opt.value} className="bg-[#0d271b] text-white">
                     {opt.label}
                   </option>
                 ))}
@@ -344,10 +344,10 @@ const ReportesPage: React.FC = () => {
         {(reservasPorFechaData.length > 0 || ocupacionPorFechaData.length > 0) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {/* Reservas por fecha */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <div className="admin-glass-card p-5">
               <div className="flex items-center gap-2 mb-4">
-                <FaChartBar className="text-blue-500" size={16} />
-                <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                <FaChartBar className="text-emerald-300" size={16} />
+                <h2 className="text-sm font-semibold text-emerald-100/75 uppercase tracking-wider">
                   Reservas por fecha
                 </h2>
               </div>
@@ -360,7 +360,7 @@ const ReportesPage: React.FC = () => {
                     datasetLabel="Reservas"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-sm text-gray-400">
+                  <div className="flex items-center justify-center h-full text-sm text-emerald-100/45">
                     Sin datos en el rango seleccionado
                   </div>
                 )}
@@ -368,10 +368,10 @@ const ReportesPage: React.FC = () => {
             </div>
 
             {/* Ocupación por fecha */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <div className="admin-glass-card p-5">
               <div className="flex items-center gap-2 mb-4">
-                <FaChartBar className="text-violet-500" size={16} />
-                <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                <FaChartBar className="text-cyan-300" size={16} />
+                <h2 className="text-sm font-semibold text-emerald-100/75 uppercase tracking-wider">
                   Ocupación de habitaciones (%)
                 </h2>
               </div>
@@ -384,7 +384,7 @@ const ReportesPage: React.FC = () => {
                     datasetLabel="Ocupación %"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-sm text-gray-400">
+                  <div className="flex items-center justify-center h-full text-sm text-emerald-100/45">
                     Sin datos en el rango seleccionado
                   </div>
                 )}
@@ -402,41 +402,41 @@ const ReportesPage: React.FC = () => {
 
         {statusExport === StateStatus.failed && (
           <div className="text-center py-10">
-            <p className="text-red-600 font-medium">{errorExport}</p>
+            <p className="text-red-300 font-medium">{errorExport}</p>
           </div>
         )}
 
         {statusExport === StateStatus.succeeded && exportData && (
           <>
             {/* Resumen rápido + Botones de exportación */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
+            <div className="admin-glass-card p-5 mb-6">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 {/* Info */}
                 <div className="flex flex-wrap items-center gap-6">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-blue-700">{resumen?.total ?? 0}</p>
-                    <p className="text-xs text-gray-500 font-medium">Reservas</p>
+                    <p className="text-2xl font-bold text-emerald-200">{resumen?.total ?? 0}</p>
+                    <p className="text-xs text-emerald-100/55 font-medium">Reservas</p>
                   </div>
-                  <div className="hidden sm:block h-10 w-px bg-gray-200" />
+                  <div className="hidden sm:block h-10 w-px bg-white/15" />
                   <div className="text-center">
-                    <p className="text-lg font-bold text-gray-800">
+                    <p className="text-lg font-bold text-white">
                       {fmtMoney(resumen?.montoTotal ?? 0)}
                     </p>
-                    <p className="text-xs text-gray-500 font-medium">Monto Total</p>
+                    <p className="text-xs text-emerald-100/55 font-medium">Monto Total</p>
                   </div>
-                  <div className="hidden sm:block h-10 w-px bg-gray-200" />
+                  <div className="hidden sm:block h-10 w-px bg-white/15" />
                   <div className="text-center">
-                    <p className="text-lg font-bold text-green-700">
+                    <p className="text-lg font-bold text-emerald-300">
                       {fmtMoney(resumen?.montoPagado ?? 0)}
                     </p>
-                    <p className="text-xs text-gray-500 font-medium">Pagado</p>
+                    <p className="text-xs text-emerald-100/55 font-medium">Pagado</p>
                   </div>
-                  <div className="hidden sm:block h-10 w-px bg-gray-200" />
+                  <div className="hidden sm:block h-10 w-px bg-white/15" />
                   <div className="text-center">
-                    <p className="text-lg font-bold text-orange-600">
+                    <p className="text-lg font-bold text-amber-300">
                       {fmtMoney(resumen?.saldoPendiente ?? 0)}
                     </p>
-                    <p className="text-xs text-gray-500 font-medium">Saldo</p>
+                    <p className="text-xs text-emerald-100/55 font-medium">Saldo</p>
                   </div>
                 </div>
 
@@ -445,7 +445,7 @@ const ReportesPage: React.FC = () => {
                   <button
                     onClick={handleExportCSV}
                     disabled={!datosFormateados.length}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white font-medium text-sm rounded-lg hover:bg-green-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-[#062317] font-medium text-sm rounded-lg hover:bg-emerald-400 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <FaFileCsv size={16} />
                     Exportar CSV
@@ -453,7 +453,7 @@ const ReportesPage: React.FC = () => {
                   <button
                     onClick={handleExportPDF}
                     disabled={!datosFormateados.length}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white font-medium text-sm rounded-lg hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-rose-500 text-white font-medium text-sm rounded-lg hover:bg-rose-400 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <FaFilePdf size={16} />
                     Exportar PDF
@@ -461,7 +461,7 @@ const ReportesPage: React.FC = () => {
                 </div>
               </div>
               {exportData.range && (
-                <p className="text-xs text-gray-400 mt-3">
+                <p className="text-xs text-emerald-100/45 mt-3">
                   <FaDownload className="inline mr-1" size={10} />
                   Período: {fmtDate(exportData.range.from)} al {fmtDate(exportData.range.to)}
                   {estado ? ` — Estado: ${estadoLabel}` : ""}
@@ -470,16 +470,16 @@ const ReportesPage: React.FC = () => {
             </div>
 
             {/* Tabla de preview */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
-                <FaTable className="text-gray-400" size={16} />
-                <h2 className="text-lg font-bold text-gray-800">
+            <div className="admin-glass-card overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/10 flex items-center gap-2">
+                <FaTable className="text-emerald-100/55" size={16} />
+                <h2 className="text-lg font-bold text-white">
                   Vista previa ({datosFormateados.length} registros)
                 </h2>
               </div>
 
               {datosFormateados.length === 0 ? (
-                <div className="text-center py-16 text-gray-400">
+                <div className="text-center py-16 text-emerald-100/45">
                   <FaTable size={40} className="mx-auto mb-3 opacity-40" />
                   <p className="font-medium">No hay reservas en el rango seleccionado</p>
                   <p className="text-sm mt-1">Ajustá los filtros para buscar resultados</p>
@@ -487,7 +487,7 @@ const ReportesPage: React.FC = () => {
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
+                    <thead className="bg-black/20 text-emerald-100/65 text-xs uppercase tracking-wider">
                       <tr>
                         <th className="px-4 py-3 text-left font-semibold">ID</th>
                         <th className="px-4 py-3 text-left font-semibold">Huésped</th>
@@ -501,17 +501,17 @@ const ReportesPage: React.FC = () => {
                         <th className="px-4 py-3 text-right font-semibold">Saldo</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-white/8 text-white/85">
                       {datosFormateados.map((r) => {
                         const badge = getEstadoReservaTheme(r.estado as string).tw.badgeSoft;
 
                         return (
-                          <tr key={r.idReserva as number} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-4 py-3 font-medium text-gray-700">
+                          <tr key={r.idReserva as number} className="hover:bg-white/6 transition-colors">
+                            <td className="px-4 py-3 font-medium text-white">
                               #{r.idReserva as number}
                             </td>
                             <td className="px-4 py-3">{r.huesped as string}</td>
-                            <td className="px-4 py-3 text-gray-500">{r.dni as string}</td>
+                            <td className="px-4 py-3 text-emerald-100/55">{r.dni as string}</td>
                             <td className="px-4 py-3 font-medium">{r.habitacion as string}</td>
                             <td className="px-4 py-3">
                               <span
@@ -520,13 +520,13 @@ const ReportesPage: React.FC = () => {
                                 {r.estado as string}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-gray-600">{r.fechaDesdeStr as string}</td>
-                            <td className="px-4 py-3 text-gray-600">{r.fechaHastaStr as string}</td>
+                            <td className="px-4 py-3 text-emerald-100/65">{r.fechaDesdeStr as string}</td>
+                            <td className="px-4 py-3 text-emerald-100/65">{r.fechaHastaStr as string}</td>
                             <td className="px-4 py-3 text-right">{r.montoTotalStr as string}</td>
-                            <td className="px-4 py-3 text-right text-green-700 font-medium">
+                            <td className="px-4 py-3 text-right text-emerald-300 font-medium">
                               {r.montoPagadoStr as string}
                             </td>
-                            <td className="px-4 py-3 text-right text-orange-600 font-bold">
+                            <td className="px-4 py-3 text-right text-amber-300 font-bold">
                               {r.saldoPendienteStr as string}
                             </td>
                           </tr>

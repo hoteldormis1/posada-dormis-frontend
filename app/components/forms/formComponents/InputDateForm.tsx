@@ -51,7 +51,7 @@ const InputDateForm: React.FC<InputDateFormProps> = ({
   maxDate,
 }) => {
   const baseClass = `${inputBaseEstilos} ${error ? inputErrorEstilos : ""} ${
-    disabled ? "opacity-60 cursor-not-allowed bg-gray-100 dark:bg-gray-800" : ""
+    disabled ? "opacity-60 cursor-not-allowed bg-white/5" : ""
   }`;
 
   const selectedDate = parseDDMMYYYY(value);

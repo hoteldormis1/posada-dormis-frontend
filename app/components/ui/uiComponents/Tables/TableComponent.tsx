@@ -157,19 +157,19 @@ const TableComponent = <T extends { id: string }>({
             {showActions?.edit && (
               <button
                 onClick={() => handleEditClick(row.original.id, data)}
-                className="text-blue-500 hover:text-blue-700"
+                className="h-7 w-7 rounded-md border border-white/15 bg-white/6 text-emerald-300 hover:bg-white/12 hover:text-emerald-200 transition-colors inline-flex items-center justify-center"
                 aria-label="Editar"
               >
-                <FaEdit className="text-black text-xs cursor-pointer" />
+                <FaEdit className="text-xs cursor-pointer" />
               </button>
             )}
             {showActions?.delete && (!canDeleteRow || canDeleteRow(row.original)) && (
               <button
                 onClick={() => handleDelete?.(row.original.id)}
-                className="text-red-500 hover:text-red-700"
+                className="h-7 w-7 rounded-md border border-white/15 bg-white/6 text-red-300 hover:bg-red-500/20 hover:text-red-200 hover:border-red-400/30 transition-colors inline-flex items-center justify-center"
                 aria-label="Eliminar"
               >
-                <FaTrash className="text-black text-xs cursor-pointer" />
+                <FaTrash className="text-xs cursor-pointer" />
               </button>
             )}
           </div>

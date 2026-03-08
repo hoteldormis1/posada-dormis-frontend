@@ -31,7 +31,7 @@ const SelectForm: React.FC<SelectFormProps> = ({
   placeholderOption = "Seleccionar...",
 }) => {
   const baseClass = `${inputBaseEstilos} ${error ? inputErrorEstilos : ""} ${
-    disabled ? "opacity-60 cursor-not-allowed bg-gray-100 dark:bg-gray-800" : ""
+    disabled ? "opacity-60 cursor-not-allowed bg-white/5" : ""
   }`;
 
   return (
@@ -47,9 +47,9 @@ const SelectForm: React.FC<SelectFormProps> = ({
         disabled={disabled}
         className={baseClass}
       >
-        <option value="">{placeholderOption}</option>
+        <option value="" className="bg-[#0d271b] text-white">{placeholderOption}</option>
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option key={opt.value} value={opt.value} className="bg-[#0d271b] text-white">
             {opt.label}
           </option>
         ))}

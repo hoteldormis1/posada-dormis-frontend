@@ -48,9 +48,9 @@ const estadoIconMap: Record<string, React.ReactNode> = {
 
 const defaultConfig: { icon: React.ReactNode; color: string; bg: string; border: string } = {
   icon: <FaChartBar size={22} />,
-  color: "text-gray-600",
-  bg: "bg-gray-50",
-  border: "border-gray-200",
+  color: "text-emerald-100/75",
+  bg: "bg-white/4",
+  border: "border-white/12",
 };
 
 const getEstadoConfig = (estadoNombre: string) => {
@@ -213,20 +213,20 @@ const ContablePage: React.FC = () => {
   );
 
   return (
-    <div className="bg-background w-full min-h-full overflow-auto pb-20">
+    <div className="w-full min-h-full overflow-auto pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Vista Contable</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold admin-title">Vista Contable</h1>
+            <p className="text-sm admin-subtitle mt-1">
               Resumen financiero de reservas por estado
             </p>
           </div>
         </div>
 
         {/* Filtro de fechas */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-6 space-y-4">
+        <div className="admin-glass-card p-4 sm:p-5 mb-6 space-y-4">
           {/* Preset tabs */}
           <PresetTabs preset={preset} onSelect={handlePreset} />
 
@@ -254,7 +254,7 @@ const ContablePage: React.FC = () => {
               <div className="flex items-end pb-1">
                 <button
                   onClick={handleFiltrar}
-                  className="px-6 py-2.5 bg-blue-600 text-white font-medium text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
+                  className="px-6 py-2.5 admin-button-primary font-medium text-sm rounded-lg transition-colors shadow-sm cursor-pointer"
                 >
                   Filtrar
                 </button>
@@ -263,7 +263,7 @@ const ContablePage: React.FC = () => {
           )}
 
           {resumen?.range && (
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-emerald-100/45">
               Mostrando datos del {fmtDate(resumen.range.from)} al {fmtDate(resumen.range.to)}
             </p>
           )}
@@ -277,43 +277,43 @@ const ContablePage: React.FC = () => {
         )}
 
         {statusResumen === StateStatus.failed && (
-          <div className="text-center py-10">
-            <p className="text-red-600 font-medium">{errorResumen}</p>
+            <div className="text-center py-10">
+            <p className="text-red-300 font-medium">{errorResumen}</p>
           </div>
         )}
 
         {statusResumen === StateStatus.succeeded && resumen && (
           <>
             {/* Tarjeta de Total General */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-              <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <FaDollarSign className="text-blue-600" size={20} />
+            <div className="admin-glass-card p-6 mb-6">
+              <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <FaDollarSign className="text-emerald-300" size={20} />
                 Resumen General
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-100">
-                  <p className="text-2xl sm:text-3xl font-bold text-blue-700">
+                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-2xl sm:text-3xl font-bold text-emerald-200">
                     {totalGeneral?.cantidad ?? 0}
                   </p>
-                  <p className="text-xs text-blue-600 font-medium mt-1">Total Reservas</p>
+                  <p className="text-xs text-emerald-100/55 font-medium mt-1">Total Reservas</p>
                 </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg border border-green-100">
-                  <p className="text-xl sm:text-2xl font-bold text-green-700">
+                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-300">
                     {fmtMoney(totalGeneral?.montoTotal ?? 0)}
                   </p>
-                  <p className="text-xs text-green-600 font-medium mt-1">Monto Total</p>
+                  <p className="text-xs text-emerald-100/55 font-medium mt-1">Monto Total</p>
                 </div>
-                <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-100">
-                  <p className="text-xl sm:text-2xl font-bold text-emerald-700">
+                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-xl sm:text-2xl font-bold text-cyan-300">
                     {fmtMoney(totalGeneral?.montoPagado ?? 0)}
                   </p>
-                  <p className="text-xs text-emerald-600 font-medium mt-1">Monto Pagado</p>
+                  <p className="text-xs text-emerald-100/55 font-medium mt-1">Monto Pagado</p>
                 </div>
-                <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-100">
-                  <p className="text-xl sm:text-2xl font-bold text-orange-700">
+                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-xl sm:text-2xl font-bold text-amber-300">
                     {fmtMoney(totalGeneral?.saldoPendiente ?? 0)}
                   </p>
-                  <p className="text-xs text-orange-600 font-medium mt-1">Saldo Pendiente</p>
+                  <p className="text-xs text-emerald-100/55 font-medium mt-1">Saldo Pendiente</p>
                 </div>
               </div>
             </div>
@@ -321,10 +321,10 @@ const ContablePage: React.FC = () => {
             
 
             {/* Graficos contables */}
-            <div className="grid grid-cols-1 md:grid-cols-2  gap-4 pt-2 w-full bg-white/70 shadow-md rounded-xl p-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 w-full admin-glass-card p-6 mb-8">
               <div className="gap-8">
-                <div className="flex flex-col p-6 border border-gray-300 shadow-md h-[400px] bg-white">
-                  <label className="text-2xl font-semibold">Reservas por estado</label>
+                <div className="flex flex-col p-6 border border-white/10 shadow-md h-[400px] bg-white/4 rounded-xl">
+                  <label className="text-2xl font-semibold text-white">Reservas por estado</label>
                   <div className="mt-4 flex-1 flex items-center justify-center">
                     {estados.length > 0 ? (
                       <div className="w-full max-w-xs">
@@ -336,14 +336,14 @@ const ContablePage: React.FC = () => {
                         />
                       </div>
                     ) : (
-                      <div className="text-sm text-gray-500">Sin datos en el rango seleccionado.</div>
+                      <div className="text-sm text-emerald-100/45">Sin datos en el rango seleccionado.</div>
                     )}
                   </div>
                 </div>
               </div>
 
-                <div className="flex flex-col p-6 border border-gray-300 shadow-md h-[400px] bg-white">
-                  <label className="text-2xl font-semibold">Ingresos por fecha</label>
+                <div className="flex flex-col p-6 border border-white/10 shadow-md h-[400px] bg-white/4 rounded-xl">
+                  <label className="text-2xl font-semibold text-white">Ingresos por fecha</label>
                   <div className="mt-4 flex-1">
                     {ingresosPorFechaData.length > 0 ? (
                       <GraficoCantidadDeReservas
@@ -354,7 +354,7 @@ const ContablePage: React.FC = () => {
                         yType="money"
                       />
                     ) : (
-                      <div className="text-sm text-gray-500">Sin datos en el rango seleccionado.</div>
+                      <div className="text-sm text-emerald-100/45">Sin datos en el rango seleccionado.</div>
                     )}
                   </div>
                 </div>
@@ -362,7 +362,7 @@ const ContablePage: React.FC = () => {
             </div>
 
             {/* Tarjetas por estado */}
-            <h2 className="text-lg font-bold text-gray-800 mb-4">Desglose por Estado</h2>
+            <h2 className="text-lg font-bold text-white mb-4">Desglose por Estado</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
               {estados.map((estado) => {
                 const cfg = getEstadoConfig(estado.nombre);
@@ -375,10 +375,10 @@ const ContablePage: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <div className={`${cfg.color}`}>{cfg.icon}</div>
                         <div>
-                          <h3 className="font-bold text-gray-800 capitalize text-base">
+                          <h3 className="font-bold text-white capitalize text-base">
                             {estado.nombre}
                           </h3>
-                          <p className="text-xs text-gray-500">{estado.descripcion}</p>
+                          <p className="text-xs text-emerald-100/50">{estado.descripcion}</p>
                         </div>
                       </div>
                       <span
@@ -389,20 +389,20 @@ const ContablePage: React.FC = () => {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Monto Total</span>
-                        <span className="font-semibold text-gray-800">
+                        <span className="text-emerald-100/65">Monto Total</span>
+                        <span className="font-semibold text-white">
                           {fmtMoney(estado.montoTotal)}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Monto Pagado</span>
-                        <span className="font-semibold text-green-700">
+                        <span className="text-emerald-100/65">Monto Pagado</span>
+                        <span className="font-semibold text-emerald-300">
                           {fmtMoney(estado.montoPagado)}
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm border-t border-gray-200 pt-2 mt-2">
-                        <span className="text-gray-600 font-medium">Saldo Pendiente</span>
-                        <span className="font-bold text-orange-600">
+                      <div className="flex justify-between text-sm border-t border-white/12 pt-2 mt-2">
+                        <span className="text-emerald-100/65 font-medium">Saldo Pendiente</span>
+                        <span className="font-bold text-amber-300">
                           {fmtMoney(estado.saldoPendiente)}
                         </span>
                       </div>
@@ -413,13 +413,13 @@ const ContablePage: React.FC = () => {
             </div>
 
             {/* Tabla resumen */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-5 py-4 border-b border-gray-100">
-                <h2 className="text-lg font-bold text-gray-800">Tabla Resumen</h2>
+            <div className="admin-glass-card overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/10">
+                <h2 className="text-lg font-bold text-white">Tabla Resumen</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
+                  <thead className="bg-black/20 text-emerald-100/65 text-xs uppercase tracking-wider">
                     <tr>
                       <th className="px-5 py-3 text-left font-semibold">Estado</th>
                       <th className="px-5 py-3 text-right font-semibold">Cantidad</th>
@@ -428,11 +428,11 @@ const ContablePage: React.FC = () => {
                       <th className="px-5 py-3 text-right font-semibold">Saldo Pendiente</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-white/8 text-white/85">
                     {estados.map((estado) => {
                       const cfg = getEstadoConfig(estado.nombre);
                       return (
-                        <tr key={estado.idEstadoReserva} className="hover:bg-gray-50 transition-colors">
+                        <tr key={estado.idEstadoReserva} className="hover:bg-white/6 transition-colors">
                           <td className="px-5 py-3">
                             <div className="flex items-center gap-2">
                               <span className={cfg.color}>{cfg.icon}</span>
@@ -441,27 +441,27 @@ const ContablePage: React.FC = () => {
                           </td>
                           <td className="px-5 py-3 text-right font-semibold">{estado.cantidad}</td>
                           <td className="px-5 py-3 text-right">{fmtMoney(estado.montoTotal)}</td>
-                          <td className="px-5 py-3 text-right text-green-700 font-medium">
+                          <td className="px-5 py-3 text-right text-emerald-300 font-medium">
                             {fmtMoney(estado.montoPagado)}
                           </td>
-                          <td className="px-5 py-3 text-right text-orange-600 font-bold">
+                          <td className="px-5 py-3 text-right text-amber-300 font-bold">
                             {fmtMoney(estado.saldoPendiente)}
                           </td>
                         </tr>
                       );
                     })}
                   </tbody>
-                  <tfoot className="bg-gray-50 font-bold">
+                  <tfoot className="bg-black/20 font-bold text-white">
                     <tr>
                       <td className="px-5 py-3">Total</td>
                       <td className="px-5 py-3 text-right">{totalGeneral?.cantidad ?? 0}</td>
                       <td className="px-5 py-3 text-right">
                         {fmtMoney(totalGeneral?.montoTotal ?? 0)}
                       </td>
-                      <td className="px-5 py-3 text-right text-green-700">
+                      <td className="px-5 py-3 text-right text-emerald-300">
                         {fmtMoney(totalGeneral?.montoPagado ?? 0)}
                       </td>
-                      <td className="px-5 py-3 text-right text-orange-600">
+                      <td className="px-5 py-3 text-right text-amber-300">
                         {fmtMoney(totalGeneral?.saldoPendiente ?? 0)}
                       </td>
                     </tr>

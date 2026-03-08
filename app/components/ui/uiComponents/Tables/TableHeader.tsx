@@ -41,7 +41,7 @@ const TableHeader = ({
 						type="button"
 						onClick={onSearchSubmit}
 						aria-label="Buscar"
-						className="absolute right-3 top-3/5 -translate-y-1/2 text-gray-400 hover:text-main focus:outline-none focus:ring-2 focus:ring-main focus:ring-offset-1 rounded"
+						className="absolute right-3 top-3/5 -translate-y-1/2 text-white/40 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1 rounded"
 					>
 						<FaSearch className="w-4 h-4 cursor-pointer" />
 					</button>
@@ -49,7 +49,7 @@ const TableHeader = ({
 
 				{showFormActions && showActions?.create && <button
 					onClick={() => setShowAddPopup?.(true)}
-					className="cursor-pointer bg-main text-white px-4 py-2 rounded hover:bg-green-700 transition-all text-sm w-full sm:w-auto"
+					className="cursor-pointer admin-button-primary px-4 py-2 rounded-lg transition-all text-sm w-full sm:w-auto font-semibold"
 				>
 					+ Agregar
 				</button>}

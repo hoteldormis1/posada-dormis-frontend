@@ -187,7 +187,7 @@ const Reservas: React.FC = () => {
         {(() => {
           if (status === StateStatus.loading) return <LoadingSpinner />;
           if (status === StateStatus.failed)
-            return <p className="text-center mt-10 text-red-600">Ocurrió un error al cargar las reservas.</p>;
+            return <p className="text-center mt-10 text-red-300">Ocurrió un error al cargar las reservas.</p>;
 
           return (
             <TableComponent<Reserva>

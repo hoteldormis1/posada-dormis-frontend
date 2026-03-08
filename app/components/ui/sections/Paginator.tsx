@@ -62,9 +62,9 @@ const Paginator = ({
 	};
 
 	return (
-		<div className="flex flex-col sm:flex-row justify-between items-center border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+		<div className="flex flex-col sm:flex-row justify-between items-center border-t border-white/10 bg-white/4 px-4 py-3 sm:px-6 rounded-b-2xl">
 			{/* Selector de filas */}
-			<div className="mb-2 sm:mb-0 flex items-center gap-2 text-sm text-gray-700">
+			<div className="mb-2 sm:mb-0 flex items-center gap-2 text-sm text-emerald-100/70">
 				<label htmlFor="pageSizeSelect" className="whitespace-nowrap">
 					Filas por página:
 				</label>
@@ -72,7 +72,7 @@ const Paginator = ({
 					id="pageSizeSelect"
 					value={pageSize}
 					onChange={(e) => onPageSizeChange(Number(e.target.value))}
-					className="rounded-md border border-[var(--color-border)] px-2 py-1 text-sm"
+					className="rounded-md border border-white/20 bg-white/5 text-white px-2 py-1 text-sm"
 				>
 					<option value={1}>1</option>
 					<option value={5}>5</option>
@@ -91,7 +91,7 @@ const Paginator = ({
 				<button
 					onClick={() => onPageChange(currentPage - 1)}
 					disabled={currentPage === 1}
-					className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-[var(--color-border)] disabled:opacity-40"
+					className="relative inline-flex items-center rounded-l-md px-2 py-2 text-white/55 ring-1 ring-inset ring-white/20 disabled:opacity-40"
 				>
 					<span className="sr-only">Anterior</span>
 					<BiLeftArrow className="h-5 w-5" aria-hidden="true" />
@@ -101,7 +101,7 @@ const Paginator = ({
 					page === "..." ? (
 						<span
 							key={`ellipsis-${index}`}
-							className="px-3 py-2 text-sm text-gray-500 select-none"
+							className="px-3 py-2 text-sm text-white/45 select-none"
 						>
 							...
 						</span>
@@ -113,8 +113,8 @@ const Paginator = ({
 							className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold transition-colors duration-150 ease-in-out
 								${
 									currentPage === page
-										? "z-10 bg-main text-white"
-										: "text-gray-800 ring-1 ring-inset ring-[var(--color-border)] hover:bg-background"
+										? "z-10 bg-emerald-400 text-[#062317]"
+										: "text-white/80 ring-1 ring-inset ring-white/20 hover:bg-white/10"
 								}`}
 						>
 							{page}
@@ -125,7 +125,7 @@ const Paginator = ({
 				<button
 					onClick={() => onPageChange(currentPage + 1)}
 					disabled={currentPage === totalPages}
-					className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-[var(--color-border)] disabled:opacity-40"
+					className="relative inline-flex items-center rounded-r-md px-2 py-2 text-white/55 ring-1 ring-inset ring-white/20 disabled:opacity-40"
 				>
 					<span className="sr-only">Siguiente</span>
 					<BiRightArrow className="h-5 w-5" aria-hidden="true" />
