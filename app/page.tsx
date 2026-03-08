@@ -31,10 +31,9 @@ interface FormularioErrores {
 }
 
 const ReservasPublicasPage = () => {
-  // Estados
   const [paso, setPaso] = useState(1);
-  const [fechaInicio, setFechaInicio] = useState(""); // formato dd/MM/yyyy
-  const [fechaFin, setFechaFin] = useState(""); // formato dd/MM/yyyy
+  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
   const [habitacionesDisponibles, setHabitacionesDisponibles] = useState<Habitacion[]>([]);
   const [habitacionSeleccionada, setHabitacionSeleccionada] = useState<Habitacion | null>(null);
   const [formulario, setFormulario] = useState<FormularioReserva>({
@@ -49,6 +48,7 @@ const ReservasPublicasPage = () => {
   const [reservaExitosa, setReservaExitosa] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Convertir dd/MM/yyyy a yyyy-mm-dd para la API
   const convertirAFormatoAPI = (fechaDDMMYYYY: string): string => {
     if (!fechaDDMMYYYY || fechaDDMMYYYY.length !== 10) return "";
     const [dia, mes, anio] = fechaDDMMYYYY.split("/");
@@ -90,8 +90,7 @@ const ReservasPublicasPage = () => {
     setError(null);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-      
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL ;
       const fechaInicioAPI = convertirAFormatoAPI(fechaInicio);
       const fechaFinAPI = convertirAFormatoAPI(fechaFin);
       const response = await fetch(
@@ -264,33 +263,33 @@ const ReservasPublicasPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background from-tertiary via-background to-secondary-light">
+    <div className="min-h-screen bg-[linear-gradient(160deg,#0a2318_0%,#0d3320_40%,#1a4a2e_70%,#0f2d1e_100%)] text-white">
       {/* Header Público */}
-      <header className="bg-white shadow-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-50 border-b border-white/10 backdrop-blur-md bg-black/20">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <FaBed className="text-main text-4xl" />
+            <div className="w-10 h-10 rounded-xl border border-emerald-400/30 bg-emerald-400/15 flex items-center justify-center">
+              <FaBed className="text-emerald-300 text-xl" />
+            </div>
             <div>
-              <h1 className="text-2xl font-bold text-main">Posada Dormis</h1>
-              <p className="text-sm text-muted">Mina Clavero - Córdoba</p>
+              <h1 className="text-lg font-bold">Posada Dormi&apos;s</h1>
+              <p className="text-xs text-white/50">Mina Clavero · Córdoba</p>
             </div>
           </div>
-          <div className="flex items-center gap-6">
-            <Link 
-              href="/login"
-              className="flex items-center gap-2 bg-main hover:bg-main-dark text-white font-semibold px-4 py-2 rounded-lg transition-all transform hover:scale-105"
-            >
-              <FaSignInAlt />
-              <span>Ingresar</span>
-            </Link>
-          </div>
+          <Link
+            href="/login"
+            className="flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-[#0a2318] font-semibold px-4 py-2 rounded-lg transition-all"
+          >
+            <FaSignInAlt />
+            <span>Ingresar</span>
+          </Link>
         </div>
       </header>
 
       {/* Progress Bar */}
-      <div className="bg-grayed shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between max-w-3xl mx-auto">
+      <div className="border-b border-white/10">
+        <div className="max-w-4xl mx-auto px-4 py-5">
+          <div className="flex items-center justify-between">
             {[
               { num: 1, label: "Fechas" },
               { num: 2, label: "Habitación" },
@@ -298,22 +297,20 @@ const ReservasPublicasPage = () => {
               { num: 4, label: "Confirmación" }
             ].map((item, idx) => (
               <React.Fragment key={item.num}>
-                <div className="flex flex-col items-center">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                    paso >= item.num 
-                      ? "bg-main text-white scale-110" 
-                      : "bg-grayed text-gray-600"
+                <div className="flex flex-col items-center min-w-[70px]">
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
+                    paso >= item.num
+                      ? "bg-emerald-400 text-[#0a2318]"
+                      : "bg-white/10 text-white/40 border border-white/15"
                   }`}>
                     {paso > item.num ? <FaCheckCircle /> : item.num}
                   </div>
-                  <span className={`text-xs mt-2 ${paso >= item.num ? "text-main font-semibold" : "text-muted"}`}>
+                  <span className={`text-[11px] mt-2 ${paso >= item.num ? "text-emerald-300 font-semibold" : "text-white/35"}`}>
                     {item.label}
                   </span>
                 </div>
                 {idx < 3 && (
-                  <div className={`flex-1 h-1 mx-2 rounded transition-all ${
-                    paso > item.num ? "bg-main" : "bg-grayed"
-                  }`} />
+                  <div className={`flex-1 h-px mx-2 ${paso > item.num ? "bg-emerald-300/70" : "bg-white/15"}`} />
                 )}
               </React.Fragment>
             ))}
@@ -322,49 +319,57 @@ const ReservasPublicasPage = () => {
       </div>
 
       {/* Contenido Principal */}
-      <main className="container mx-auto px-4 py-12">
+      <main className="max-w-6xl mx-auto px-4 py-12">
         {/* Paso 1: Selección de Fechas */}
         {paso === 1 && (
           <div className="max-w-2xl mx-auto animate-fade-in relative">
-            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px] flex flex-col">
+            <div className="bg-white/6 border border-white/15 rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px] flex flex-col backdrop-blur-md">
               <div className="text-center mb-8">
-                <FaCalendarAlt className="text-5xl text-main mx-auto mb-4" />
-                <h2 className="text-3xl font-bold text-text mb-2">
+                <FaCalendarAlt className="text-5xl text-emerald-300 mx-auto mb-4" />
+                <h2 className="text-3xl font-bold text-white mb-2">
                   ¿Cuándo querés hospedarte?
                 </h2>
-                <p className="text-muted">Seleccioná las fechas de tu estadía</p>
+                <p className="text-white/60">Seleccioná las fechas de tu estadía</p>
               </div>
 
               <div className="space-y-6 flex-1">
-                <InputDateForm
-                  inputKey="fechaInicio"
-                  label="Fecha de entrada *"
-                  value={fechaInicio}
-                  onChange={(e) => setFechaInicio(e.target.value)}
-                  minDate={new Date()}
-                />
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div className="bg-white/5 border border-white/10 text-white rounded-xl p-4">
+                    <InputDateForm
+                      inputKey="fechaInicio"
+                      label="Fecha de entrada *"
+                      value={fechaInicio}
+                      onChange={(e) => setFechaInicio(e.target.value)}
+                      minDate={new Date()}
+                      labelBaseEstilos="text-white"
+                    />
+                  </div>
 
-                <InputDateForm
-                  inputKey="fechaFin"
-                  label="Fecha de salida *"
-                  value={fechaFin}
-                  onChange={(e) => setFechaFin(e.target.value)}
-                  minDate={fechaInicio ? (() => {
-                    const [dia, mes, anio] = fechaInicio.split("/").map(Number);
-                    return new Date(anio, mes - 1, dia);
-                  })() : new Date()}
-                />
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                    <InputDateForm
+                      inputKey="fechaFin"
+                      label="Fecha de salida *"
+                      value={fechaFin}
+                      onChange={(e) => setFechaFin(e.target.value)}
+                      minDate={fechaInicio ? (() => {
+                        const [dia, mes, anio] = fechaInicio.split("/").map(Number);
+                        return new Date(anio, mes - 1, dia);
+                      })() : new Date()}
+                      labelBaseEstilos="text-white"
+                    />
+                  </div>
+                </div>
 
                 {noches > 0 && (
-                  <div className="bg-tertiary p-4 rounded-lg">
-                    <p className="text-center text-main font-semibold">
+                  <div className="bg-emerald-400/15 border border-emerald-300/25 p-4 rounded-lg">
+                    <p className="text-center text-emerald-200 font-semibold">
                       {noches} {noches === 1 ? "noche" : "noches"}
                     </p>
                   </div>
                 )}
 
                 {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                  <div className="bg-red-500/15 border border-red-400/40 text-red-200 px-4 py-3 rounded-lg">
                     {error}
                   </div>
                 )}
@@ -372,9 +377,9 @@ const ReservasPublicasPage = () => {
                 <button
                   onClick={buscarHabitaciones}
                   disabled={loading || !fechaInicio || !fechaFin}
-                  className="w-full bg-main hover:bg-main-dark text-white font-bold py-4 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                  className="w-full bg-emerald-400 hover:bg-emerald-300 text-[#0a2318] font-bold py-4 px-6 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  {loading ? "Buscando..." : "Buscar habitaciones disponibles"}
+                  {loading ? "Buscando..." : "Buscar habitaciones disponibles →"}
                 </button>
               </div>
             </div>
@@ -393,12 +398,12 @@ const ReservasPublicasPage = () => {
               <FaArrowLeft />
             </button>
 
-            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px] flex flex-col">
+            <div className="bg-white/6 border border-white/15 rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px] flex flex-col backdrop-blur-md">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-text mb-2">
+                <h2 className="text-3xl font-bold text-white mb-2">
                   Habitaciones disponibles
                 </h2>
-                <p className="text-muted">
+                <p className="text-white/60">
                   Del {fechaInicio} al {fechaFin} ({noches} {noches === 1 ? "noche" : "noches"})
                 </p>
               </div>
@@ -407,40 +412,37 @@ const ReservasPublicasPage = () => {
                 {habitacionesDisponibles.map((habitacion) => (
                   <div
                     key={habitacion.idHabitacion}
-                    className="bg-grayed rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 h-fit"
+                    className="bg-white/6 border border-white/15 rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl hover:scale-[1.02] hover:border-emerald-300/35 hover:bg-emerald-400/5 transition-all duration-300 h-fit"
                     onClick={() => seleccionarHabitacion(habitacion)}
                   >
-                    <div className="bg-gradient-to-br from-main to-main-dark p-8 text-white text-center">
-                      <FaBed className="text-5xl mx-auto mb-2" />
-                      <h3 className="text-2xl font-bold">Habitación {habitacion.numero}</h3>
-                      <p className="text-sm opacity-90">{habitacion.tipo}</p>
+                    <div className="h-[130px] relative flex items-center justify-center text-white border-b border-white/10 bg-[linear-gradient(135deg,rgba(15,35,25,0.95),rgba(10,50,30,0.85))]">
+                      <span className="absolute top-3.5 left-4 text-[11px] font-bold tracking-[1.2px] uppercase text-white/35">
+                        N° {String(habitacion.numero).padStart(2, "0")}
+                      </span>
+                      <FaBed className="text-4xl relative z-10" />
                     </div>
-                    <div className="p-6 bg-white">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2 text-muted">
-                          <FaUsers />
-                          <span className="text-sm">2-4 personas</span>
-                        </div>
-                      </div>
-                      <div className="border-t pt-4">
+                    <div className="p-6 bg-black/20">
+                      <h3 className="text-lg font-bold text-white tracking-tight">Habitación {habitacion.numero}</h3>
+                      <p className="text-[12px] text-white/45 mt-0.5 mb-4">{habitacion.tipo}</p>
+                      <div className="border-t border-white/10 pt-4">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-muted text-sm">Precio por noche</span>
-                          <span className="text-xl font-bold text-main">
+                          <span className="text-white/60 text-sm">Precio por noche</span>
+                          <span className="text-xl font-bold text-emerald-300 font-mono">
                             ${habitacion.precio.toLocaleString()}
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-text font-semibold">Total {noches} {noches === 1 ? "noche" : "noches"}</span>
-                          <span className="text-2xl font-bold text-main">
+                          <span className="text-white font-semibold">Total {noches} {noches === 1 ? "noche" : "noches"}</span>
+                          <span className="text-2xl font-bold text-emerald-300">
                             ${(habitacion.precio * noches).toLocaleString()}
                           </span>
                         </div>
                       </div>
                       <button
                         onClick={() => seleccionarHabitacion(habitacion)}
-                        className="w-full mt-4 bg-main hover:bg-main-dark text-white font-bold py-3 px-4 rounded-lg transition-all"
+                        className="w-full mt-5 rounded-xl py-3 px-4 font-bold transition-all border border-white/15 bg-white/8 text-white/85 hover:bg-emerald-400/15 hover:border-emerald-300/35 hover:text-emerald-200"
                       >
-                        Seleccionar
+                        Seleccionar habitación
                       </button>
                     </div>
                   </div>
@@ -462,40 +464,40 @@ const ReservasPublicasPage = () => {
               <FaArrowLeft />
             </button>
 
-            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px]">
+            <div className="bg-white/6 border border-white/15 rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px] backdrop-blur-md">
               <div className="grid md:grid-cols-3 gap-6">
                 {/* Resumen */}
                 <div className="md:col-span-1">
-                  <div className="bg-grayed rounded-xl shadow-lg p-6">
-                    <h3 className="text-xl font-bold text-text mb-4">Resumen</h3>
+                  <div className="bg-white/6 border border-white/15 rounded-xl shadow-lg p-6">
+                    <h3 className="text-xl font-bold text-white mb-4">Resumen</h3>
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted">Habitación</span>
+                        <span className="text-white/60">Habitación</span>
                         <span className="font-semibold">{habitacionSeleccionada.numero}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted">Tipo</span>
+                        <span className="text-white/60">Tipo</span>
                         <span className="font-semibold">{habitacionSeleccionada.tipo}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted">Entrada</span>
+                        <span className="text-white/60">Entrada</span>
                         <span className="font-semibold">
                           {fechaInicio}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted">Salida</span>
+                        <span className="text-white/60">Salida</span>
                         <span className="font-semibold">
                           {fechaFin}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted">Noches</span>
+                        <span className="text-white/60">Noches</span>
                         <span className="font-semibold">{noches}</span>
                       </div>
                       <div className="border-t pt-3 flex justify-between items-center">
-                        <span className="font-bold text-text">Total</span>
-                        <span className="text-2xl font-bold text-main">
+                        <span className="font-bold text-white">Total</span>
+                        <span className="text-2xl font-bold text-emerald-300">
                           ${precioTotal.toLocaleString()}
                         </span>
                       </div>
@@ -505,8 +507,8 @@ const ReservasPublicasPage = () => {
 
                 {/* Formulario */}
                 <div className="md:col-span-2">
-                  <form onSubmit={enviarReserva} className="bg-grayed rounded-xl shadow-lg p-8">
-                    <h3 className="text-2xl font-bold text-text mb-6">
+                  <form onSubmit={enviarReserva} className="bg-white/6 border border-white/15 rounded-xl shadow-lg p-8">
+                    <h3 className="text-2xl font-bold text-white mb-6">
                       Tus datos
                     </h3>
 
@@ -578,31 +580,34 @@ const ReservasPublicasPage = () => {
                     </div>
 
                     {error && (
-                      <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                      <div className="mt-4 bg-red-500/15 border border-red-400/40 text-red-200 px-4 py-3 rounded-lg">
                         {error}
                       </div>
                     )}
+
+                    <div className="mt-5 mb-6 flex gap-3 bg-white/5 border border-white/10 rounded-xl p-3.5">
+                      <span className="text-sm">ℹ️</span>
+                      <p className="text-xs text-white/55 leading-5">
+                        Al confirmar, tu reserva quedará en estado <strong className="text-white/80">pendiente</strong> hasta que la administración la valide.
+                      </p>
+                    </div>
 
                     <div className="mt-6 flex gap-4">
                       <button
                         type="button"
                         onClick={() => setPaso(2)}
-                        className="flex-1 bg-gray-200 hover:bg-gray-300 text-text font-bold py-3 px-6 rounded-lg transition-all"
+                        className="bg-white/10 hover:bg-white/15 text-white/85 font-semibold py-3 px-6 rounded-xl transition-all border border-white/20"
                       >
                         ← Volver
                       </button>
                       <button
                         type="submit"
                         disabled={loading}
-                        className="flex-1 bg-main hover:bg-main-dark text-white font-bold py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 bg-emerald-400 hover:bg-emerald-300 text-[#0a2318] font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_6px_20px_rgba(52,211,153,0.22)]"
                       >
                         {loading ? "Procesando..." : "Confirmar reserva"}
                       </button>
                     </div>
-
-                    <p className="text-xs text-muted mt-4 text-center">
-                      Al confirmar, tu reserva quedará en estado pendiente hasta que la administración la valide.
-                    </p>
                   </form>
                 </div>
               </div>
@@ -613,37 +618,62 @@ const ReservasPublicasPage = () => {
         {/* Paso 4: Confirmación */}
         {paso === 4 && reservaExitosa && (
           <div className="max-w-2xl mx-auto animate-fade-in relative">
-            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px] flex flex-col justify-center text-center">
+            <div className="bg-white/6 border border-white/15 rounded-2xl shadow-xl p-8 md:p-12 min-h-[600px] flex flex-col justify-center text-center backdrop-blur-md">
               <div className="inline-block animate-bounce-in mx-auto">
-                <FaCheckCircle className="text-7xl text-success mb-6" />
+                <FaCheckCircle className="text-7xl text-emerald-300 mb-6" />
               </div>
 
-              <h2 className="text-3xl font-bold text-text mb-4">
+              <h2 className="text-3xl font-bold text-white mb-4">
                 ¡Reserva solicitada con éxito!
               </h2>
               
-              <p className="text-muted mb-6">
-                Tu reserva ha sido registrada y está en estado <strong className="text-main">PENDIENTE</strong>.
+              <p className="text-white/65 mb-6">
+                Tu reserva ha sido registrada y está en estado <strong className="text-emerald-300">PENDIENTE</strong>.
               </p>
 
-              <div className="bg-tertiary rounded-lg p-6 mb-6 text-left">
-                <h3 className="font-bold text-text mb-3">Próximos pasos:</h3>
-                <ol className="space-y-2 text-sm text-muted list-decimal list-inside">
+              <div className="bg-emerald-400/10 border border-emerald-300/20 rounded-lg p-6 mb-6 text-left">
+                <h3 className="font-bold text-white mb-3">Próximos pasos:</h3>
+                <ol className="space-y-2 text-sm text-white/70 list-decimal list-inside">
                   <li>La administración revisará tu reserva</li>
                   <li>Te contactaremos por teléfono con las instrucciones de pago</li>
                   <li>Una vez confirmado el pago, tu reserva será confirmada</li>
                 </ol>
               </div>
 
+              <div className="bg-white/6 border border-white/15 rounded-lg p-4 mb-6 text-sm text-left">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-white/50 block">Habitación</span>
+                    <span className="font-semibold">{habitacionSeleccionada?.numero}</span>
+                  </div>
+                  <div>
+                    <span className="text-white/50 block">Noches</span>
+                    <span className="font-semibold">{noches}</span>
+                  </div>
+                  <div>
+                    <span className="text-white/50 block">Entrada</span>
+                    <span className="font-semibold">
+                      {fechaInicio}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-white/50 block">Salida</span>
+                    <span className="font-semibold">
+                      {fechaFin}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               <button
                 onClick={reiniciar}
-                className="w-full bg-main hover:bg-main-dark text-white font-bold py-4 px-6 rounded-lg transition-all transform hover:scale-105 active:scale-95"
+                className="w-full bg-emerald-400 hover:bg-emerald-300 text-[#0a2318] font-bold py-4 px-6 rounded-lg transition-all"
               >
                 Hacer otra reserva
               </button>
 
-              <p className="text-xs text-muted mt-4">
-                Te contactaremos telefónicamente para confirmar los detalles
+              <p className="text-xs text-white/50 mt-4">
+                Te contactaremos por teléfono si hace falta.
               </p>
             </div>
           </div>
