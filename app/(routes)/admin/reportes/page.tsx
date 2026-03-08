@@ -360,7 +360,7 @@ const ReportesPage: React.FC = () => {
                     datasetLabel="Reservas"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-sm text-emerald-100/45">
+                  <div className="flex items-center justify-center h-full text-sm text-emerald-100/65">
                     Sin datos en el rango seleccionado
                   </div>
                 )}
@@ -384,7 +384,7 @@ const ReportesPage: React.FC = () => {
                     datasetLabel="Ocupación %"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-sm text-emerald-100/45">
+                  <div className="flex items-center justify-center h-full text-sm text-emerald-100/65">
                     Sin datos en el rango seleccionado
                   </div>
                 )}
@@ -461,7 +461,7 @@ const ReportesPage: React.FC = () => {
                 </div>
               </div>
               {exportData.range && (
-                <p className="text-xs text-emerald-100/45 mt-3">
+                <p className="text-xs text-emerald-100/65 mt-3">
                   <FaDownload className="inline mr-1" size={10} />
                   Período: {fmtDate(exportData.range.from)} al {fmtDate(exportData.range.to)}
                   {estado ? ` — Estado: ${estadoLabel}` : ""}
@@ -479,15 +479,15 @@ const ReportesPage: React.FC = () => {
               </div>
 
               {datosFormateados.length === 0 ? (
-                <div className="text-center py-16 text-emerald-100/45">
+                <div className="text-center py-16 text-emerald-100/65">
                   <FaTable size={40} className="mx-auto mb-3 opacity-40" />
                   <p className="font-medium">No hay reservas en el rango seleccionado</p>
                   <p className="text-sm mt-1">Ajustá los filtros para buscar resultados</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-black/20 text-emerald-100/65 text-xs uppercase tracking-wider">
+                  <table className="w-full text-[15px]">
+                    <thead className="bg-black/20 text-emerald-100/80 text-[12px] uppercase tracking-wider">
                       <tr>
                         <th className="px-4 py-3 text-left font-semibold">ID</th>
                         <th className="px-4 py-3 text-left font-semibold">Huésped</th>
@@ -501,7 +501,7 @@ const ReportesPage: React.FC = () => {
                         <th className="px-4 py-3 text-right font-semibold">Saldo</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/8 text-white/85">
+                    <tbody className="divide-y divide-white/8 text-white/90">
                       {datosFormateados.map((r) => {
                         const badge = getEstadoReservaTheme(r.estado as string).tw.badgeSoft;
 
@@ -515,7 +515,7 @@ const ReportesPage: React.FC = () => {
                             <td className="px-4 py-3 font-medium">{r.habitacion as string}</td>
                             <td className="px-4 py-3">
                               <span
-                                className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold capitalize ${badge}`}
+                                className={`inline-block px-2 py-0.5 rounded-full text-[12px] font-semibold capitalize ${badge}`}
                               >
                                 {r.estado as string}
                               </span>

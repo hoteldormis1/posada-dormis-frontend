@@ -97,6 +97,19 @@ const Reservas: React.FC = () => {
 
   const onSaveEdit = async (updatedRow: any) => {
     try {
+      const estadoOrigen = String(updatedRow?.estadoDeReserva || "").toLowerCase();
+      const estadoDestino = String(
+        (EstadoReservas ?? []).find(
+          (e: any) => Number(e?.idEstadoReserva) === Number(updatedRow?.idEstadoReserva)
+        )?.nombre || ""
+      ).toLowerCase();
+      const origenBloqueado = ["confirmada", "checkin", "checkout"].includes(estadoOrigen);
+      const destinoBloqueado = ["pendiente", "rechazada"].includes(estadoDestino);
+      if (origenBloqueado && destinoBloqueado) {
+        errorToast("No se puede volver a pendiente o rechazada si la reserva ya fue confirmada.");
+        return;
+      }
+
       const payload: any = {
         id: String(updatedRow.id),
         idEstadoReserva:
@@ -175,6 +188,20 @@ const Reservas: React.FC = () => {
     }
   };
 
+  const onSaveDeleteMany = async (ids: string[]): Promise<void> => {
+    const results = await Promise.allSettled(
+      ids.map((id) => dispatch(deleteReserva(id)).unwrap())
+    );
+    const ok = results.filter((r) => r.status === "fulfilled").length;
+    const fail = results.length - ok;
+    if (ok > 0) successToast(`${ok} reserva(s) eliminada(s).`);
+    if (fail > 0) {
+      errorToast(
+        `${fail} reserva(s) no se pudieron eliminar. Puede haber relaciones con otras tablas.`
+      );
+    }
+  };
+
   const { currentUser, tiposUsuarios } = useAppSelector((state: RootState) => state.user);
   const idTipoUsuarioActual = currentUser?.idTipoUsuario;
   const puedeBorrar = hasPermission(tiposUsuarios, idTipoUsuarioActual, "reserva", "delete");
@@ -195,9 +222,11 @@ const Reservas: React.FC = () => {
               columns={columns}
               data={data}
               showFormActions
+              showPagination
               onSaveEdit={onSaveEdit}
               onSaveAdd={onSaveAdd}
               onSaveDelete={onSaveDelete}
+              onSaveDeleteMany={onSaveDeleteMany}
               // 👇 ahora el form viene del builder reutilizable
               inputOptions={inputOptions}
               // 👇 y los custom fields compartidos

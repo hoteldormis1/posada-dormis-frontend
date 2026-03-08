@@ -24,21 +24,24 @@ const TableBody = <T,>({
 }: TableBodyProps<T>) => {
 	return (
 		<div className="overflow-x-auto h-80 md:h-114 border border-white/12 bg-white/3 rounded-2xl">
-			<table className="min-w-full text-left text-xs bg-transparent">
+			<table className="min-w-full text-left text-sm bg-transparent">
 				<thead className="bg-black/20 text-emerald-100/75">
 					{table.getHeaderGroups().map((headerGroup) => (
 						<tr key={headerGroup.id}>
 							{headerGroup.headers.map((header) => {
 								const colKey = header.column.id;
 								const isActive = sortField === colKey;
+								const canSort = header.column.getCanSort();
 								return (
 									<th
 										key={header.id}
-										onClick={() => handleHeaderClick(colKey)}
-										className="py-3 px-4 border-b border-white/10 cursor-pointer select-none text-center text-[11px] uppercase tracking-[0.05em] font-semibold"
+										onClick={() => canSort && handleHeaderClick(colKey)}
+									className={`py-3.5 px-4 border-b border-white/10 select-none text-center text-[12px] uppercase tracking-[0.05em] font-semibold ${
+										canSort ? "cursor-pointer" : "cursor-default"
+									}`}
 									>
 										{flexRender(header.column.columnDef.header, header.getContext())}
-										{isActive && (sortOrder === SortOrder.asc ? " 🔼" : " 🔽")}
+										{canSort && isActive && (sortOrder === SortOrder.asc ? " 🔼" : " 🔽")}
 									</th>
 								);
 							})}
@@ -48,9 +51,9 @@ const TableBody = <T,>({
 				<tbody>
 					{table.getRowModel().rows.length > 0 ? (
 						table.getRowModel().rows.map((row) => (
-							<tr key={row.id} className="hover:bg-white/6 text-white/80 h-[20px] border-b border-white/6">
+							<tr key={row.id} className="hover:bg-white/6 text-white/88 h-[20px] border-b border-white/6">
 								{row.getVisibleCells().map((cell) => (
-									<td key={cell.id} className="px-4 py-2 text-center">
+									<td key={cell.id} className="px-4 py-3 text-center text-[15px]">
 										{flexRender(cell.column.columnDef.cell, cell.getContext())}
 									</td>
 								))}
@@ -60,7 +63,7 @@ const TableBody = <T,>({
 						<tr>
 							<td
 								colSpan={columnsLength + (showFormActions ? 1 : 0)}
-								className="px-4 py-4 text-center text-emerald-100/55 italic"
+								className="px-4 py-5 text-center text-[15px] text-emerald-100/70 italic"
 							>
 								No hay resultados para mostrar
 							</td>

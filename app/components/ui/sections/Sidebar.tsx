@@ -135,7 +135,7 @@ export default function Sidebar() {
 			<div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
 				<div>
 					<h1 className="text-lg font-bold text-white leading-tight">Posada Dormi&apos;s</h1>
-					<p className="text-xs text-emerald-100/45">Mina Clavero — Córdoba</p>
+					<p className="text-xs text-emerald-100/65">Mina Clavero — Córdoba</p>
 				</div>
 				{/* Close button — mobile only */}
 				<button
@@ -151,7 +151,7 @@ export default function Sidebar() {
 			<nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
 				{visibleSections.map((section) => (
 					<div key={section.title}>
-						<p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-100/30">
+						<p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-100/55">
 							{section.title}
 						</p>
 						<ul className="space-y-1">
@@ -162,11 +162,11 @@ export default function Sidebar() {
 									<li key={name}>
 										<Link
 											href={link}
-											className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 border
+											className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[15px] font-medium transition-all duration-150 border
 												${
 													isActive
 														? "bg-emerald-400/15 border-emerald-300/30 text-emerald-300 shadow-[0_8px_20px_rgba(16,185,129,0.18)]"
-														: "border-transparent text-emerald-100/55 hover:bg-white/6 hover:border-white/10 hover:text-white"
+														: "border-transparent text-emerald-100/78 hover:bg-white/6 hover:border-white/10 hover:text-white"
 												}`}
 										>
 											<span className="shrink-0">{icon}</span>
@@ -184,7 +184,7 @@ export default function Sidebar() {
 			<div className="px-3 py-4 border-t border-white/10">
 				<button
 					onClick={handleLogout}
-					className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-emerald-100/60 hover:bg-red-500/10 hover:text-red-300 transition-all duration-150 cursor-pointer border border-transparent hover:border-red-400/20"
+					className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[15px] font-medium text-emerald-100/75 hover:bg-red-500/10 hover:text-red-300 transition-all duration-150 cursor-pointer border border-transparent hover:border-red-400/20"
 				>
 					<FaSignOutAlt size={18} />
 					Cerrar sesión

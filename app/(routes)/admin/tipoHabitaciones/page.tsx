@@ -195,6 +195,21 @@ const TipoHabitaciones = () => {
 		}
 	};
 
+	const onSaveDeleteMany = async (ids: string[]): Promise<void> => {
+		const results = await Promise.allSettled(
+			ids.map((id) => dispatch(deleteTipoHabitacion(Number(id))).unwrap())
+		);
+		const ok = results.filter((r) => r.status === "fulfilled").length;
+		const fail = results.length - ok;
+		await fetchData?.();
+		if (ok > 0) successToast(`${ok} tipo(s) de habitación eliminado(s).`);
+		if (fail > 0) {
+			errorToast(
+				`${fail} tipo(s) no se pudieron eliminar. Puede haber relaciones con otras tablas.`
+			);
+		}
+	};
+
 	const { currentUser } = useAppSelector((state: RootState) => state.user);
 	const { tiposUsuarios } = useAppSelector((state: RootState) => state.user);
 	const idTipoUsuarioActual = currentUser?.idTipoUsuario;
@@ -265,6 +280,7 @@ const TipoHabitaciones = () => {
 							onSaveEdit={onSaveEdit}
 							onSaveAdd={onSaveAdd}
 							onSaveDelete={onSaveDelete}
+							onSaveDeleteMany={onSaveDeleteMany}
 							inputOptions={inputOptions}
 							mapRowToFormData={mapRowToFormData}
 							showActions={{

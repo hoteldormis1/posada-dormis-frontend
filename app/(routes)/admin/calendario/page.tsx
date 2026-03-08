@@ -45,6 +45,10 @@ export default function CalendarioPage() {
       dispatch(fetchReservasCalendar(calRangeRef.current));
   });
 
+  const refreshCalendarInCurrentRange = useCallback(() => {
+    dispatch(fetchReservasCalendar(calRangeRef.current));
+  }, [dispatch]);
+
   // Socket: actualiza el calendario en tiempo real
   useReservasSocket({
     enabled: !!accessToken,
@@ -329,11 +333,8 @@ export default function CalendarioPage() {
     try {
       await dispatch(addReserva(payload)).unwrap();
       await dispatch(fetchReservas());
-      // Refrescar calendario
-      const hoy = new Date();
-      const startDate = toYMDLocal(hoy);
-      const endDate = toYMDLocal(new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000));
-      dispatch(fetchReservasCalendar({ startDate, endDate }));
+      // Refrescar calendario en el rango actualmente visible
+      refreshCalendarInCurrentRange();
       
       successToast("Reserva creada exitosamente.");
       setShowAddPopup(false);
@@ -341,7 +342,7 @@ export default function CalendarioPage() {
     } catch (err) {
       errorToast(typeof err === "string" ? err : "Error al crear reserva.");
     }
-  }, [dispatch, habitaciones, successToast, errorToast]);
+  }, [dispatch, habitaciones, successToast, errorToast, refreshCalendarInCurrentRange]);
 
   const isLoading = loadingHabitaciones || loadingCalendario === 'pending';
 
@@ -361,11 +362,8 @@ export default function CalendarioPage() {
             onRangeChange={handleRangeChange}
             onDateRangeSelect={handleDateRangeSelect}
             onRefreshCalendar={() => {
-              // Refrescar los datos del calendario
-              const hoy = new Date();
-              const startDate = toYMDLocal(hoy);
-              const endDate = toYMDLocal(new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000));
-              dispatch(fetchReservasCalendar({ startDate, endDate }));
+              // Refrescar los datos del calendario en el rango visible
+              refreshCalendarInCurrentRange();
             }}
           />
           
@@ -376,10 +374,7 @@ export default function CalendarioPage() {
               roomName={rooms.find(r => String(r.id) === String(selectedBooking.roomId))?.name}
               onClose={() => setSelectedBooking(null)}
               onStatusChange={() => {
-                const hoy = new Date();
-                const startDate = toYMDLocal(hoy);
-                const endDate = toYMDLocal(new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000));
-                dispatch(fetchReservasCalendar({ startDate, endDate }));
+                refreshCalendarInCurrentRange();
               }}
             />
           )}

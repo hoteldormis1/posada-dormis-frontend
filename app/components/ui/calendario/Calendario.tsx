@@ -325,15 +325,25 @@ export default function Calendario({
 
   useEffect(() => {
     const availableKeys = legendStates.map((estado) => estado.estadoKey);
+    const defaultInactiveKeys: EstadoReservaKey[] = ["cancelada", "pendiente"];
+    const defaultActiveKeys = availableKeys.filter(
+      (key) => !defaultInactiveKeys.includes(key)
+    );
     if (availableKeys.length === 0) {
       setSelectedEstadoKeys([]);
       return;
     }
 
     setSelectedEstadoKeys((prev) => {
-      if (prev.length === 0) return availableKeys;
+      if (prev.length === 0) {
+        return defaultActiveKeys.length > 0 ? defaultActiveKeys : availableKeys;
+      }
       const kept = prev.filter((key) => availableKeys.includes(key));
-      return kept.length > 0 ? kept : availableKeys;
+      return kept.length > 0
+        ? kept
+        : defaultActiveKeys.length > 0
+        ? defaultActiveKeys
+        : availableKeys;
     });
   }, [legendStates]);
 
@@ -350,25 +360,25 @@ export default function Calendario({
   }, [legendStates]);
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full font-[var(--font-sans)] text-[15px] ${className}`}>
       <div className="w-full overflow-hidden rounded-2xl border border-white/12 bg-[#071b12]/95 shadow-[0_16px_48px_rgba(0,0,0,0.4)]">
       {/* Header superior: mes centrado + navegación y HOY */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/8 bg-black/20 sticky top-0 z-10">
         <div className="flex items-center gap-2">
           <button
             onClick={() => move(-days)}
-            className="h-9 w-9 rounded-lg border border-white/12 bg-white/5 text-white/70 hover:bg-emerald-400/15 hover:border-emerald-300/30 hover:text-emerald-300 transition-colors"
+            className="h-9 w-9 rounded-lg border border-white/12 bg-white/5 text-white/75 hover:bg-emerald-400/15 hover:border-emerald-300/30 hover:text-emerald-300 transition-colors text-[16px]"
           >
             ⟨
           </button>
           <button
             onClick={() => move(days)}
-            className="h-9 w-9 rounded-lg border border-white/12 bg-white/5 text-white/70 hover:bg-emerald-400/15 hover:border-emerald-300/30 hover:text-emerald-300 transition-colors"
+            className="h-9 w-9 rounded-lg border border-white/12 bg-white/5 text-white/75 hover:bg-emerald-400/15 hover:border-emerald-300/30 hover:text-emerald-300 transition-colors text-[16px]"
           >
             ⟩
           </button>
         </div>
-        <div className="text-sm sm:text-base font-bold text-white select-none tracking-tight capitalize">
+        <div className="text-base sm:text-lg font-bold text-white select-none tracking-tight capitalize">
           {range.start.toLocaleDateString("es-AR", { month: "short", year: "numeric" })}
         </div>
         <button
@@ -377,7 +387,7 @@ export default function Calendario({
             setAnchor(today);
             onRangeChange?.(parseD(today), addDays(parseD(today), days));
           }}
-          className="px-3 py-1.5 rounded-lg border border-emerald-400/30 bg-emerald-400/12 text-emerald-300 text-xs font-semibold hover:bg-emerald-400/20 transition-colors"
+          className="px-3 py-1.5 rounded-lg border border-emerald-400/30 bg-emerald-400/12 text-emerald-300 text-sm font-semibold hover:bg-emerald-400/20 transition-colors"
         >
           HOY
         </button>
@@ -386,15 +396,15 @@ export default function Calendario({
       <div className="flex h-[620px] overflow-auto">
         {/* Columna fija: Habitación */}
         <div className="min-w-[220px] flex-shrink-0 border-r border-white/10 bg-[#081f14] sticky left-0 z-10">
-          <div className="h-11 border-b border-white/8 bg-black/20 text-[11px] font-semibold text-emerald-100/55 uppercase tracking-[0.08em]">
+          <div className="h-11 border-b border-white/8 bg-black/20 text-[12px] font-semibold text-emerald-100/75 uppercase tracking-[0.08em]">
             <div className="flex items-center pl-4 h-full">Habitación</div>
           </div>
 
           {rooms.map((r) => (
-            <div key={String(r.id)} className="h-12 border-b border-white/8 text-sm">
+            <div key={String(r.id)} className="h-12 border-b border-white/8 text-[15px]">
               <div className="flex items-center gap-2 pl-3">
                 <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="font-medium text-white/85 truncate">{r.name}</span>
+                <span className="font-medium text-white/92 truncate">{r.name}</span>
               </div>
             </div>
           ))}
@@ -403,7 +413,7 @@ export default function Calendario({
         {/* Cabecera días + grilla */}
         <div className="relative flex-1">
           {/* Header days */}
-          <div className="grid h-11 border-b border-white/8 text-[12px] text-white/70 bg-black/20" style={gridStyle}>
+          <div className="grid h-11 border-b border-white/8 text-[13px] text-white/80 bg-black/20" style={gridStyle}>
             {dayList.map((d, i) => {
               const isWeekend = [0, 6].includes(d.getDay());
               const isToday = parseD(new Date()).getTime() === parseD(d).getTime();
@@ -492,7 +502,7 @@ export default function Calendario({
                     return (
                       <div
                         key={String(b.id)}
-                        className="absolute top-1 h-10 px-2 rounded-md flex flex-col justify-between overflow-hidden text-[11px] shadow hover:brightness-110 hover:shadow-lg transition-all cursor-pointer pointer-events-auto"
+                        className="absolute top-1 h-10 px-2 rounded-md flex flex-col justify-between overflow-hidden text-[12px] shadow hover:brightness-110 hover:shadow-lg transition-all cursor-pointer pointer-events-auto"
                         style={{
                           left: b.left,
                           width: b.width,
@@ -515,7 +525,7 @@ export default function Calendario({
                             {b.guest ?? "Sin nombre"}
                           </span>
                         </div>
-                        <div className="text-[10px] leading-tight text-white/85 text-center mt-0.5 pointer-events-none">
+                        <div className="text-[11px] leading-tight text-white/90 text-center mt-0.5 pointer-events-none">
                           {b.price ? `$${b.price}` : ""}
                         </div>
                       </div>
@@ -547,7 +557,7 @@ export default function Calendario({
         <button
           type="button"
           onClick={activarTodosEstados}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors bg-white/6 border-white/14 text-white/75 hover:bg-white/12"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors bg-white/6 border-white/14 text-white/85 hover:bg-white/12"
         >
           Todos
         </button>
@@ -559,10 +569,10 @@ export default function Calendario({
               type="button"
               key={estado.key}
               onClick={() => toggleEstadoFilter(estado.estadoKey)}
-              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                 isActive
                   ? "bg-white/10 border-white/30 text-white"
-                  : "bg-transparent border-white/14 text-white/45 hover:bg-white/6 hover:text-white/70"
+                  : "bg-transparent border-white/14 text-white/60 hover:bg-white/6 hover:text-white/80"
               }`}
               title={`Filtrar por ${getEstadoReservaLabel(estado.nombre)}`}
             >

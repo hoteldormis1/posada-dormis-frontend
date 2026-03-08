@@ -46,8 +46,7 @@ function InfoCard({
       }}
     >
       <h3
-        className="text-[10px] font-semibold uppercase tracking-widest mb-1.5"
-        style={{ color: accent ?? "rgba(255,255,255,0.40)" }}
+        className="text-[12px] font-semibold uppercase tracking-widest mb-1.5 text-emerald-100/65"
       >
         {label}
       </h3>
@@ -124,6 +123,19 @@ export default function DetallesReservaPopup({
 
   const handleSetEstado = async (nuevoEstado: string) => {
     if (nuevoEstado === estadoLocal || estadoLoading) return;
+
+    const origen = String(estadoLocal || "").toLowerCase();
+    const destino = String(nuevoEstado || "").toLowerCase();
+    const origenBloqueado = ["confirmada", "checkin", "checkout"].includes(origen);
+    const destinoBloqueado = ["pendiente", "rechazada"].includes(destino);
+    if (origenBloqueado && destinoBloqueado) {
+      setEstadoError(
+        "No se puede volver a pendiente o rechazada si la reserva ya fue confirmada."
+      );
+      setEstadoSuccess(null);
+      return;
+    }
+
     setEstadoLoading(true);
     setEstadoError(null);
     setEstadoSuccess(null);
@@ -186,7 +198,7 @@ export default function DetallesReservaPopup({
           <InfoCard label="Noches">
             <p className="text-base font-semibold text-white">
               {noches}{" "}
-              <span className="text-xs text-white/40 font-normal">
+              <span className="text-xs text-white/55 font-normal">
                 {noches === 1 ? "noche" : "noches"}
               </span>
             </p>

@@ -13,7 +13,7 @@ export const fuenteDeSubtitulo = 'text-2xl font-semibold';
 
 // Input base
 export const inputBaseEstilos =
-  'admin-input block w-full text-sm rounded-xl bg-white/6 border border-white/15 ' +
+  'admin-input block w-full text-[15px] rounded-xl bg-white/6 border border-white/15 ' +
   'placeholder-white/30 text-white ' +
   'focus:outline-none focus:ring-2 focus:ring-[var(--color-main)] focus:border-[var(--color-main)] ' +
   'px-4 py-2.5 transition-all duration-200 ' +
@@ -25,7 +25,7 @@ export const inputErrorEstilos =
 
 // Label base
 export const labelBaseEstilos =
-  'block mb-2 text-sm font-semibold text-white';
+  'block mb-2 text-[15px] font-semibold text-emerald-100/90';
 
 // Mensaje de error
 export const mensajeErrorEstilos = 'text-red-300 text-xs mt-1.5 font-medium flex items-center gap-1';

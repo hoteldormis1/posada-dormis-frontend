@@ -74,7 +74,7 @@ function PopupFormEditar<T>({
 						className={`px-5 py-2.5 rounded-lg font-medium shadow-md transition-all duration-200 ${
 							hasErrors 
 								? 'bg-white/20 text-white/55 cursor-not-allowed opacity-60' 
-								: 'admin-button-primary hover:shadow-lg transform hover:-translate-y-0.5'
+								: 'cursor-pointer admin-button-primary hover:shadow-lg transform hover:-translate-y-0.5'
 						}`}
 					>
 						Guardar cambios

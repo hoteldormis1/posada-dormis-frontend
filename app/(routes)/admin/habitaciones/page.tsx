@@ -225,6 +225,21 @@ const Habitaciones = () => {
 		}
 	};
 
+	const onSaveDeleteMany = async (ids: string[]): Promise<void> => {
+		const results = await Promise.allSettled(
+			ids.map((id) => dispatch(deleteHabitacion(Number(id))).unwrap())
+		);
+		const ok = results.filter((r) => r.status === "fulfilled").length;
+		const fail = results.length - ok;
+		await fetchData?.();
+		if (ok > 0) successToast(`${ok} habitación(es) eliminada(s).`);
+		if (fail > 0) {
+			errorToast(
+				`${fail} habitación(es) no se pudieron eliminar. Puede haber relaciones con otras tablas.`
+			);
+		}
+	};
+
 	// ═══════════════ TIPOS DE HABITACIONES ═══════════════
 	const { status: statusTH } = useAppSelector((state: RootState) => state.tipoHabitaciones);
 
@@ -356,6 +371,21 @@ const Habitaciones = () => {
 		}
 	};
 
+	const onSaveDeleteManyTH = async (ids: string[]): Promise<void> => {
+		const results = await Promise.allSettled(
+			ids.map((id) => dispatch(deleteTipoHabitacion(Number(id))).unwrap())
+		);
+		const ok = results.filter((r) => r.status === "fulfilled").length;
+		const fail = results.length - ok;
+		await fetchDataTH?.();
+		if (ok > 0) successToast(`${ok} tipo(s) de habitación eliminado(s).`);
+		if (fail > 0) {
+			errorToast(
+				`${fail} tipo(s) no se pudieron eliminar. Puede haber relaciones con otras tablas.`
+			);
+		}
+	};
+
 	// ═══════════════ RENDER ═══════════════
 	const isLoading = activeTab === "habitaciones" ? status === StateStatus.loading : statusTH === StateStatus.loading;
 	const isFailed = activeTab === "habitaciones" ? status === StateStatus.failed : statusTH === StateStatus.failed;
@@ -415,6 +445,7 @@ const Habitaciones = () => {
 								onSaveEdit={onSaveEdit}
 								onSaveAdd={onSaveAdd}
 								onSaveDelete={onSaveDelete}
+								onSaveDeleteMany={onSaveDeleteMany}
 								inputOptions={inputOptions}
 								showActions={{ create: puedeAgregar, delete: puedeBorrar, edit: puedeEditar }}
 							/>
@@ -442,6 +473,7 @@ const Habitaciones = () => {
 							onSaveEdit={onSaveEditTH}
 							onSaveAdd={onSaveAddTH}
 							onSaveDelete={onSaveDeleteTH}
+							onSaveDeleteMany={onSaveDeleteManyTH}
 							inputOptions={inputOptionsTH}
 							mapRowToFormData={mapRowToFormDataTH}
 							showActions={{ create: puedeAgregarTH, delete: puedeBorrarTH, edit: puedeEditarTH }}

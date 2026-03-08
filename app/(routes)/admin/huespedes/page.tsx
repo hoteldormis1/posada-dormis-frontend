@@ -163,6 +163,20 @@ const HuespedesPage = () => {
 		}
 	};
 
+	const onSaveDeleteMany = async (ids: string[]): Promise<void> => {
+		const results = await Promise.allSettled(
+			ids.map((id) => dispatch(deleteHuesped(Number(id))).unwrap())
+		);
+		const ok = results.filter((r) => r.status === "fulfilled").length;
+		const fail = results.length - ok;
+		if (ok > 0) successToast(`${ok} huésped(es) eliminado(s).`);
+		if (fail > 0) {
+			errorToast(
+				`${fail} huésped(es) no se pudieron eliminar. Puede haber relaciones con otras tablas.`
+			);
+		}
+	};
+
 	// ═══════════════ LISTA NEGRA config ═══════════════
 	const inputOptionsLN: FormFieldInputConfig[] = [
 		{ key: "dni", type: "text", label: "DNI", editable: true },
@@ -242,6 +256,20 @@ const HuespedesPage = () => {
 		}
 	};
 
+	const onSaveDeleteManyLN = async (ids: string[]): Promise<void> => {
+		const results = await Promise.allSettled(
+			ids.map((id) => dispatch(deleteHuespedNoDeseado(Number(id))).unwrap())
+		);
+		const ok = results.filter((r) => r.status === "fulfilled").length;
+		const fail = results.length - ok;
+		if (ok > 0) successToast(`${ok} bloqueo(s) eliminado(s).`);
+		if (fail > 0) {
+			errorToast(
+				`${fail} registro(s) no se pudieron eliminar. Puede haber relaciones con otras tablas.`
+			);
+		}
+	};
+
 	// ═══════════════ RENDER ═══════════════
 	const isLoading = activeTab === "huespedes" ? status === StateStatus.loading : statusLN === StateStatus.loading;
 	const isFailed = activeTab === "huespedes" ? status === StateStatus.failed : statusLN === StateStatus.failed;
@@ -286,10 +314,11 @@ const HuespedesPage = () => {
 								columns={columns}
 								data={data}
 								showFormActions={true}
-								showPagination={false}
+								showPagination={true}
 								onSaveEdit={onSaveEdit}
 								onSaveAdd={onSaveAdd}
 								onSaveDelete={onSaveDelete}
+								onSaveDeleteMany={onSaveDeleteMany}
 								inputOptions={inputOptions}
 								showActions={{
 									create: puedeAgregar,
@@ -306,10 +335,11 @@ const HuespedesPage = () => {
 							columns={columnsLN}
 							data={dataLN}
 							showFormActions={true}
-							showPagination={false}
+							showPagination={true}
 							onSaveEdit={onSaveEditLN}
 							onSaveAdd={onSaveAddLN}
 							onSaveDelete={onSaveDeleteLN}
+							onSaveDeleteMany={onSaveDeleteManyLN}
 							inputOptions={inputOptionsLN}
 							showActions={{
 								create: puedeAgregarLN,

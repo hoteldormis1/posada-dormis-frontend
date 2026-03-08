@@ -263,7 +263,7 @@ const ContablePage: React.FC = () => {
           )}
 
           {resumen?.range && (
-            <p className="text-xs text-emerald-100/45">
+            <p className="text-xs text-emerald-100/65">
               Mostrando datos del {fmtDate(resumen.range.from)} al {fmtDate(resumen.range.to)}
             </p>
           )}
@@ -336,7 +336,7 @@ const ContablePage: React.FC = () => {
                         />
                       </div>
                     ) : (
-                      <div className="text-sm text-emerald-100/45">Sin datos en el rango seleccionado.</div>
+                      <div className="text-sm text-emerald-100/65">Sin datos en el rango seleccionado.</div>
                     )}
                   </div>
                 </div>
@@ -354,7 +354,7 @@ const ContablePage: React.FC = () => {
                         yType="money"
                       />
                     ) : (
-                      <div className="text-sm text-emerald-100/45">Sin datos en el rango seleccionado.</div>
+                      <div className="text-sm text-emerald-100/65">Sin datos en el rango seleccionado.</div>
                     )}
                   </div>
                 </div>
@@ -422,8 +422,8 @@ const ContablePage: React.FC = () => {
                 <h2 className="text-lg font-bold text-white">Tabla Resumen</h2>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-black/20 text-emerald-100/65 text-xs uppercase tracking-wider">
+                <table className="w-full text-[15px]">
+                  <thead className="bg-black/20 text-emerald-100/80 text-[12px] uppercase tracking-wider">
                     <tr>
                       <th className="px-5 py-3 text-left font-semibold">Estado</th>
                       <th className="px-5 py-3 text-right font-semibold">Cantidad</th>
@@ -432,7 +432,7 @@ const ContablePage: React.FC = () => {
                       <th className="px-5 py-3 text-right font-semibold">Saldo Pendiente</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/8 text-white/85">
+                  <tbody className="divide-y divide-white/8 text-white/90">
                     {estados.map((estado) => {
                       const cfg = getEstadoConfig(estado.nombre);
                       return (
