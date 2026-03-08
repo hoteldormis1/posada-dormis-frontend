@@ -35,6 +35,7 @@ import {
   normalizeEstadoReserva,
   getEstadoReservaLabel,
   getEstadoReservaChartColor,
+  type EstadoReservaKey,
 } from "@/utils/helpers/reservaEstado";
 
 // ─────────────────────────── Mapa de iconos/colores por estado ───────────────────────────
@@ -64,6 +65,12 @@ const getEstadoConfig = (estadoNombre: string) => {
     border: theme.tw.border,
   };
 };
+
+const CONTABLE_LEGEND: EstadoReservaKey[] = [
+  "confirmada",
+  "checkin",
+  "checkout",
+];
 
 // ─────────────────────────── Helpers de formato ───────────────────────────
 
@@ -125,21 +132,26 @@ const ContablePage: React.FC = () => {
 
   // Preset activo — default "MES"
   const [preset, setPreset] = useState<Preset>("MES");
+  const [selectedEstadoKeys, setSelectedEstadoKeys] = useState<EstadoReservaKey[]>([
+    "confirmada",
+    "checkin",
+    "checkout",
+  ]);
 
   // Rango de fechas en dd/mm/yyyy (para UI) — se inicializa con "Este mes"
   const [fromUI, setFromUI] = useState(() => getRangeFromPreset("MES").fromUI);
   const [toUI, setToUI] = useState(() => getRangeFromPreset("MES").toUI);
 
   /** Despacha ambos fetches con el mismo rango */
-  const fetchAmbos = (fromISO: string, toISO: string) => {
-    dispatch(fetchContableResumen({ from: fromISO, to: toISO }));
+  const fetchAmbos = (fromISO: string, toISO: string, estados: EstadoReservaKey[] = selectedEstadoKeys) => {
+    dispatch(fetchContableResumen({ from: fromISO, to: toISO, estados }));
     dispatch(fetchDashboardSummary({ from: fromISO, to: toISO, agruparPor: "day" }));
   };
 
   // Fetch inicial con rango del mes actual
   useEffect(() => {
     const { fromISO, toISO } = getRangeFromPreset("MES");
-    fetchAmbos(fromISO, toISO);
+    fetchAmbos(fromISO, toISO, selectedEstadoKeys);
   }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Siempre apunta al refetch con los filtros actuales (evita stale closure)
@@ -147,7 +159,7 @@ const ContablePage: React.FC = () => {
   useEffect(() => {
     const fromISO = ddmmToISO(fromUI) || getRangeFromPreset("MES").fromISO;
     const toISO = ddmmToISO(toUI) || getRangeFromPreset("MES").toISO;
-    refreshRef.current = () => fetchAmbos(fromISO, toISO);
+    refreshRef.current = () => fetchAmbos(fromISO, toISO, selectedEstadoKeys);
   });
 
   // Socket: actualiza los datos contables en tiempo real
@@ -168,7 +180,7 @@ const ContablePage: React.FC = () => {
     const { fromISO, toISO, fromUI: fUI, toUI: tUI } = getRangeFromPreset(p);
     setFromUI(fUI);
     setToUI(tUI);
-    fetchAmbos(fromISO, toISO);
+    fetchAmbos(fromISO, toISO, selectedEstadoKeys);
   };
 
   // Handler del input dd/mm/yyyy
@@ -182,8 +194,25 @@ const ContablePage: React.FC = () => {
     const fromISO = ddmmToISO(fromUI);
     const toISO = ddmmToISO(toUI);
     if (!fromISO || !toISO) return;
-    fetchAmbos(fromISO, toISO);
+    fetchAmbos(fromISO, toISO, selectedEstadoKeys);
   };
+
+  const toggleEstadoFilter = (key: EstadoReservaKey) => {
+    setSelectedEstadoKeys((prev) => {
+      const next = prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key];
+      const safeNext = next.length > 0 ? next : prev;
+      fetchAmbos(currentFromISO, currentToISO, safeNext);
+      return safeNext;
+    });
+  };
+
+  const activarTodosEstados = () => {
+    setSelectedEstadoKeys(CONTABLE_LEGEND);
+    fetchAmbos(currentFromISO, currentToISO, CONTABLE_LEGEND);
+  };
+
+  const currentFromISO = ddmmToISO(fromUI) || getRangeFromPreset("MES").fromISO;
+  const currentToISO = ddmmToISO(toUI) || getRangeFromPreset("MES").toISO;
 
   // Datos contables
   const estados = useMemo(() => resumen?.estados ?? [], [resumen]);
@@ -267,6 +296,37 @@ const ContablePage: React.FC = () => {
               Mostrando datos del {fmtDate(resumen.range.from)} al {fmtDate(resumen.range.to)}
             </p>
           )}
+          <div className="flex flex-wrap gap-x-3 gap-y-2 pt-1">
+            <button
+              type="button"
+              onClick={activarTodosEstados}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors bg-white/6 border-white/14 text-white/85 hover:bg-white/12"
+            >
+              Todos
+            </button>
+            {CONTABLE_LEGEND.map((estadoKey) => {
+              const theme = getEstadoReservaTheme(estadoKey);
+              const isActive = selectedEstadoKeys.includes(estadoKey);
+              return (
+                <button
+                  type="button"
+                  key={estadoKey}
+                  onClick={() => toggleEstadoFilter(estadoKey)}
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                    isActive
+                      ? "bg-white/10 border-white/30 text-white"
+                      : "bg-transparent border-white/14 text-white/60 hover:bg-white/6 hover:text-white/80"
+                  }`}
+                >
+                  <span
+                    className="inline-block h-2.5 w-2.5 rounded-[3px]"
+                    style={{ backgroundColor: theme.hex.color }}
+                  />
+                  {getEstadoReservaLabel(estadoKey)}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Loading / Error */}

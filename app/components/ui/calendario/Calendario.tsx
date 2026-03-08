@@ -299,7 +299,12 @@ export default function Calendario({
           nombre: estado.nombre,
           estadoKey: normalizeEstadoReserva(estado.nombre),
         }))
-        .filter((estado) => estado.estadoKey !== "rechazada")
+        .filter(
+          (estado) =>
+            estado.estadoKey !== "rechazada" &&
+            estado.estadoKey !== "cancelada" &&
+            estado.estadoKey !== "pendiente"
+        )
         .filter(
           (estado, index, arr) =>
             arr.findIndex((x) => x.estadoKey === estado.estadoKey) === index
@@ -320,15 +325,16 @@ export default function Calendario({
         nombre,
         estadoKey: normalizeEstadoReserva(nombre),
       }))
-      .filter((estado) => estado.estadoKey !== "rechazada");
+      .filter(
+        (estado) =>
+          estado.estadoKey !== "rechazada" &&
+          estado.estadoKey !== "cancelada" &&
+          estado.estadoKey !== "pendiente"
+      );
   }, [estadosReserva, bookings]);
 
   useEffect(() => {
     const availableKeys = legendStates.map((estado) => estado.estadoKey);
-    const defaultInactiveKeys: EstadoReservaKey[] = ["cancelada", "pendiente"];
-    const defaultActiveKeys = availableKeys.filter(
-      (key) => !defaultInactiveKeys.includes(key)
-    );
     if (availableKeys.length === 0) {
       setSelectedEstadoKeys([]);
       return;
@@ -336,14 +342,10 @@ export default function Calendario({
 
     setSelectedEstadoKeys((prev) => {
       if (prev.length === 0) {
-        return defaultActiveKeys.length > 0 ? defaultActiveKeys : availableKeys;
+        return availableKeys;
       }
       const kept = prev.filter((key) => availableKeys.includes(key));
-      return kept.length > 0
-        ? kept
-        : defaultActiveKeys.length > 0
-        ? defaultActiveKeys
-        : availableKeys;
+      return kept.length > 0 ? kept : availableKeys;
     });
   }, [legendStates]);
 

@@ -10,6 +10,11 @@ export enum TipoReserva {
 
 export type Reserva = {
   id: string; // idReserva como string
+  idReserva?: number;
+  idHuesped?: number;
+  idHabitacion?: number;
+  fechaDesde?: string | null;
+  fechaHasta?: string | null;
   numeroHab: number; // número de la habitación
   ingreso: string; // fechaDesde (ISO string)
   egreso: string;  // fechaHasta (ISO string)
@@ -18,7 +23,10 @@ export type Reserva = {
   telefonoHuesped?: string; // opcional
   montoPagado: number; // agregado para claridad en la tabla
   total: number; // monto total calculado
+  idEstadoReserva?: number;
   dniHuesped?: string; // opcional
+  origenHuesped?: string; // opcional
+  direccionHuesped?: string; // opcional
   huespedes?: Huesped[]; // opcional
 };
 

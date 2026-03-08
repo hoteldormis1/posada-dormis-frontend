@@ -1028,7 +1028,7 @@ const ReservasPublicasPage = () => {
                         <button
                           type="submit"
                           disabled={loading}
-                          className="flex-1 bg-emerald-400 hover:bg-emerald-300 text-[#0a2318] font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_6px_20px_rgba(52,211,153,0.22)]"
+                          className={loading ? "cursor-pointer flex-1 bg-emerald-400 hover:bg-emerald-300 text-[#0a2318] font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_6px_20px_rgba(52,211,153,0.22)]" : "cursor-pointer flex-1 bg-emerald-400 hover:bg-emerald-300 text-[#0a2318] font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_6px_20px_rgba(52,211,153,0.22)]"}
                         >
                           {loading ? "Procesando..." : "Confirmar reserva"}
                         </button>

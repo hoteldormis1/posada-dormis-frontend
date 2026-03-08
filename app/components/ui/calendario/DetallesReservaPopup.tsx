@@ -127,10 +127,10 @@ export default function DetallesReservaPopup({
     const origen = String(estadoLocal || "").toLowerCase();
     const destino = String(nuevoEstado || "").toLowerCase();
     const origenBloqueado = ["confirmada", "checkin", "checkout"].includes(origen);
-    const destinoBloqueado = ["pendiente", "rechazada"].includes(destino);
+    const destinoBloqueado = ["pendiente"].includes(destino);
     if (origenBloqueado && destinoBloqueado) {
       setEstadoError(
-        "No se puede volver a pendiente o rechazada si la reserva ya fue confirmada."
+        "No se puede volver a pendiente si la reserva ya fue confirmada."
       );
       setEstadoSuccess(null);
       return;
