@@ -117,7 +117,7 @@ const GraficoLinea: React.FC<Props> = ({
           labels: {
             boxWidth: 10,
             color: labelColor,
-            font: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "600" },
+            font: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "bold" },
             // solo mostrar el dataset del punto si tiene label
             filter: (item, chartData) => {
               const ds = chartData.datasets?.[item.datasetIndex || 0] as any;
@@ -129,7 +129,7 @@ const GraficoLinea: React.FC<Props> = ({
           display: !!title,
           text: title,
           color: labelColor,
-          font: { size: 12, family: "Poppins, Segoe UI, sans-serif", weight: "700" },
+          font: { size: 12, family: "Poppins, Segoe UI, sans-serif", weight: "bold" },
         },
         tooltip: {
           titleColor: labelColor,
@@ -138,7 +138,7 @@ const GraficoLinea: React.FC<Props> = ({
           borderColor: "rgba(255, 255, 255, 0.16)",
           borderWidth: 1,
           bodyFont: { size: 10, family: "Poppins, Segoe UI, sans-serif" },
-          titleFont: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "700" },
+          titleFont: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "bold" },
           callbacks: yType === "money"
             ? {
                 label: (ctx) => {
@@ -172,7 +172,7 @@ const GraficoLinea: React.FC<Props> = ({
             display: true,
             text: yTitle,
             color: labelColor,
-            font: { size: 11, family: "Poppins, Segoe UI, sans-serif", weight: "600" },
+            font: { size: 11, family: "Poppins, Segoe UI, sans-serif", weight: "bold" },
           },
         },
       },
@@ -220,14 +220,14 @@ const GraficoLinea: React.FC<Props> = ({
         labels: {
           boxWidth: 10,
           color: labelColor,
-          font: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "600" },
+          font: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "bold" },
         },
       },
       title: {
         display: !!title,
         text: title,
         color: labelColor,
-        font: { size: 12, family: "Poppins, Segoe UI, sans-serif", weight: "700" },
+        font: { size: 12, family: "Poppins, Segoe UI, sans-serif", weight: "bold" },
       },
       tooltip: {
         titleColor: labelColor,
@@ -236,7 +236,7 @@ const GraficoLinea: React.FC<Props> = ({
         borderColor: "rgba(255, 255, 255, 0.16)",
         borderWidth: 1,
         bodyFont: { size: 10, family: "Poppins, Segoe UI, sans-serif" },
-        titleFont: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "700" },
+        titleFont: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "bold" },
         callbacks: yType === "money"
           ? {
               label: (ctx) => {
@@ -271,7 +271,7 @@ const GraficoLinea: React.FC<Props> = ({
           display: true,
           text: yTitle,
           color: labelColor,
-          font: { size: 11, family: "Poppins, Segoe UI, sans-serif", weight: "600" },
+          font: { size: 11, family: "Poppins, Segoe UI, sans-serif", weight: "bold" },
         },
       },
     },
