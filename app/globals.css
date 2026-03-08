@@ -55,6 +55,21 @@
         margin: 0;
         padding: 0;
     }
+
+    html,
+    body {
+        font-family: var(--font-sans), "Poppins", "Segoe UI", sans-serif;
+        color: var(--admin-text);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    input,
+    button,
+    select,
+    textarea {
+        font: inherit;
+    }
 }
 
 /* Altura útil para elementos sticky dentro del viewport */

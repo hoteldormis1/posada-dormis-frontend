@@ -1094,7 +1094,7 @@ const ReservasPublicasPage = () => {
               </div>
 
               <p className="text-xs text-white/30 mb-6">
-                El enlace del email expira en 2 horas. Si no lo ves, revisá la carpeta de spam.
+                El enlace del email expira en 4 horas. Confirmalo cuanto antes: la disponibilidad no está garantizada hasta que confirmes. Si no ves el email, revisá spam.
               </p>
 
               <button

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { FaBed } from "react-icons/fa";
 
-type Estado = "cargando" | "confirmando" | "confirmado" | "cancelando" | "cancelado" | "error" | "expirado";
+type Estado = "cargando" | "confirmando" | "confirmado" | "cancelando" | "cancelado" | "error" | "expirado" | "no_disponible";
 
 export default function ConfirmarReservaPage() {
   const params = useSearchParams();
@@ -39,8 +39,7 @@ export default function ConfirmarReservaPage() {
           } else if (data.code === "TOKEN_EXPIRED") {
             setEstado("expirado");
           } else if (data.code === "ROOM_UNAVAILABLE") {
-            setEstado("error");
-            setMensaje(data.error ?? "La habitación ya no está disponible.");
+            setEstado("no_disponible");
           } else {
             setEstado("error");
             setMensaje(data.error ?? "Ocurrió un error al confirmar la reserva.");
@@ -152,6 +151,27 @@ export default function ConfirmarReservaPage() {
               </>
             )}
 
+            {/* Habitación no disponible */}
+            {estado === "no_disponible" && (
+              <>
+                <div className="w-16 h-16 rounded-2xl bg-orange-400/10 border border-orange-400/25 flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-8 h-8 text-orange-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-white mb-2">Habitación no disponible</h2>
+                <p className="text-sm text-white/50 mb-6 leading-relaxed">
+                  Lo sentimos, la habitación que seleccionaste ya fue reservada para esas fechas mientras esperabas confirmar. Podés buscar disponibilidad nuevamente.
+                </p>
+                <Link
+                  href="/"
+                  className="block w-full bg-orange-400/15 hover:bg-orange-400/25 border border-orange-400/30 text-orange-300 font-semibold py-3 px-6 rounded-xl transition-all text-center text-sm"
+                >
+                  Buscar otra habitación
+                </Link>
+              </>
+            )}
+
             {/* Token expirado */}
             {estado === "expirado" && (
               <>
@@ -162,7 +182,7 @@ export default function ConfirmarReservaPage() {
                 </div>
                 <h2 className="text-xl font-bold text-white mb-2">El enlace expiró</h2>
                 <p className="text-sm text-white/50 mb-6 leading-relaxed">
-                  Los enlaces de confirmación tienen una validez de 2 horas. Podés volver a solicitar la reserva desde el inicio.
+                  Los enlaces de confirmación tienen una validez de 4 horas. Podés volver a solicitar la reserva desde el inicio.
                 </p>
                 <Link
                   href="/"

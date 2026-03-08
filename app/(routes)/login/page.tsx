@@ -58,7 +58,7 @@ const Login: React.FC = () => {
             </ul>
           </div>
         </div>
-        <p className="text-xs text-white/30">© 2025 Posada Dormi&apos;s</p>
+        <p className="text-xs text-white/30">© 2026 Posada Dormi&apos;s</p>
       </section>
 
       <section className="login-right">

@@ -35,11 +35,9 @@ export default function AprobacionesPopup() {
   const [reservas, setReservas] = useState<ReservaPendiente[]>([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
-  // true mientras haya reservas pendientes que el usuario aún no abrió el popup para ver
   const [hasUnseen, setHasUnseen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const hasFetchedRef = useRef(false);
-  // ref sincronizado con `open` para leerlo dentro de fetchPendientes sin recrearla
   const openRef = useRef(false);
 
   const { confirm } = useSweetAlert();
@@ -51,7 +49,6 @@ export default function AprobacionesPopup() {
       const { data } = await api.get('/reservas/pendientes');
       const lista: ReservaPendiente[] = Array.isArray(data) ? data : [];
       setReservas(lista);
-      // Solo activa la animación si el popup está cerrado — si está abierto el usuario ya las está viendo
       if (lista.length > 0 && !openRef.current) setHasUnseen(true);
     } catch {
       setReservas([]);
@@ -60,7 +57,6 @@ export default function AprobacionesPopup() {
     }
   }, []);
 
-  /** Refresca el calendario y la tabla de reservas en el store */
   const refreshStore = useCallback(() => {
     const hoy = new Date();
     const startDate = toYMDLocal(hoy);
@@ -69,32 +65,23 @@ export default function AprobacionesPopup() {
     dispatch(fetchReservas());
   }, [dispatch]);
 
-  // ─── WebSocket ────────────────────────────────────────────────────────────
   useReservasSocket({
     enabled: !!accessToken,
-    onNuevaReserva: () => {
-      fetchPendientes(); // refresca lista y activa hasUnseen automáticamente
-    },
-    onReservaActualizada: () => {
-      refreshStore();
-      fetchPendientes();
-    },
+    onNuevaReserva: () => { fetchPendientes(); },
+    onReservaActualizada: () => { refreshStore(); fetchPendientes(); },
   });
 
-  // Fetch on first mount
   useEffect(() => {
     if (!accessToken || hasFetchedRef.current) return;
     hasFetchedRef.current = true;
     fetchPendientes();
   }, [accessToken, fetchPendientes]);
 
-  // Re-fetch when pathname changes
   useEffect(() => {
     if (!accessToken || !hasFetchedRef.current) return;
     fetchPendientes();
   }, [pathname, accessToken, fetchPendientes]);
 
-  // Close popup on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
@@ -106,7 +93,6 @@ export default function AprobacionesPopup() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [open]);
 
-  // Close popup on route change
   useEffect(() => {
     openRef.current = false;
     setOpen(false);
@@ -117,8 +103,8 @@ export default function AprobacionesPopup() {
     openRef.current = willOpen;
     setOpen(willOpen);
     if (willOpen) {
-      setHasUnseen(false); // primero apaga la animación...
-      fetchPendientes();   // ...luego refresca (openRef ya es true, no la reactivará)
+      setHasUnseen(false);
+      fetchPendientes();
     }
   };
 
@@ -172,81 +158,133 @@ export default function AprobacionesPopup() {
 
   return (
     <div className="relative" ref={popupRef}>
-      {/* Bell button */}
+
+      {/* ── Bell button ───────────────────────────────────────── */}
       <button
         onClick={togglePopup}
-        className={`relative p-2.5 rounded-xl border transition-all duration-150 cursor-pointer
+        className={`
+          relative p-2.5 rounded-xl border transition-all duration-200 cursor-pointer
           ${open
-            ? 'text-white bg-white/12 border-white/20'
-            : 'text-emerald-100/60 border-white/10 bg-white/5 hover:bg-white/10 hover:text-white'}`}
+            ? 'text-white bg-white/10 border-white/20 shadow-inner'
+            : 'text-white/50 border-white/10 bg-white/[0.04] hover:bg-white/10 hover:text-white hover:border-white/20'
+          }
+        `}
         title="Reservas pendientes de aprobación"
       >
-        {/* Icono: se sacude mientras haya pendientes no vistos */}
         <span className={hasUnseen ? 'block animate-[bellShake_0.7s_ease-in-out_infinite]' : 'block'}>
-          <FaBell size={22} />
+          <FaBell size={20} />
         </span>
 
-        {/* Badge con contador */}
-        <span className={`absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[20px] h-5 px-1 text-[11px] font-bold rounded-full transition-all border
-          ${pendingCount > 0 ? 'bg-amber-400 text-[#1f1303] border-amber-300' : 'bg-white/20 text-white/70 border-white/20'}`}>
+        {/* Badge */}
+        <span
+          className={`
+            absolute -top-1.5 -right-1.5 flex items-center justify-center
+            min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full
+            border transition-all duration-300
+            ${pendingCount > 0
+              ? 'bg-amber-400 text-amber-950 border-amber-300/60 shadow-[0_0_8px_rgba(251,191,36,0.5)]'
+              : 'bg-white/10 text-white/40 border-white/10'
+            }
+          `}
+        >
           {pendingCount}
         </span>
 
-        {/* Aro pulsante mientras haya pendientes no vistos */}
+        {/* Ping ring */}
         {hasUnseen && (
-          <span className="absolute inset-0 rounded-full ring-2 ring-amber-400 animate-ping pointer-events-none" />
+          <span className="absolute inset-0 rounded-xl ring-2 ring-amber-400/70 animate-ping pointer-events-none" />
         )}
       </button>
 
-      {/* Dropdown popup */}
+      {/* ── Dropdown ──────────────────────────────────────────── */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-[#071d13]/98 rounded-xl shadow-2xl border border-white/12 z-50 overflow-hidden backdrop-blur-xl">
+        <div
+          className="
+            absolute right-0 top-full mt-2 w-[22rem]
+            bg-[#07190f] rounded-2xl border border-white/[0.08]
+            shadow-[0_24px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)]
+            z-50 overflow-hidden backdrop-blur-2xl
+            animate-[fadeSlideDown_0.18s_ease-out_both]
+          "
+        >
           {/* Header */}
-          <div className="px-4 py-3 border-b border-white/10">
-            <h3 className="text-sm font-semibold text-white">Reservas pendientes de aprobación</h3>
+          <div className="px-4 py-3 border-b border-white/[0.07] flex items-center justify-between bg-white/[0.025]">
+            <div className="flex items-center gap-2.5">
+              {/* Dot indicator */}
+              <span
+                className={`
+                  w-2 h-2 rounded-full flex-shrink-0
+                  ${pendingCount > 0
+                    ? 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)] animate-pulse'
+                    : 'bg-white/20'
+                  }
+                `}
+              />
+              <h3 className="text-xs font-semibold tracking-wide text-white/80 uppercase">
+                Reservas pendientes
+              </h3>
+            </div>
+            {pendingCount > 0 && (
+              <span className="text-[11px] font-semibold text-amber-400/80 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full">
+                {pendingCount} {pendingCount === 1 ? 'nueva' : 'nuevas'}
+              </span>
+            )}
           </div>
 
           {/* Content */}
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-[340px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+
+            {/* Loading */}
             {loading && (
-              <div className="flex items-center justify-center py-8">
-                <div className="w-5 h-5 border-2 border-main border-t-transparent rounded-full animate-spin" />
+              <div className="flex items-center justify-center py-10">
+                <div className="w-5 h-5 border-2 border-emerald-400/60 border-t-transparent rounded-full animate-spin" />
               </div>
             )}
 
+            {/* Empty state */}
             {!loading && reservas.length === 0 && (
-              <div className="py-8 text-center">
-                <FaCheck className="mx-auto text-emerald-300/50 mb-2" size={24} />
-                <p className="text-sm text-emerald-100/45">Sin reservas pendientes</p>
+              <div className="py-10 text-center px-6">
+                <div className="w-10 h-10 rounded-full bg-emerald-400/10 border border-emerald-400/15 flex items-center justify-center mx-auto mb-3">
+                  <FaCheck className="text-emerald-400/50" size={16} />
+                </div>
+                <p className="text-sm font-medium text-white/30">Sin reservas pendientes</p>
+                <p className="text-xs text-white/15 mt-1">Todo al día ✓</p>
               </div>
             )}
 
+            {/* List */}
             {!loading && reservas.length > 0 && (
-              <ul className="divide-y divide-white/8">
+              <ul className="divide-y divide-white/[0.06]">
                 {reservas.map((r) => (
-                  <li key={r.id} className="px-4 py-3 hover:bg-white/6 transition-colors">
-                    {/* Guest info */}
-                    <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <span className="text-sm font-medium text-white truncate">
+                  <li
+                    key={r.id}
+                    className="px-4 py-3.5 hover:bg-white/[0.04] transition-colors duration-150 group"
+                  >
+                    {/* Guest name + email badge */}
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-sm font-semibold text-white/90 truncate leading-tight">
                         {r.huespedNombre}
                       </span>
                       {r.emailHuesped && (
-                        <span className="text-[10px] bg-emerald-400/15 text-emerald-300 border border-emerald-300/25 px-1.5 py-0.5 rounded-full shrink-0">
-                          email
+                        <span className="flex-shrink-0 text-[10px] font-medium tracking-wide bg-sky-400/10 text-sky-300/80 border border-sky-400/20 px-2 py-0.5 rounded-full">
+                          {r.emailHuesped}
                         </span>
                       )}
                     </div>
 
-                    {/* Details */}
-                    <div className="text-xs text-emerald-100/50 space-y-0.5 mb-2">
-                      <p>
-                        <span className="font-medium text-emerald-200">Hab. {r.numeroHab}</span>
-                        {' — '}
-                        {formatDate(r.ingreso)} al {formatDate(r.egreso)}
-                      </p>
-                      <p>
-                        Total: <span className="font-medium text-emerald-200">${Number(r.total).toLocaleString('es-AR')}</span>
-                      </p>
+                    {/* Details row */}
+                    <div className="flex items-center gap-1.5 mb-3">
+                      <span className="text-[11px] font-semibold text-emerald-400/90 bg-emerald-400/10 border border-emerald-400/15 px-1.5 py-0.5 rounded-md">
+                        Hab. {r.numeroHab}
+                      </span>
+                      <span className="text-white/20 text-xs">·</span>
+                      <span className="text-[11px] text-white/40">
+                        {formatDate(r.ingreso)} → {formatDate(r.egreso)}
+                      </span>
+                      <span className="text-white/20 text-xs ml-auto">·</span>
+                      <span className="text-[11px] font-semibold text-white/70">
+                        ${Number(r.total).toLocaleString('es-AR')}
+                      </span>
                     </div>
 
                     {/* Actions */}
@@ -254,24 +292,37 @@ export default function AprobacionesPopup() {
                       <button
                         onClick={() => handleAprobar(r.id)}
                         disabled={actionLoading === r.id}
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-emerald-300 border border-emerald-400/35 hover:bg-emerald-500 hover:text-[#062317] hover:border-emerald-400 disabled:opacity-50 transition-colors cursor-pointer"
+                        className="
+                          flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-lg
+                          text-emerald-300 border border-emerald-500/30 bg-emerald-500/10
+                          hover:bg-emerald-500 hover:text-white hover:border-emerald-400
+                          disabled:opacity-40 disabled:cursor-not-allowed
+                          transition-all duration-150 cursor-pointer
+                        "
                       >
                         {actionLoading === r.id ? (
                           <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
                         ) : (
-                          <FaCheck size={10} />
+                          <FaCheck size={9} />
                         )}
                         Aprobar
                       </button>
+
                       <button
                         onClick={() => handleRechazar(r.id)}
                         disabled={actionLoading === r.id}
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md text-red-300 border border-red-400/35 hover:bg-red-500 hover:text-white hover:border-red-400 disabled:opacity-50 transition-colors cursor-pointer"
+                        className="
+                          flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-lg
+                          text-red-300/80 border border-red-500/25 bg-red-500/8
+                          hover:bg-red-500 hover:text-white hover:border-red-400
+                          disabled:opacity-40 disabled:cursor-not-allowed
+                          transition-all duration-150 cursor-pointer
+                        "
                       >
                         {actionLoading === r.id ? (
                           <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
                         ) : (
-                          <FaTimes size={10} />
+                          <FaTimes size={9} />
                         )}
                         Rechazar
                       </button>
@@ -281,6 +332,15 @@ export default function AprobacionesPopup() {
               </ul>
             )}
           </div>
+
+          {/* Footer */}
+          {!loading && reservas.length > 0 && (
+            <div className="px-4 py-2.5 border-t border-white/[0.06] bg-white/[0.015]">
+              <p className="text-[10px] text-white/20 text-center">
+                Se notificará al huésped por email al aprobar o rechazar
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

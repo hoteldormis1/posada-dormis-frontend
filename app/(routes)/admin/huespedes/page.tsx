@@ -30,6 +30,11 @@ const HuespedesPage = () => {
 	const { confirm } = useSweetAlert();
 
 	const [activeTab, setActiveTab] = useState<"huespedes" | "listaNegra">("huespedes");
+	const tabBase =
+		"inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border transition-colors cursor-pointer";
+	const tabActive = "bg-emerald-400/20 text-emerald-200 border-emerald-300/30 shadow";
+	const tabIdle =
+		"bg-white/6 text-emerald-100/70 border-white/14 hover:bg-white/12 hover:border-white/25";
 
 	// ─── Huéspedes ───
 	const { datos: huespedes, status, error } = useAppSelector(
@@ -246,25 +251,17 @@ const HuespedesPage = () => {
 		<div className={pantallaPrincipalEstilos}>
 			<div className="m-auto w-full sm:w-11/12 md:w-10/12 pt-6">
 				{/* Tabs */}
-				<div className="flex gap-2 mb-4">
+				<div className="flex flex-wrap gap-2 mb-4">
 					<button
 						onClick={() => setActiveTab("huespedes")}
-						className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors duration-200 shadow-md cursor-pointer ${
-							activeTab === "huespedes"
-								? "bg-main text-white"
-								: "bg-white text-main border border-main hover:bg-main/10"
-						}`}
+						className={`${tabBase} ${activeTab === "huespedes" ? tabActive : tabIdle}`}
 					>
 						<FaUsers size={18} />
 						Huéspedes
 					</button>
 					<button
 						onClick={() => setActiveTab("listaNegra")}
-						className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors duration-200 shadow-md cursor-pointer ${
-							activeTab === "listaNegra"
-								? "bg-red-600 text-white"
-								: "bg-white text-red-600 border border-red-600 hover:bg-red-50"
-						}`}
+						className={`${tabBase} ${activeTab === "listaNegra" ? tabActive : tabIdle}`}
 					>
 						<FaBan size={18} />
 						Bloqueados

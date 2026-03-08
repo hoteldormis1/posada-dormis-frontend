@@ -54,6 +54,11 @@ const GraficoLinea: React.FC<Props> = ({
   yType = "number",
   currency = "ARS",
 }) => {
+  const labelColor = "rgba(236, 253, 245, 0.85)";
+  const mutedLabelColor = "rgba(236, 253, 245, 0.65)";
+  const gridColor = "rgba(255, 255, 255, 0.08)";
+  const tooltipBg = "rgba(7, 27, 18, 0.95)";
+
   const { isSingle, yMax } = useMemo(() => {
     const isSingle = labels.length === 1;
     const allValues = datasets.flatMap((d) => d.data ?? []);
@@ -111,7 +116,8 @@ const GraficoLinea: React.FC<Props> = ({
           position: "top",
           labels: {
             boxWidth: 10,
-            font: { size: 10 },
+            color: labelColor,
+            font: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "600" },
             // solo mostrar el dataset del punto si tiene label
             filter: (item, chartData) => {
               const ds = chartData.datasets?.[item.datasetIndex || 0] as any;
@@ -119,9 +125,20 @@ const GraficoLinea: React.FC<Props> = ({
             },
           },
         },
-        title: { display: !!title, text: title, font: { size: 12 } },
+        title: {
+          display: !!title,
+          text: title,
+          color: labelColor,
+          font: { size: 12, family: "Poppins, Segoe UI, sans-serif", weight: "700" },
+        },
         tooltip: {
-          bodyFont: { size: 10 },
+          titleColor: labelColor,
+          bodyColor: labelColor,
+          backgroundColor: tooltipBg,
+          borderColor: "rgba(255, 255, 255, 0.16)",
+          borderWidth: 1,
+          bodyFont: { size: 10, family: "Poppins, Segoe UI, sans-serif" },
+          titleFont: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "700" },
           callbacks: yType === "money"
             ? {
                 label: (ctx) => {
@@ -144,12 +161,19 @@ const GraficoLinea: React.FC<Props> = ({
         y: {
           beginAtZero: true,
           suggestedMax: yMax * 1.3,
+          grid: { color: gridColor },
           ticks: {
-            font: { size: 10 },
+            color: mutedLabelColor,
+            font: { size: 10, family: "Poppins, Segoe UI, sans-serif" },
             callback: (val) =>
               yType === "money" ? formatMoney(Number(val), currency) : String(val),
           },
-          title: { display: true, text: yTitle },
+          title: {
+            display: true,
+            text: yTitle,
+            color: labelColor,
+            font: { size: 11, family: "Poppins, Segoe UI, sans-serif", weight: "600" },
+          },
         },
       },
     };
@@ -191,10 +215,28 @@ const GraficoLinea: React.FC<Props> = ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top", labels: { boxWidth: 10, font: { size: 10 } } },
-      title: { display: !!title, text: title, font: { size: 12 } },
+      legend: {
+        position: "top",
+        labels: {
+          boxWidth: 10,
+          color: labelColor,
+          font: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "600" },
+        },
+      },
+      title: {
+        display: !!title,
+        text: title,
+        color: labelColor,
+        font: { size: 12, family: "Poppins, Segoe UI, sans-serif", weight: "700" },
+      },
       tooltip: {
-        bodyFont: { size: 10 },
+        titleColor: labelColor,
+        bodyColor: labelColor,
+        backgroundColor: tooltipBg,
+        borderColor: "rgba(255, 255, 255, 0.16)",
+        borderWidth: 1,
+        bodyFont: { size: 10, family: "Poppins, Segoe UI, sans-serif" },
+        titleFont: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "700" },
         callbacks: yType === "money"
           ? {
               label: (ctx) => {
@@ -208,17 +250,29 @@ const GraficoLinea: React.FC<Props> = ({
     },
     scales: {
       x: {
-        ticks: { font: { size: 10 }, maxRotation: 0, autoSkip: true },
-        grid: { display: false },
+        ticks: {
+          color: mutedLabelColor,
+          font: { size: 10, family: "Poppins, Segoe UI, sans-serif" },
+          maxRotation: 0,
+          autoSkip: true,
+        },
+        grid: { color: gridColor },
       },
       y: {
         beginAtZero: true,
+        grid: { color: gridColor },
         ticks: {
-          font: { size: 10 },
+          color: mutedLabelColor,
+          font: { size: 10, family: "Poppins, Segoe UI, sans-serif" },
           callback: (val) =>
             yType === "money" ? formatMoney(Number(val), currency) : String(val),
         },
-        title: { display: true, text: yTitle },
+        title: {
+          display: true,
+          text: yTitle,
+          color: labelColor,
+          font: { size: 11, family: "Poppins, Segoe UI, sans-serif", weight: "600" },
+        },
       },
     },
   };
