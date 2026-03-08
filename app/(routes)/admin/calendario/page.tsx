@@ -183,9 +183,10 @@ export default function CalendarioPage() {
       labelBaseEstilos,
       inputBaseEstilos,
       habitaciones: { datos: habitaciones },
+      estadosReserva: (EstadoReservas ?? []) as EstadoReserva[],
     });
     return { origen, montoPagado } as const;
-  }, [habitaciones]);
+  }, [habitaciones, EstadoReservas]);
 
   // 🧭 Mapear habitaciones del backend → Room (memo para identidad estable)
   const rooms: Room[] = useMemo(
