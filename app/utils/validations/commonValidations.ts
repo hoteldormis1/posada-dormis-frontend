@@ -17,13 +17,30 @@ export const dniSchema = z
   .min(1, "El DNI es obligatorio")
   .regex(/^\d{7,8}$/, "El DNI debe tener 7 u 8 dígitos");
 
-// Validación de teléfono (flexible para formatos internacionales)
+// Validación de teléfono: debe tener prefijo de país (+X a +XXX) seguido de 6-12 dígitos
+// Ejemplo válido: +5493516789012  |  +598999123456  |  +1 2025551234
 export const telefonoSchema = z
   .string()
   .min(1, "El teléfono es obligatorio")
-  .min(8, "Debe tener al menos 8 caracteres")
-  .max(20, "No puede exceder 20 caracteres")
-  .regex(/^[\d\s\-\+\(\)]{8,20}$/, "Formato de teléfono inválido");
+  .transform((val) => val.replace(/\s/g, ""))
+  .refine(
+    (val) => /^\+\d{1,3}\d{6,12}$/.test(val),
+    "Formato inválido. Ej: +5493516789012"
+  );
+
+/**
+ * Normaliza un teléfono: quita espacios y caracteres no numéricos excepto el + inicial.
+ * Si ya empieza con + lo respeta, si no, prepende el prefijo por defecto (+549).
+ */
+export function normalizeTelefono(value: string, defaultPrefix = "+549"): string {
+  if (!value) return "";
+  const trimmed = value.trim();
+  if (trimmed.startsWith("+")) {
+    return trimmed.replace(/(?<=^\+\d+)\D+/g, "").replace(/\s/g, "");
+  }
+  const digitsOnly = trimmed.replace(/\D/g, "");
+  return `${defaultPrefix}${digitsOnly}`;
+}
 
 // Validación de email
 export const emailSchema = z

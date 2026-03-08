@@ -1,4 +1,4 @@
-export type FieldInputType = "text" | "number" | "select" | "date" | "custom" | "range";
+export type FieldInputType = "text" | "number" | "select" | "date" | "custom" | "range" | "phone";
 
 export interface FormFieldInputOptionsConfig{
   value: string | number;

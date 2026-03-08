@@ -14,6 +14,7 @@ const PUBLIC_ROUTES = [
   "/verificarCuenta",
   "/resetPassword",
   "/olvidarContrasena",
+  "/confirmar-reserva",
 ];
 
 const isPublicRoute = (path: string | null): boolean => {

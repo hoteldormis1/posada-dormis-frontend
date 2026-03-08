@@ -5,6 +5,7 @@ import { FieldInputType, FormFieldInputOptionsConfig } from "@/models/types";
 import InputForm from "./InputForm";
 import SelectForm from "./SelectForm";
 import InputDateForm from "./InputDateForm";
+import PhoneInput from "./PhoneInput";
 
 interface DynamicInputFieldProps {
   inputKey: string;
@@ -40,6 +41,19 @@ const DynamicInputField: React.FC<DynamicInputFieldProps> = ({
         error={error}
         disabled={disabled}
         placeholderOption="Seleccionar..."
+      />
+    );
+  }
+
+  if (inputType === "phone") {
+    return (
+      <PhoneInput
+        inputKey={inputKey}
+        label={label}
+        value={value}
+        onChange={onChange as React.ChangeEventHandler<HTMLInputElement>}
+        error={error}
+        disabled={disabled}
       />
     );
   }

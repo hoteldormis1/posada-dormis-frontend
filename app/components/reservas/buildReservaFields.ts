@@ -47,7 +47,7 @@ export function buildReservaFields(
     },
     { 
       key: "telefono", 
-      type: "text",  
+      type: "phone",  
       label: "Teléfono", 
       editable: ({ formData }: any) => formData.huespedMode !== "existente",
     },
