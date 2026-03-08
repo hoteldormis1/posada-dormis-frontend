@@ -72,14 +72,15 @@ const Paginator = ({
 					id="pageSizeSelect"
 					value={pageSize}
 					onChange={(e) => onPageSizeChange(Number(e.target.value))}
-					className="rounded-md border border-white/20 bg-white/5 text-white px-3 py-1.5 text-[15px]"
+					className="rounded-md border border-white/20 bg-white/5 text-white px-3 py-1.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-emerald-400/45 focus:border-emerald-400/55"
+					style={{ colorScheme: "dark" }}
 				>
-					<option value={1}>1</option>
-					<option value={5}>5</option>
-					<option value={10}>10</option>
-					<option value={20}>20</option>
-					<option value={50}>50</option>
-					<option value={100}>100</option>
+					<option value={1} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>1</option>
+					<option value={5} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>5</option>
+					<option value={10} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>10</option>
+					<option value={20} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>20</option>
+					<option value={50} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>50</option>
+					<option value={100} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>100</option>
 				</select>
 			</div>
 

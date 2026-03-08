@@ -19,7 +19,7 @@ const OrigenField: React.FC<Props> = ({ value, onChange, disabled, labelClass = 
         onSelect={(code) => onChange(code)}
         searchable
         placeholder="Seleccioná un país"
-        className={disabled ? "opacity-60 cursor-not-allowed" : ""}
+        className={`origen-flags-select ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
         disabled={disabled}
       />
     </div>

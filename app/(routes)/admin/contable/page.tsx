@@ -198,12 +198,12 @@ const ContablePage: React.FC = () => {
   };
 
   const toggleEstadoFilter = (key: EstadoReservaKey) => {
-    setSelectedEstadoKeys((prev) => {
-      const next = prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key];
-      const safeNext = next.length > 0 ? next : prev;
-      fetchAmbos(currentFromISO, currentToISO, safeNext);
-      return safeNext;
-    });
+    const next = selectedEstadoKeys.includes(key)
+      ? selectedEstadoKeys.filter((k) => k !== key)
+      : [...selectedEstadoKeys, key];
+    const safeNext = next.length > 0 ? next : selectedEstadoKeys;
+    setSelectedEstadoKeys(safeNext);
+    fetchAmbos(currentFromISO, currentToISO, safeNext);
   };
 
   const activarTodosEstados = () => {
@@ -300,7 +300,7 @@ const ContablePage: React.FC = () => {
             <button
               type="button"
               onClick={activarTodosEstados}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors bg-white/6 border-white/14 text-white/85 hover:bg-white/12"
+              className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors bg-white/6 border-white/14 text-white/85 hover:bg-white/12"
             >
               Todos
             </button>
@@ -312,7 +312,7 @@ const ContablePage: React.FC = () => {
                   type="button"
                   key={estadoKey}
                   onClick={() => toggleEstadoFilter(estadoKey)}
-                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                  className={`cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                     isActive
                       ? "bg-white/10 border-white/30 text-white"
                       : "bg-transparent border-white/14 text-white/60 hover:bg-white/6 hover:text-white/80"
