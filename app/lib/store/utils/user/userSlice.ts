@@ -298,12 +298,10 @@ const userSlice = createSlice({
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.loading = false;
         state.currentUser = action.payload;
-        console.log("[userSlice] currentUser set:", action.payload);
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.loading = false;
         state.currentUser = initialState.currentUser;
-        console.warn("[userSlice] fetchCurrentUser rejected:", action.payload);
       });
 
     builder

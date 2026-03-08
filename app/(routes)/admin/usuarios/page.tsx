@@ -149,6 +149,29 @@ const Usuarios = () => {
 		}
 	  };
 
+	  const onSaveDeleteMany = async (ids: string[]): Promise<void> => {
+		const idsPermitidos = ids.filter((id) =>
+			canDeleteRow({
+				id: id,
+				idUsuario: Number(id),
+				idTipoUsuario: (data.find((u) => String(u.idUsuario) === String(id)) as any)?.idTipoUsuario,
+			} as Record<string, any>)
+		);
+		const bloqueados = ids.length - idsPermitidos.length;
+		const results = await Promise.allSettled(
+			idsPermitidos.map((id) => api.delete(`/usuarios/${id}`, { withCredentials: true }))
+		);
+		const ok = results.filter((r) => r.status === "fulfilled").length;
+		const fail = results.length - ok + bloqueados;
+		await handleSearch?.();
+		if (ok > 0) successToast(`${ok} usuario(s) eliminado(s).`);
+		if (fail > 0) {
+			errorToast(
+				`${fail} usuario(s) no se pudieron eliminar. Puede haber relaciones con otras tablas.`
+			);
+		}
+	  };
+
 	const inputOptions: FormFieldInputConfig[] = [
 		{
 			key: "nombre",
@@ -228,6 +251,7 @@ const Usuarios = () => {
 						sortOrder={sortOrder}
 						onSaveAdd={onSaveAdd}
 						onSaveDelete={onSaveDelete}
+						onSaveDeleteMany={onSaveDeleteMany}
 						onSaveEdit={()=>null}
 						inputOptions={inputOptions}
 						showFormActions={true}

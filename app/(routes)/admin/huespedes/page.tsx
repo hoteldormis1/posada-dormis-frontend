@@ -30,6 +30,11 @@ const HuespedesPage = () => {
 	const { confirm } = useSweetAlert();
 
 	const [activeTab, setActiveTab] = useState<"huespedes" | "listaNegra">("huespedes");
+	const tabBase =
+		"inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border transition-colors cursor-pointer";
+	const tabActive = "bg-emerald-400/20 text-emerald-200 border-emerald-300/30 shadow";
+	const tabIdle =
+		"bg-white/6 text-emerald-100/70 border-white/14 hover:bg-white/12 hover:border-white/25";
 
 	// ─── Huéspedes ───
 	const { datos: huespedes, status, error } = useAppSelector(
@@ -158,6 +163,20 @@ const HuespedesPage = () => {
 		}
 	};
 
+	const onSaveDeleteMany = async (ids: string[]): Promise<void> => {
+		const results = await Promise.allSettled(
+			ids.map((id) => dispatch(deleteHuesped(Number(id))).unwrap())
+		);
+		const ok = results.filter((r) => r.status === "fulfilled").length;
+		const fail = results.length - ok;
+		if (ok > 0) successToast(`${ok} huésped(es) eliminado(s).`);
+		if (fail > 0) {
+			errorToast(
+				`${fail} huésped(es) no se pudieron eliminar. Puede haber relaciones con otras tablas.`
+			);
+		}
+	};
+
 	// ═══════════════ LISTA NEGRA config ═══════════════
 	const inputOptionsLN: FormFieldInputConfig[] = [
 		{ key: "dni", type: "text", label: "DNI", editable: true },
@@ -237,6 +256,20 @@ const HuespedesPage = () => {
 		}
 	};
 
+	const onSaveDeleteManyLN = async (ids: string[]): Promise<void> => {
+		const results = await Promise.allSettled(
+			ids.map((id) => dispatch(deleteHuespedNoDeseado(Number(id))).unwrap())
+		);
+		const ok = results.filter((r) => r.status === "fulfilled").length;
+		const fail = results.length - ok;
+		if (ok > 0) successToast(`${ok} bloqueo(s) eliminado(s).`);
+		if (fail > 0) {
+			errorToast(
+				`${fail} registro(s) no se pudieron eliminar. Puede haber relaciones con otras tablas.`
+			);
+		}
+	};
+
 	// ═══════════════ RENDER ═══════════════
 	const isLoading = activeTab === "huespedes" ? status === StateStatus.loading : statusLN === StateStatus.loading;
 	const isFailed = activeTab === "huespedes" ? status === StateStatus.failed : statusLN === StateStatus.failed;
@@ -246,25 +279,17 @@ const HuespedesPage = () => {
 		<div className={pantallaPrincipalEstilos}>
 			<div className="m-auto w-full sm:w-11/12 md:w-10/12 pt-6">
 				{/* Tabs */}
-				<div className="flex gap-2 mb-4">
+				<div className="flex flex-wrap gap-2 mb-4">
 					<button
 						onClick={() => setActiveTab("huespedes")}
-						className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors duration-200 shadow-md cursor-pointer ${
-							activeTab === "huespedes"
-								? "bg-main text-white"
-								: "bg-white text-main border border-main hover:bg-main/10"
-						}`}
+						className={`${tabBase} ${activeTab === "huespedes" ? tabActive : tabIdle}`}
 					>
 						<FaUsers size={18} />
 						Huéspedes
 					</button>
 					<button
 						onClick={() => setActiveTab("listaNegra")}
-						className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors duration-200 shadow-md cursor-pointer ${
-							activeTab === "listaNegra"
-								? "bg-red-600 text-white"
-								: "bg-white text-red-600 border border-red-600 hover:bg-red-50"
-						}`}
+						className={`${tabBase} ${activeTab === "listaNegra" ? tabActive : tabIdle}`}
 					>
 						<FaBan size={18} />
 						Bloqueados
@@ -289,10 +314,11 @@ const HuespedesPage = () => {
 								columns={columns}
 								data={data}
 								showFormActions={true}
-								showPagination={false}
+								showPagination={true}
 								onSaveEdit={onSaveEdit}
 								onSaveAdd={onSaveAdd}
 								onSaveDelete={onSaveDelete}
+								onSaveDeleteMany={onSaveDeleteMany}
 								inputOptions={inputOptions}
 								showActions={{
 									create: puedeAgregar,
@@ -309,10 +335,11 @@ const HuespedesPage = () => {
 							columns={columnsLN}
 							data={dataLN}
 							showFormActions={true}
-							showPagination={false}
+							showPagination={true}
 							onSaveEdit={onSaveEditLN}
 							onSaveAdd={onSaveAddLN}
 							onSaveDelete={onSaveDeleteLN}
+							onSaveDeleteMany={onSaveDeleteManyLN}
 							inputOptions={inputOptionsLN}
 							showActions={{
 								create: puedeAgregarLN,

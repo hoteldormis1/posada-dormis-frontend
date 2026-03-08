@@ -6,13 +6,14 @@ import "react-datepicker/dist/react-datepicker.css";
 import {
   inputBaseEstilos,
   inputErrorEstilos,
-  labelBaseEstilos,
+  labelBaseEstilos as defaultLabelBaseEstilos,
   mensajeErrorEstilos,
 } from "@/styles/global-styles";
 
 interface InputDateFormProps {
   inputKey: string;
   label: string;
+  labelBaseEstilos?: string;
   value: string; // esperado: "dd/MM/yyyy"
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; // mantiene compatibilidad con tus handlers
   error?: string;
@@ -40,6 +41,7 @@ const formatDDMMYYYY = (date: Date | null): string => {
 const InputDateForm: React.FC<InputDateFormProps> = ({
   inputKey,
   label,
+  labelBaseEstilos: labelClassName,
   value,
   onChange,
   error,
@@ -49,7 +51,7 @@ const InputDateForm: React.FC<InputDateFormProps> = ({
   maxDate,
 }) => {
   const baseClass = `${inputBaseEstilos} ${error ? inputErrorEstilos : ""} ${
-    disabled ? "opacity-60 cursor-not-allowed bg-gray-100 dark:bg-gray-800" : ""
+    disabled ? "opacity-60 cursor-not-allowed bg-white/5" : ""
   }`;
 
   const selectedDate = parseDDMMYYYY(value);
@@ -66,7 +68,7 @@ const InputDateForm: React.FC<InputDateFormProps> = ({
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={inputKey} className={labelBaseEstilos}>
+      <label htmlFor={inputKey} className={labelClassName ?? defaultLabelBaseEstilos}>
         {label}
       </label>
       <DatePicker

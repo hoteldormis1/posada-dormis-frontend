@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { LoginIzquierda, InputForm } from "../../components";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { useRouter } from "next/navigation";
 import { recuperarPasswordSchema } from "@/utils/validations/authSchema";
@@ -28,7 +27,7 @@ const OlvidarContrasena = () => {
         setLoading(true);
 
         try {
-            const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
+            const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
             
             const response = await fetch(`${baseURL}/auth/password-reset/request`, {
                 method: 'POST',
@@ -64,70 +63,84 @@ const OlvidarContrasena = () => {
     };
 
     return (
-        <div
-            className="flex flex-col justify-center items-center min-h-screen w-full bg-cover bg-center"
-            style={{ backgroundImage: "url('/carlos_paz.png')" }}
-        >
-            <div className="flex flex-col w-full md:w-auto md:flex-row px-8">
-                <LoginIzquierda includeDescription={false}/>
+        <div className="login-screen">
+            <section className="login-left">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl border border-emerald-400/30 bg-emerald-400/15 flex items-center justify-center text-sm">
+                        🏠
+                    </div>
+                    <div>
+                        <p className="text-white font-semibold leading-tight">Posada Dormi&apos;s</p>
+                        <p className="text-xs text-white/55">Mina Clavero, Córdoba</p>
+                    </div>
+                </div>
 
-                <div className="flex flex-col justify-center w-full md:w-1/2 bg-black bg-opacity-80 p-8 text-white">
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-semibold mb-2">¿Olvidaste tu contraseña?</h2>
-                        <p className="text-sm text-gray-300">
+                <div className="flex-1 flex items-center">
+                    <div>
+                        <p className="text-sm md:text-base font-semibold text-emerald-300 tracking-[0.16em] uppercase mb-6">
+                            Recuperar acceso
+                        </p>
+                        <h1 className="text-5xl md:text-6xl font-semibold leading-[1.05] tracking-tight max-w-[520px]">
+                            Volvé a entrar <br />
+                            de forma <span className="italic text-emerald-300">segura</span>
+                        </h1>
+                        <p className="mt-6 text-white/70 max-w-[420px] text-[15px] md:text-[17px] leading-7">
                             Ingresá tu email y te enviaremos un enlace para restablecer tu contraseña.
                         </p>
                     </div>
-
-                    <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-                        <InputForm
-                            inputKey="email"
-                            InputForm="email"
-                            placeholder="usuario@ejemplo.com"
-                            value={email}
-                            onChange={(e) => {
-                                setEmail(e.target.value);
-                                if (error) setError(undefined);
-                            }}
-                            error={error}
-                            disabled={loading}
-                            required
-                        >
-                            Email
-                        </InputForm>
-
-                        <div className="grid grid-cols-2 gap-3 pt-4">
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className={`w-full bg-[#43AC6A] hover:bg-[#389357] text-white py-2.5 px-4 rounded-lg transition-all duration-200 font-medium ${
-                                    loading ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg transform hover:-translate-y-0.5'
-                                }`}
-                            >
-                                {loading ? (
-                                    <span className="flex items-center justify-center gap-2">
-                                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Enviando...
-                                    </span>
-                                ) : (
-                                    'Enviar'
-                                )}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => router.push("/login")}
-                                className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2.5 px-4 rounded-lg transition-all duration-200 font-medium"
-                            >
-                                Volver
-                            </button>
-                        </div>
-                    </form>
                 </div>
-            </div>
+                <p className="text-xs text-white/30">© 2026 Posada Dormi&apos;s</p>
+            </section>
+
+            <section className="login-right">
+                <div className="w-full max-w-[360px]">
+                    <h2 className="login-panel-title md:text-[2rem]">¿Olvidaste tu contraseña?</h2>
+                    <p className="login-panel-subtitle mb-8">
+                        Te enviaremos un enlace para restablecerla
+                    </p>
+
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label htmlFor="email" className="login-field-label">Correo electrónico</label>
+                            <input
+                                id="email"
+                                type="email"
+                                placeholder="usuario@ejemplo.com"
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    if (error) setError(undefined);
+                                }}
+                                disabled={loading}
+                                required
+                                className="login-field-input"
+                            />
+                            {error && <p className="text-red-300 text-xs mt-1.5">{error}</p>}
+                        </div>
+
+                        <button type="submit" disabled={loading} className="login-cta">
+                            {loading ? "Enviando..." : "Enviar enlace →"}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => router.push("/login")}
+                            className="w-full rounded-xl border border-white/20 text-white/85 hover:bg-white/8 py-3 transition"
+                        >
+                            Volver al login
+                        </button>
+                    </form>
+
+                    <div className="flex items-center gap-3 my-6">
+                        <span className="h-px flex-1 bg-white/10" />
+                        <span className="text-[11px] text-white/30">Sistema interno</span>
+                        <span className="h-px flex-1 bg-white/10" />
+                    </div>
+                    <p className="text-center text-[11px] text-white/20 tracking-wide">
+                        POSADA DORMI&apos;S
+                    </p>
+                </div>
+            </section>
         </div>
     );
 };

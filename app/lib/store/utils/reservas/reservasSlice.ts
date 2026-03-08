@@ -65,6 +65,22 @@ export const editReserva = createAsyncThunk<
   }
 });
 
+export const setEstadoReserva = createAsyncThunk<
+  { id: number; estado: string },
+  { id: string; nombre: string },
+  { rejectValue: string }
+>("reservas/setEstado", async ({ id, nombre }, { rejectWithValue }) => {
+  try {
+    const { data } = await api.put(`/reservas/${id}/estado`, { nombre });
+    return data as { id: number; estado: string };
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    return rejectWithValue(
+      extractErrorMessage(axiosError, "No se pudo cambiar el estado")
+    );
+  }
+});
+
 export const deleteReserva = createAsyncThunk<
   string,
   string,

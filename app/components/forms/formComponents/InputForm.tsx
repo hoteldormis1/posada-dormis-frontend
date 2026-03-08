@@ -40,7 +40,7 @@ const InputTypeComponent = (
   const fieldClass = `
     ${inputBaseEstilos}
     ${error ? inputErrorEstilos : ""}
-    ${disabled ? "opacity-60 cursor-not-allowed bg-gray-100 dark:bg-gray-800" : ""}
+    ${disabled ? "opacity-60 cursor-not-allowed bg-white/5" : ""}
     ${InputForm === "password" ? "pr-10" : ""}
   `;
 
@@ -71,7 +71,7 @@ const InputTypeComponent = (
           <button
             type="button"
             onClick={() => setShow((s) => !s)}
-            className="absolute inset-y-0 right-3 flex items-center justify-center top-1/2 -translate-y-1/2 text-[var(--color-muted)] hover:text-[var(--color-text)]"
+            className="absolute inset-y-0 right-3 flex items-center justify-center top-1/2 -translate-y-1/2 text-white/45 hover:text-white"
             tabIndex={-1}
             aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
           >

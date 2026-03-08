@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useCallback, useState } from "react";
+import React, { useEffect, useMemo, useCallback, useState, useRef } from "react";
 import { pantallaPrincipalEstilos, inputBaseEstilos, labelBaseEstilos } from "@/styles/global-styles";
 import { fetchHabitaciones } from "@/lib/store/utils/habitaciones/habitacionesSlice";
 import { fetchReservasCalendar } from "@/lib/store/utils/calendario/calendarioSlice";
 import { AppDispatch, RootState } from "@/lib/store/store";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { useReservasSocket } from "@/hooks/useReservasSocket";
 import { Booking, Room } from "@/components/ui/calendario/Calendario";
 import CalendarioContainer from "@/components/ui/calendario/CalendarioContainer";
 import { toYMDLocal } from "@/utils/helpers/date";
@@ -24,11 +25,36 @@ import { EstadoReserva } from "@/models/types";
 import FormRenderer from "@/components/reservas/FormRenderer";
 import { useHuespedFormLogic } from "@/hooks/useHuespedFormLogic";
 import DetallesReservaPopup from "@/components/ui/calendario/DetallesReservaPopup";
+import EstadoSlider from "@/components/ui/calendario/EstadoSlider";
 
 export default function CalendarioPage() {
   const dispatch: AppDispatch = useAppDispatch();
 
   const { accessToken } = useAppSelector((state: RootState) => state.user);
+
+  // Ref que guarda el rango visible actual del calendario para usarlo en el socket
+  const calRangeRef = useRef({
+    startDate: toYMDLocal(new Date()),
+    endDate: toYMDLocal(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
+  });
+
+  // Siempre apunta al refetch con el rango actual (evita stale closure)
+  const refreshRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    refreshRef.current = () =>
+      dispatch(fetchReservasCalendar(calRangeRef.current));
+  });
+
+  const refreshCalendarInCurrentRange = useCallback(() => {
+    dispatch(fetchReservasCalendar(calRangeRef.current));
+  }, [dispatch]);
+
+  // Socket: actualiza el calendario en tiempo real
+  useReservasSocket({
+    enabled: !!accessToken,
+    onNuevaReserva: () => refreshRef.current(),
+    onReservaActualizada: () => refreshRef.current(),
+  });
 
   // Cargar habitaciones y datos del calendario - solo si hay token
   useEffect(() => {
@@ -134,6 +160,22 @@ export default function CalendarioPage() {
       return field;
     });
   }, [habitacionesOrdenadas, EstadoReservas, huespedesOpts]);
+  const inputOptionsSinEstado = useMemo(
+    () => inputOptions.filter((field) => field.key !== "idEstadoReserva"),
+    [inputOptions]
+  );
+  const estadoPendienteId = useMemo(() => {
+    const pendiente = (EstadoReservas ?? []).find(
+      (e: any) => String(e?.nombre || "").toLowerCase() === "pendiente"
+    );
+    return pendiente?.idEstadoReserva ?? "";
+  }, [EstadoReservas]);
+  const estadoActualNombre = useMemo(() => {
+    const estado = (EstadoReservas ?? []).find(
+      (e: any) => Number(e?.idEstadoReserva) === Number(formData?.idEstadoReserva)
+    );
+    return String(estado?.nombre || "");
+  }, [EstadoReservas, formData?.idEstadoReserva]);
 
   // ✅ custom fields (Origen, MontoPagado)
   const customFields = useMemo(() => {
@@ -170,41 +212,21 @@ export default function CalendarioPage() {
       // Si no hay bookings del backend, usar datos de ejemplo para debug
       if (calendarioBookings.length === 0) {
         const hoy = new Date();
-        const mañana = new Date(hoy.getTime() + 24 * 60 * 60 * 1000);
-        const pasadoMañana = new Date(hoy.getTime() + 2 * 24 * 60 * 60 * 1000);
-        
-        return [
-          /*{
-            id: 'ejemplo1',
-            roomId: rooms[0]?.id || 1,
-            start: hoy.toISOString().slice(0, 10),
-            end: mañana.toISOString().slice(0, 10),
-            guest: 'Cliente de Prueba',
-            price: 500,
-            status: 'pendiente',
-          },
-          {
-            id: 'ejemplo2', 
-            roomId: rooms[1]?.id || 2,
-            start: mañana.toISOString().slice(0, 10),
-            end: pasadoMañana.toISOString().slice(0, 10),
-            guest: 'Otro Cliente',
-            price: 750,
-            status: 'confirmada',
-          }*/
-        ];
       }
       
-      return (calendarioBookings as any[]).map((b) => ({
-        id: b.id ?? b.idReserva,
-        roomId: b.roomId ?? b.roomNumber ?? b.idHabitacion, // Incluir roomNumber del backend
-        start: b.start ?? b.fechaDesde,
-        end: b.end ?? b.fechaHasta,
-        guest: b.guest ?? b.huespedNombre,
-        price: b.price ?? b.montoTotal,
-        status: b.status ?? b.estadoReserva,
-        idEstadoReserva: b.idEstadoReserva,
-      }));
+      return (calendarioBookings as any[]).map((b) => {
+        return {
+          id: b.id ?? b.idReserva,
+          roomId: b.roomId ?? b.roomNumber ?? b.idHabitacion,
+          start: b.start ?? b.fechaDesde,
+          end: b.end ?? b.fechaHasta,
+          guest: b.guest ?? b.huespedNombre,
+          price: b.price ?? b.montoTotal,
+          montoPagado: Number(b.montoPagado ?? 0),
+          status: b.status ?? b.estadoReserva,
+          idEstadoReserva: b.idEstadoReserva,
+        }
+      });
     },
     [calendarioBookings, rooms.length] // Solo dependemos de la longitud de rooms, no del objeto completo
   );
@@ -224,6 +246,7 @@ export default function CalendarioPage() {
   const handleRangeChange = useCallback((start: Date, end: Date) => {
     const startDate = toYMDLocal(start);
     const endDate = toYMDLocal(end);
+    calRangeRef.current = { startDate, endDate }; // mantener ref sincronizada
     dispatch(fetchReservasCalendar({ startDate, endDate }));
   }, [dispatch]);
 
@@ -249,7 +272,7 @@ export default function CalendarioPage() {
       idHabitacion: habitacionSeleccionada?.idHabitacion || range.roomId,
       fechaDesde: formatToDDMMYYYY(range.start),
       fechaHasta: formatToDDMMYYYY(range.end),
-      idEstadoReserva: "",
+      idEstadoReserva: estadoPendienteId,
       montoPagado: "",
       // Campos de huésped
       nombre: "",
@@ -265,7 +288,7 @@ export default function CalendarioPage() {
     setFormData(newFormData);
     setSelectedRange(range);
     setShowAddPopup(true);
-  }, [habitacionesOrdenadas]);
+  }, [habitacionesOrdenadas, estadoPendienteId]);
 
   // 💾 Función para guardar nueva reserva
   const onSaveAdd = useCallback(async (formData: Record<string, unknown>) => {
@@ -310,11 +333,8 @@ export default function CalendarioPage() {
     try {
       await dispatch(addReserva(payload)).unwrap();
       await dispatch(fetchReservas());
-      // Refrescar calendario
-      const hoy = new Date();
-      const startDate = toYMDLocal(hoy);
-      const endDate = toYMDLocal(new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000));
-      dispatch(fetchReservasCalendar({ startDate, endDate }));
+      // Refrescar calendario en el rango actualmente visible
+      refreshCalendarInCurrentRange();
       
       successToast("Reserva creada exitosamente.");
       setShowAddPopup(false);
@@ -322,14 +342,14 @@ export default function CalendarioPage() {
     } catch (err) {
       errorToast(typeof err === "string" ? err : "Error al crear reserva.");
     }
-  }, [dispatch, habitaciones, successToast, errorToast]);
+  }, [dispatch, habitaciones, successToast, errorToast, refreshCalendarInCurrentRange]);
 
   const isLoading = loadingHabitaciones || loadingCalendario === 'pending';
 
   return (
-    <div className={"bg-background p-4 content-shell " + pantallaPrincipalEstilos}>
+    <div className={"p-4 content-shell " + pantallaPrincipalEstilos}>
       {isLoading ? (
-        <div className="p-4 text-sm text-gray-600">
+        <div className="p-4 text-sm text-emerald-100/70">
           <LoadingSpinner/>
         </div>
       ) : (
@@ -342,11 +362,8 @@ export default function CalendarioPage() {
             onRangeChange={handleRangeChange}
             onDateRangeSelect={handleDateRangeSelect}
             onRefreshCalendar={() => {
-              // Refrescar los datos del calendario
-              const hoy = new Date();
-              const startDate = toYMDLocal(hoy);
-              const endDate = toYMDLocal(new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000));
-              dispatch(fetchReservasCalendar({ startDate, endDate }));
+              // Refrescar los datos del calendario en el rango visible
+              refreshCalendarInCurrentRange();
             }}
           />
           
@@ -357,10 +374,7 @@ export default function CalendarioPage() {
               roomName={rooms.find(r => String(r.id) === String(selectedBooking.roomId))?.name}
               onClose={() => setSelectedBooking(null)}
               onStatusChange={() => {
-                const hoy = new Date();
-                const startDate = toYMDLocal(hoy);
-                const endDate = toYMDLocal(new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000));
-                dispatch(fetchReservasCalendar({ startDate, endDate }));
+                refreshCalendarInCurrentRange();
               }}
             />
           )}
@@ -378,7 +392,7 @@ export default function CalendarioPage() {
                 {/* Contenido del formulario */}
                 <div className="flex-1 overflow-auto pr-1 pb-20">
                   <FormRenderer
-                    fields={inputOptions}
+                    fields={inputOptionsSinEstado}
                     formData={formData}
                     onChange={(e) => {
                       const { name, value } = e.target;
@@ -446,6 +460,36 @@ export default function CalendarioPage() {
                     mode="add"
                     customFields={customFields}
                   />
+                  {/* Estado con slider (reemplaza el select de estado para calendario) */}
+                  <div className="mt-5">
+                    <EstadoSlider
+                      estadoActual={estadoActualNombre}
+                      estados={(EstadoReservas ?? []).filter(
+                        (e: any) => String(e?.nombre || "").toLowerCase() !== "rechazada"
+                      )}
+                      onChange={(estadoNombre) => {
+                        const estadoDestino = (EstadoReservas ?? []).find(
+                          (e: any) =>
+                            String(e?.nombre || "").toLowerCase() === String(estadoNombre).toLowerCase()
+                        );
+                        if (!estadoDestino?.idEstadoReserva) return;
+                        setFormData((prev) => ({
+                          ...prev,
+                          idEstadoReserva: Number(estadoDestino.idEstadoReserva),
+                        }));
+                        if (errors.idEstadoReserva) {
+                          setErrors((prev) => {
+                            const next = { ...prev };
+                            delete next.idEstadoReserva;
+                            return next;
+                          });
+                        }
+                      }}
+                    />
+                    {errors.idEstadoReserva && (
+                      <p className="text-red-300 text-xs mt-2">{errors.idEstadoReserva}</p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Footer con botones */}
@@ -456,7 +500,7 @@ export default function CalendarioPage() {
                       setShowAddPopup(false);
                       setSelectedRange(null);
                     }}
-                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+                    className="px-4 py-2 admin-button-ghost rounded-md"
                   >
                     Cancelar
                   </button>
@@ -468,10 +512,10 @@ export default function CalendarioPage() {
                       }
                     }}
                     disabled={Object.keys(errors).length > 0}
-                    className={`px-4 py-2 text-white rounded-md ${
+                    className={`px-4 py-2 rounded-md ${
                       Object.keys(errors).length > 0
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-[var(--color-main)] hover:bg-green-700'
+                        ? 'bg-white/20 text-white/55 cursor-not-allowed'
+                        : 'admin-button-primary'
                     }`}
                   >
                     Agregar

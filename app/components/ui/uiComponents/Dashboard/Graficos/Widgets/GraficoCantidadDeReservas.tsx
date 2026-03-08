@@ -7,10 +7,12 @@ import GraficoVertical from "../Components/GraficoVertical";
 type Serie = { label: string; value: number };
 
 interface Props {
-  data: Serie[];             // [{ label:"20/8", value: 1 }]
+  data: Serie[];
   title?: string;
-  className?: string;        // ej: "h-44"
-  color?: string;            // color opcional del dataset
+  className?: string;
+  color?: string;
+  datasetLabel?: string;
+  yType?: "number" | "money";
 }
 
 const GraficoCantidadDeReservas: React.FC<Props> = ({
@@ -18,6 +20,8 @@ const GraficoCantidadDeReservas: React.FC<Props> = ({
   title = "",
   className,
   color = "#22c55e",
+  datasetLabel = "Cantidad de reservas",
+  yType = "number",
 }) => {
   const { labels, values } = useMemo(
     () => ({
@@ -33,13 +37,13 @@ const GraficoCantidadDeReservas: React.FC<Props> = ({
         labels={labels}
         datasets={[
           {
-            label: "Cantidad de reservas",
+            label: datasetLabel,
             data: values,
             backgroundColor: color,
           },
         ]}
         title={title}
-        yType="number"
+        yType={yType}
       />
     </div>
   );

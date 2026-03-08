@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useMemo, useCallback, useState } from "react";
+import React, { useMemo, useCallback, useState, useEffect } from "react";
+import {
+  getEstadoReservaTheme,
+  getEstadoReservaLabel,
+  normalizeEstadoReserva,
+} from "@/utils/helpers/reservaEstado";
+import type { EstadoReservaKey } from "@/utils/helpers/reservaEstado";
 
 /**
  * Calendario – estilo "Gantt" por habitación
@@ -20,6 +26,7 @@ export type Booking = {
   end: string | Date;   // exclusive
   guest?: string;
   price?: number;
+  montoPagado?: number;
   status?: string;
   idEstadoReserva?: number;
   rightTopLabel?: string;     // p.ej. "Llegado" / "Confirmado"
@@ -62,18 +69,6 @@ const fmtLong = (d: Date) =>
 const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const diffDays = (a: Date, b: Date) => Math.round((parseD(b).getTime() - parseD(a).getTime()) / 86400000);
 
-// Estilos de estado
-const statusStyles = {
-  pendiente: "bg-yellow-500 text-white border border-yellow-600",
-  confirmada: "bg-blue-600 text-white border border-blue-700",
-  checkin: "bg-green-600 text-white border border-green-700",
-  checkout: "bg-indigo-500 text-white border border-indigo-600",
-  cancelada: "bg-red-500 text-white border border-red-600 line-through opacity-90",
-  unconfirmed: "bg-yellow-500 text-white border border-yellow-600",
-  confirmed: "bg-blue-600 text-white border border-blue-700",
-  paid: "bg-green-600 text-white border border-green-700",
-};
-
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
 }
@@ -96,6 +91,7 @@ export default function Calendario({
   const [selectionStart, setSelectionStart] = useState<{ date: Date; roomId: string | number } | null>(null);
   const [selectionEnd, setSelectionEnd] = useState<{ date: Date; roomId: string | number } | null>(null);
   const [lastScrollTime, setLastScrollTime] = useState(0);
+  const [selectedEstadoKeys, setSelectedEstadoKeys] = useState<EstadoReservaKey[]>([]);
 
   // Fecha de anclaje para el rango visible
   const [anchor, setAnchor] = useState<Date>(
@@ -295,47 +291,120 @@ export default function Calendario({
     };
   }, [selectionStart, selectionEnd, range, dayW, showSelection]);
 
+  const legendStates = useMemo(() => {
+    if (estadosReserva.length > 0) {
+      return estadosReserva
+        .map((estado) => ({
+          key: `${estado.id}-${estado.nombre}`,
+          nombre: estado.nombre,
+          estadoKey: normalizeEstadoReserva(estado.nombre),
+        }))
+        .filter((estado) => estado.estadoKey !== "rechazada")
+        .filter(
+          (estado, index, arr) =>
+            arr.findIndex((x) => x.estadoKey === estado.estadoKey) === index
+        );
+    }
+
+    const uniqueStatuses = Array.from(
+      new Set(
+        bookings
+          .map((booking) => String(booking.status || "").trim())
+          .filter(Boolean)
+      )
+    );
+
+    return uniqueStatuses
+      .map((nombre) => ({
+        key: nombre.toLowerCase(),
+        nombre,
+        estadoKey: normalizeEstadoReserva(nombre),
+      }))
+      .filter((estado) => estado.estadoKey !== "rechazada");
+  }, [estadosReserva, bookings]);
+
+  useEffect(() => {
+    const availableKeys = legendStates.map((estado) => estado.estadoKey);
+    const defaultInactiveKeys: EstadoReservaKey[] = ["cancelada", "pendiente"];
+    const defaultActiveKeys = availableKeys.filter(
+      (key) => !defaultInactiveKeys.includes(key)
+    );
+    if (availableKeys.length === 0) {
+      setSelectedEstadoKeys([]);
+      return;
+    }
+
+    setSelectedEstadoKeys((prev) => {
+      if (prev.length === 0) {
+        return defaultActiveKeys.length > 0 ? defaultActiveKeys : availableKeys;
+      }
+      const kept = prev.filter((key) => availableKeys.includes(key));
+      return kept.length > 0
+        ? kept
+        : defaultActiveKeys.length > 0
+        ? defaultActiveKeys
+        : availableKeys;
+    });
+  }, [legendStates]);
+
+  const toggleEstadoFilter = useCallback((estadoKey: EstadoReservaKey) => {
+    setSelectedEstadoKeys((prev) =>
+      prev.includes(estadoKey)
+        ? prev.filter((key) => key !== estadoKey)
+        : [...prev, estadoKey]
+    );
+  }, []);
+
+  const activarTodosEstados = useCallback(() => {
+    setSelectedEstadoKeys(legendStates.map((estado) => estado.estadoKey));
+  }, [legendStates]);
+
   return (
-    <div className={`w-full h-full overflow-hidden border border-gray-300 rounded-lg bg-[#f3f4f6] ${className}`}>
+    <div className={`w-full font-[var(--font-sans)] text-[15px] ${className}`}>
+      <div className="w-full overflow-hidden rounded-2xl border border-white/12 bg-[#071b12]/95 shadow-[0_16px_48px_rgba(0,0,0,0.4)]">
       {/* Header superior: mes centrado + navegación y HOY */}
-      <div className="flex items-center justify-between px-4 py-2 border-b bg-[#f3f4f6] sticky top-0 z-10">
-        <button
-          onClick={() => move(-days)}
-          className="px-2 py-1 rounded border hover:bg-gray-100 transition-colors"
-        >
-          ⟨
-        </button>
-        <div className="text-sm font-semibold text-gray-700 select-none">
-          {range.start.toLocaleDateString("es-AR", { month: "short", year: "numeric" })}
-        </div>
-        <div className="flex gap-2">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/8 bg-black/20 sticky top-0 z-10">
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => setAnchor(new Date())}
-            className="px-2 py-1 rounded border hover:bg-gray-100 transition-colors"
+            onClick={() => move(-days)}
+            className="h-9 w-9 rounded-lg border border-white/12 bg-white/5 text-white/75 hover:bg-emerald-400/15 hover:border-emerald-300/30 hover:text-emerald-300 transition-colors text-[16px]"
           >
-            HOY
+            ⟨
           </button>
           <button
             onClick={() => move(days)}
-            className="px-2 py-1 rounded border hover:bg-gray-100 transition-colors"
+            className="h-9 w-9 rounded-lg border border-white/12 bg-white/5 text-white/75 hover:bg-emerald-400/15 hover:border-emerald-300/30 hover:text-emerald-300 transition-colors text-[16px]"
           >
             ⟩
           </button>
         </div>
+        <div className="text-base sm:text-lg font-bold text-white select-none tracking-tight capitalize">
+          {range.start.toLocaleDateString("es-AR", { month: "short", year: "numeric" })}
+        </div>
+        <button
+          onClick={() => {
+            const today = new Date();
+            setAnchor(today);
+            onRangeChange?.(parseD(today), addDays(parseD(today), days));
+          }}
+          className="px-3 py-1.5 rounded-lg border border-emerald-400/30 bg-emerald-400/12 text-emerald-300 text-sm font-semibold hover:bg-emerald-400/20 transition-colors"
+        >
+          HOY
+        </button>
       </div>
 
       <div className="flex h-[620px] overflow-auto">
         {/* Columna fija: Habitación */}
-        <div className="min-w-[320px] flex-shrink-0 border-r bg-[#f3f4f6] sticky left-0 z-10">
-          <div className="grid grid-cols-[1fr_64px_100px] h-10 border-b bg-gray-100 text-[12px] font-semibold text-gray-700">
-            <div className="flex items-center pl-3">Habitación</div>
+        <div className="min-w-[220px] flex-shrink-0 border-r border-white/10 bg-[#081f14] sticky left-0 z-10">
+          <div className="h-11 border-b border-white/8 bg-black/20 text-[12px] font-semibold text-emerald-100/75 uppercase tracking-[0.08em]">
+            <div className="flex items-center pl-4 h-full">Habitación</div>
           </div>
 
           {rooms.map((r) => (
-            <div key={String(r.id)} className="grid grid-cols-[1fr_64px_100px] h-12 border-b text-sm">
+            <div key={String(r.id)} className="h-12 border-b border-white/8 text-[15px]">
               <div className="flex items-center gap-2 pl-3">
-                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="font-medium text-gray-800 truncate">{r.name}</span>
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" />
+                <span className="font-medium text-white/92 truncate">{r.name}</span>
               </div>
             </div>
           ))}
@@ -344,19 +413,19 @@ export default function Calendario({
         {/* Cabecera días + grilla */}
         <div className="relative flex-1">
           {/* Header days */}
-          <div className="grid h-10 border-b text-[12px] text-gray-700 bg-[#f3f4f6]" style={gridStyle}>
+          <div className="grid h-11 border-b border-white/8 text-[13px] text-white/80 bg-black/20" style={gridStyle}>
             {dayList.map((d, i) => {
               const isWeekend = [0, 6].includes(d.getDay());
               const isToday = parseD(new Date()).getTime() === parseD(d).getTime();
               return (
                 <div
                   key={i}
-                  className={`relative flex flex-col items-center justify-center border-l first:border-l-0 ${isWeekend ? "bg-gray-50" : "bg-[#f3f4f6]"
+                  className={`relative flex flex-col items-center justify-center border-l border-white/8 first:border-l-0 ${isWeekend ? "bg-white/2" : "bg-transparent"
                     }`}
                 >
-                  {isToday && <span className="absolute inset-0 bg-sky-100/70 pointer-events-none" />}
+                  {isToday && <span className="absolute inset-0 bg-emerald-400/12 pointer-events-none" />}
                   <div className="uppercase z-10">{fmtDow(d)}</div>
-                  <div className="font-semibold z-10">{fmtDay(d)}</div>
+                  <div className={`font-semibold z-10 ${isToday ? "text-emerald-300" : "text-white/85"}`}>{fmtDay(d)}</div>
                 </div>
               );
             })}
@@ -371,7 +440,7 @@ export default function Calendario({
                   {dayList.map((d, i) => (
                     <div
                       key={i}
-                      className={`border-l first:border-l-0 ${[0, 6].includes(d.getDay()) ? "bg-gray-50" : "bg-[#f3f4f6]"
+                      className={`border-l border-white/7 first:border-l-0 ${[0, 6].includes(d.getDay()) ? "bg-white/2" : "bg-transparent"
                         }`}
                     />
                   ))}
@@ -380,7 +449,7 @@ export default function Calendario({
                 {/* Indicador visual de selección */}
                 {selectionRange && selectionRange.roomId === r.id && (
                   <div
-                    className="absolute top-1 h-10 bg-blue-200 border-2 border-blue-500 opacity-70 pointer-events-none z-5 rounded-sm"
+                    className="absolute top-1 h-10 bg-emerald-400/20 border-2 border-emerald-300/60 opacity-90 pointer-events-none z-5 rounded-md"
                     style={{
                       left: selectionRange.left,
                       width: selectionRange.width
@@ -393,7 +462,7 @@ export default function Calendario({
                 {/* Área de selección de rango (debajo de reservas) */}
                 {showSelection && (
                   <div
-                    className="absolute inset-0 z-20 hover:bg-blue-50/30 transition-colors"
+                    className="absolute inset-0 z-20 hover:bg-white/3 transition-colors"
                     onMouseDown={(e) => handleMouseDown(e, r.id)}
                     onMouseMove={(e) => {
                       handleMouseMove(e, r.id);
@@ -415,17 +484,31 @@ export default function Calendario({
 
                 {/* Reservas existentes (encima del overlay de selección) */}
                 <div className="absolute inset-0 z-40 pointer-events-none">
-                  {(layoutByRoom.get(Number(r.id)) || []).map((b) => {
+                  {(layoutByRoom.get(Number(r.id)) || [])
+                    .filter((booking) => {
+                      if (normalizeEstadoReserva(booking.status) === "rechazada") return false;
+                      if (selectedEstadoKeys.length === 0) return true;
+                      return selectedEstadoKeys.includes(
+                        normalizeEstadoReserva(booking.status)
+                      );
+                    })
+                    .map((b) => {
                     const s = parseD(b.start);
                     const e = addDays(parseD(b.end), -1);
-                    const badgeClass =
-                      (b.status && (statusStyles as any)[b.status]) || "bg-sky-400 text-white border border-sky-600";
+                    const theme = getEstadoReservaTheme(b.status);
+                    const bgColor = `${theme.hex.color}CC`;
+                    const borderColor = `${theme.hex.accent}AA`;
 
                     return (
                       <div
                         key={String(b.id)}
-                        className={`absolute top-1 h-10 px-2 rounded-sm flex flex-col justify-between overflow-hidden text-[11px] shadow hover:brightness-110 hover:shadow-lg transition-all cursor-pointer pointer-events-auto ${badgeClass}`}
-                        style={{ left: b.left, width: b.width }}
+                        className="absolute top-1 h-10 px-2 rounded-md flex flex-col justify-between overflow-hidden text-[12px] shadow hover:brightness-110 hover:shadow-lg transition-all cursor-pointer pointer-events-auto"
+                        style={{
+                          left: b.left,
+                          width: b.width,
+                          background: `linear-gradient(135deg, ${bgColor}, ${theme.hex.color}99)`,
+                          border: `1px solid ${borderColor}`,
+                        }}
                         title={`${b.guest ?? "Reserva"}
                       Check-in: ${fmtLong(s)}
                       Check-out: ${fmtLong(e)}
@@ -438,11 +521,11 @@ export default function Calendario({
                         }}
                       >
                         <div className="flex items-center justify-between leading-tight min-h-[14px] pointer-events-none">
-                          <span className="font-semibold truncate text-left flex-1 mr-1">
+                          <span className="font-semibold truncate text-left flex-1 mr-1 text-white">
                             {b.guest ?? "Sin nombre"}
                           </span>
                         </div>
-                        <div className="text-[10px] leading-tight opacity-95 text-center mt-0.5 pointer-events-none">
+                        <div className="text-[11px] leading-tight text-white/90 text-center mt-0.5 pointer-events-none">
                           {b.price ? `$${b.price}` : ""}
                         </div>
                       </div>
@@ -467,6 +550,41 @@ export default function Calendario({
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-x-4 gap-y-2 px-4 py-3 border-t border-white/8 bg-black/15">
+        <button
+          type="button"
+          onClick={activarTodosEstados}
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors bg-white/6 border-white/14 text-white/85 hover:bg-white/12"
+        >
+          Todos
+        </button>
+        {legendStates.map((estado) => {
+          const theme = getEstadoReservaTheme(estado.nombre);
+          const isActive = selectedEstadoKeys.includes(estado.estadoKey);
+          return (
+            <button
+              type="button"
+              key={estado.key}
+              onClick={() => toggleEstadoFilter(estado.estadoKey)}
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                isActive
+                  ? "bg-white/10 border-white/30 text-white"
+                  : "bg-transparent border-white/14 text-white/60 hover:bg-white/6 hover:text-white/80"
+              }`}
+              title={`Filtrar por ${getEstadoReservaLabel(estado.nombre)}`}
+            >
+              <span
+                className="inline-block h-2.5 w-2.5 rounded-[3px]"
+                style={{ backgroundColor: theme.hex.color }}
+              />
+              {getEstadoReservaLabel(estado.nombre)}
+            </button>
+          );
+        })}
+      </div>
       </div>
     </div>
   );

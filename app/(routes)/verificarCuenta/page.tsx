@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/store/axiosConfig";
-import { InputForm, LoginIzquierda } from "@/components"; // mismo que en tu login
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useToastAlert } from "@/hooks/useToastAlert";
 
 const VerifyPage: React.FC = () => {
@@ -16,6 +16,8 @@ const VerifyPage: React.FC = () => {
   const [ok, setOk] = useState<boolean | null>(null);
   const [pass1, setPass1] = useState("");
   const [pass2, setPass2] = useState("");
+  const [show1, setShow1] = useState(false);
+  const [show2, setShow2] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -68,99 +70,121 @@ const VerifyPage: React.FC = () => {
   // Estados de carga / token inválido
   if (ok === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-900 text-white">
-        Cargando…
+      <div className="login-screen flex items-center justify-center text-white">
+        <div className="text-white/70 text-sm">Cargando…</div>
       </div>
     );
   }
 
   if (ok === false) {
     return (
-      <div
-        className="flex flex-col justify-center items-center min-h-screen w-full bg-cover bg-center"
-        style={{ backgroundImage: "url('/carlos_paz.png')" }}
-      >
-        <div className="flex flex-col w-full md:w-auto md:flex-row px-8">
-          <LoginIzquierda includeDescription={true} />
-          <div className="flex flex-col justify-center w-full md:w-1/2 bg-black bg-opacity-80text-white">
-            <h2 className="text-2xl font-semibold mb-4">Enlace inválido o vencido</h2>
-            <p className="text-sm text-gray-300">
+      <div className="login-screen">
+        <section className="login-left">
+          <div>
+            <p className="text-sm font-semibold text-emerald-300 tracking-[0.16em] uppercase mb-6">
+              Activación de cuenta
+            </p>
+            <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight max-w-[520px]">
+              Tu acceso, <br />
+              en segundos <span className="italic text-emerald-300">y seguro</span>
+            </h1>
+          </div>
+        </section>
+        <section className="login-right">
+          <div className="w-full max-w-[360px]">
+            <h2 className="login-panel-title">Enlace inválido o vencido</h2>
+            <p className="login-panel-subtitle">
               Pedí un nuevo correo de verificación al administrador o volvé a iniciar sesión.
             </p>
-            <div className="pt-6">
-              <a
-                href="/login"
-                className="inline-block bg-[#43AC6A] hover:bg-[#369658] text-white py-2 px-4 rounded transition"
-              >
-                Ir a Iniciar sesión
-              </a>
-            </div>
+            <a href="/login" className="login-cta inline-block text-center mt-7">
+              Ir a iniciar sesión
+            </a>
           </div>
-        </div>
+        </section>
       </div>
     );
   }
 
-  // OK === true → Formulario con el mismo estilo del login:
+  // OK === true
   return (
-    <div
-      className="flex flex-col justify-center items-center min-h-screen w-full bg-cover bg-center"
-      style={{ backgroundImage: "url('/carlos_paz.png')" }}
-    >
-      <div className="flex flex-col w-full md:w-auto md:flex-row px-8">
-        <LoginIzquierda includeDescription={true} />
+    <div className="login-screen">
+      <section className="login-left">
+        <div>
+          <p className="text-sm font-semibold text-emerald-300 tracking-[0.16em] uppercase mb-6">
+            Creá tu acceso
+          </p>
+          <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight max-w-[520px]">
+            Configurá tu <br />
+            contraseña <span className="italic text-emerald-300">una vez</span>
+          </h1>
+          <p className="mt-6 text-white/70 max-w-[420px] text-[15px] leading-7">
+            Este paso activa tu cuenta para ingresar al sistema interno.
+          </p>
+        </div>
+      </section>
 
-        <div className="flex flex-col justify-center w-full md:w-1/2 bg-black bg-opacity-80 p-8 text-white">
-          <h2 className="text-2xl font-semibold mb-6">Validá tu cuenta</h2>
+      <section className="login-right">
+        <div className="w-full max-w-[360px]">
+          <h2 className="login-panel-title">Crear sesión</h2>
+          <p className="login-panel-subtitle mb-8">
+            Definí tu contraseña para finalizar la activación
+          </p>
 
-          <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
-            <InputForm
-              inputKey="password"
-              InputForm="password"
-              placeholder="Nueva contraseña (mín. 8 caracteres)"
-              value={pass1}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPass1(e.target.value)}
-              required
-            >
-              Contraseña
-            </InputForm>
-
-            <InputForm
-              inputKey="passwordConfirm"
-              InputForm="password"
-              placeholder="Repetí tu contraseña"
-              value={pass2}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPass2(e.target.value)}
-              required
-            >
-              Confirmar contraseña
-            </InputForm>
-
-            <div className="flex items-center justify-between gap-4 pt-4">
-              <button
-                type="submit"
-                disabled={submitting}
-                className={`w-1/2 text-center text-white py-2 px-4 rounded transition duration-200 ${
-                  submitting
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-[#43AC6A] hover:bg-[#369658]"
-                }`}
-              >
-                {submitting ? "Confirmando..." : "Confirmar"}
-              </button>
-
-              <a href="/login" className="text-sm underline">
-                Ir al login
-              </a>
+          <form onSubmit={onSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="password" className="login-field-label">Contraseña</label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={show1 ? "text" : "password"}
+                  placeholder="Nueva contraseña (mín. 8 caracteres)"
+                  value={pass1}
+                  onChange={(e) => setPass1(e.target.value)}
+                  className="login-field-input pr-11"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShow1((s) => !s)}
+                  className="absolute inset-y-0 right-3 flex items-center text-white/50 hover:text-white/80"
+                >
+                  {show1 ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                </button>
+              </div>
             </div>
+
+            <div>
+              <label htmlFor="passwordConfirm" className="login-field-label">Confirmar contraseña</label>
+              <div className="relative">
+                <input
+                  id="passwordConfirm"
+                  type={show2 ? "text" : "password"}
+                  placeholder="Repetí tu contraseña"
+                  value={pass2}
+                  onChange={(e) => setPass2(e.target.value)}
+                  className="login-field-input pr-11"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShow2((s) => !s)}
+                  className="absolute inset-y-0 right-3 flex items-center text-white/50 hover:text-white/80"
+                >
+                  {show2 ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" disabled={submitting} className="login-cta mt-2">
+              {submitting ? "Confirmando..." : "Confirmar y activar →"}
+            </button>
           </form>
 
-          {/* Leyenda opcional */}
-          <p className="text-xs text-gray-300 mt-4">
+          <p className="text-xs text-white/45 mt-4">
             El enlace de verificación es válido por tiempo limitado.
           </p>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

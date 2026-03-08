@@ -25,6 +25,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     '/olvidarContrasena',
     '/resetPassword',
     '/reservas-publicas',
+    '/confirmar-reserva',
   ];
 
   const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'));
@@ -56,14 +57,14 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const isCalendario = pathname?.startsWith('/admin/calendario');
 
   return (
-    <div className="layout-grid bg-background">
+    <div className="layout-grid">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Right column */}
       <div className="layout-main flex flex-col">
         {/* Admin top bar */}
-        <header className="h-14 bg-white border-b border-gray-200 shrink-0 flex items-center justify-end px-6">
+        <header className="h-16 shrink-0 flex items-center justify-end px-6 border-b border-white/10 bg-[#081f14]/90 backdrop-blur-xl sticky top-0 z-30">
           <AprobacionesPopup />
         </header>
 

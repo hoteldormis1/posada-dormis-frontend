@@ -35,6 +35,11 @@ const Habitaciones = () => {
 	const { confirm } = useSweetAlert();
 
 	const [activeTab, setActiveTab] = useState<"habitaciones" | "tipos">("habitaciones");
+	const tabBase =
+		"inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border transition-colors cursor-pointer";
+	const tabActive = "bg-emerald-400/20 text-emerald-200 border-emerald-300/30 shadow";
+	const tabIdle =
+		"bg-white/6 text-emerald-100/70 border-white/14 hover:bg-white/12 hover:border-white/25";
 
 	// ─── Permisos ───
 	const { currentUser, tiposUsuarios } = useAppSelector((state: RootState) => state.user);
@@ -220,6 +225,21 @@ const Habitaciones = () => {
 		}
 	};
 
+	const onSaveDeleteMany = async (ids: string[]): Promise<void> => {
+		const results = await Promise.allSettled(
+			ids.map((id) => dispatch(deleteHabitacion(Number(id))).unwrap())
+		);
+		const ok = results.filter((r) => r.status === "fulfilled").length;
+		const fail = results.length - ok;
+		await fetchData?.();
+		if (ok > 0) successToast(`${ok} habitación(es) eliminada(s).`);
+		if (fail > 0) {
+			errorToast(
+				`${fail} habitación(es) no se pudieron eliminar. Puede haber relaciones con otras tablas.`
+			);
+		}
+	};
+
 	// ═══════════════ TIPOS DE HABITACIONES ═══════════════
 	const { status: statusTH } = useAppSelector((state: RootState) => state.tipoHabitaciones);
 
@@ -351,6 +371,21 @@ const Habitaciones = () => {
 		}
 	};
 
+	const onSaveDeleteManyTH = async (ids: string[]): Promise<void> => {
+		const results = await Promise.allSettled(
+			ids.map((id) => dispatch(deleteTipoHabitacion(Number(id))).unwrap())
+		);
+		const ok = results.filter((r) => r.status === "fulfilled").length;
+		const fail = results.length - ok;
+		await fetchDataTH?.();
+		if (ok > 0) successToast(`${ok} tipo(s) de habitación eliminado(s).`);
+		if (fail > 0) {
+			errorToast(
+				`${fail} tipo(s) no se pudieron eliminar. Puede haber relaciones con otras tablas.`
+			);
+		}
+	};
+
 	// ═══════════════ RENDER ═══════════════
 	const isLoading = activeTab === "habitaciones" ? status === StateStatus.loading : statusTH === StateStatus.loading;
 	const isFailed = activeTab === "habitaciones" ? status === StateStatus.failed : statusTH === StateStatus.failed;
@@ -360,25 +395,17 @@ const Habitaciones = () => {
 		<div className={pantallaPrincipalEstilos}>
 			<div className="m-auto w-full sm:w-11/12 md:w-10/12 pt-6">
 				{/* Tabs */}
-				<div className="flex gap-2 mb-4">
+				<div className="flex flex-wrap gap-2 mb-4">
 					<button
 						onClick={() => setActiveTab("habitaciones")}
-						className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors duration-200 shadow-md cursor-pointer ${
-							activeTab === "habitaciones"
-								? "bg-main text-white"
-								: "bg-white text-main border border-main hover:bg-main/10"
-						}`}
+						className={`${tabBase} ${activeTab === "habitaciones" ? tabActive : tabIdle}`}
 					>
 						<FaBed size={18} />
 						Habitaciones
 					</button>
 					<button
 						onClick={() => setActiveTab("tipos")}
-						className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors duration-200 shadow-md cursor-pointer ${
-							activeTab === "tipos"
-								? "bg-blue-500 text-white"
-								: "bg-white text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white"
-						}`}
+						className={`${tabBase} ${activeTab === "tipos" ? tabActive : tabIdle}`}
 					>
 						<MdCategory size={18} />
 						Tipos de Habitaciones
@@ -418,6 +445,7 @@ const Habitaciones = () => {
 								onSaveEdit={onSaveEdit}
 								onSaveAdd={onSaveAdd}
 								onSaveDelete={onSaveDelete}
+								onSaveDeleteMany={onSaveDeleteMany}
 								inputOptions={inputOptions}
 								showActions={{ create: puedeAgregar, delete: puedeBorrar, edit: puedeEditar }}
 							/>
@@ -445,6 +473,7 @@ const Habitaciones = () => {
 							onSaveEdit={onSaveEditTH}
 							onSaveAdd={onSaveAddTH}
 							onSaveDelete={onSaveDeleteTH}
+							onSaveDeleteMany={onSaveDeleteManyTH}
 							inputOptions={inputOptionsTH}
 							mapRowToFormData={mapRowToFormDataTH}
 							showActions={{ create: puedeAgregarTH, delete: puedeBorrarTH, edit: puedeEditarTH }}

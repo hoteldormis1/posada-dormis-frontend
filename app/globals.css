@@ -4,6 +4,19 @@
 :root {
   --font-sans: var(--font-poppins);
   --font-mono: monospace;
+  --admin-bg: #071b12;
+  --admin-bg-soft: #0b2418;
+  --admin-panel: rgba(255, 255, 255, 0.03);
+  --admin-panel-strong: rgba(255, 255, 255, 0.05);
+  --admin-border: rgba(255, 255, 255, 0.09);
+  --admin-border-soft: rgba(255, 255, 255, 0.06);
+  --admin-text: #f7fbf8;
+  --admin-text-muted: rgba(236, 253, 245, 0.74);
+  --admin-text-dim: rgba(236, 253, 245, 0.56);
+  --admin-accent: #34d399;
+  --admin-accent-strong: #10b981;
+  --admin-danger: #ef4444;
+  --admin-warning: #f59e0b;
 }
 
 @theme {
@@ -42,6 +55,23 @@
         margin: 0;
         padding: 0;
     }
+
+    html,
+    body {
+        font-family: var(--font-sans), "Poppins", "Segoe UI", sans-serif;
+        color: var(--admin-text);
+        font-size: 16.5px;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    input,
+    button,
+    select,
+    textarea {
+        font: inherit;
+    }
 }
 
 /* Altura útil para elementos sticky dentro del viewport */
@@ -52,6 +82,10 @@
 
 .layout-grid {
   min-height: 100vh;
+  background:
+    radial-gradient(circle at 8% -12%, rgba(52, 211, 153, 0.16), transparent 30%),
+    radial-gradient(circle at 88% 8%, rgba(5, 150, 105, 0.14), transparent 25%),
+    linear-gradient(180deg, var(--admin-bg-soft) 0%, var(--admin-bg) 80%);
 }
 
 :root {
@@ -81,6 +115,7 @@
 .layout-main {
   min-height: 100vh;
   overflow: auto;
+  background: transparent;
 }
 
 @media (min-width: 768px) {
@@ -107,12 +142,75 @@
 }
 
 .layout-main::-webkit-scrollbar-thumb {
-  background: var(--color-main);
+  background: rgba(52, 211, 153, 0.5);
   border-radius: 3px;
 }
 
 .layout-main::-webkit-scrollbar-thumb:hover {
-  background: var(--color-main-dark);
+  background: rgba(52, 211, 153, 0.8);
+}
+
+.content-shell {
+  position: relative;
+}
+
+.admin-glass-card {
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(10px);
+}
+
+.admin-glass-card-soft {
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-border-soft);
+  border-radius: 14px;
+}
+
+.admin-title {
+  color: var(--admin-text);
+  letter-spacing: -0.02em;
+}
+
+.admin-subtitle {
+  color: var(--admin-text-muted);
+}
+
+.admin-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--admin-text);
+}
+
+.admin-input::placeholder {
+  color: rgba(236, 253, 245, 0.28);
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: rgba(52, 211, 153, 0.8);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.16);
+}
+
+.admin-button-primary {
+  background: var(--admin-accent);
+  color: #062317;
+  border: 1px solid rgba(16, 185, 129, 0.6);
+}
+
+.admin-button-primary:hover {
+  background: var(--admin-accent-strong);
+}
+
+.admin-button-ghost {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--admin-text);
+}
+
+.admin-button-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 input[type="checkbox"] {
@@ -150,4 +248,151 @@ input[type="checkbox"] {
 
 .animate-bounce-in {
   animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+
+@keyframes bellShake {
+  0%, 100% { transform: rotate(0deg); }
+  15%       { transform: rotate(18deg); }
+  30%       { transform: rotate(-16deg); }
+  45%       { transform: rotate(12deg); }
+  60%       { transform: rotate(-10deg); }
+  75%       { transform: rotate(6deg); }
+  90%       { transform: rotate(-4deg); }
+}
+
+/* Login / Verificar cuenta */
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #0a2318 0%, #0d3320 40%, #1a4a2e 70%, #0f2d1e 100%);
+}
+
+.login-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.login-left {
+  flex: 1;
+  padding: 52px 56px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.login-right {
+  width: 40%;
+  min-width: 420px;
+  max-width: 640px;
+  flex-shrink: 0;
+  padding: 40px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(24px);
+  position: relative;
+  z-index: 1;
+}
+
+.login-panel-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.6px;
+  margin-bottom: 6px;
+}
+
+.login-panel-subtitle {
+  font-size: 14.5px;
+  color: rgba(255,255,255,0.62);
+}
+
+@media (min-width: 1024px) {
+  .login-panel-title {
+    font-size: 32px;
+  }
+
+  .login-panel-subtitle {
+    font-size: 15px;
+  }
+}
+
+.login-field-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.74);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+
+.login-field-input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-size: 15px;
+  color: #fff;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.login-field-input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+.login-field-input:focus {
+  border-color: #34D399;
+  background: rgba(52,211,153,0.06);
+  box-shadow: 0 0 0 4px rgba(52,211,153,0.08);
+}
+
+.login-cta {
+  width: 100%;
+  background: #34D399;
+  color: #0a2318;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 15.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.login-cta:hover:enabled {
+  background: #10B981;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(52,211,153,0.3);
+}
+
+.login-cta:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .login-left { display: none; }
+  .login-right {
+    width: 100%;
+    border-left: 0;
+    background: transparent;
+    backdrop-filter: none;
+  }
 }

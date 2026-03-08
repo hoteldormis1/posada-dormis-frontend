@@ -219,7 +219,7 @@ export const toDDMMYYYY = (d: Date) => isoToDDMMYYYY(toISODate(d));
 export const toLabelDM = (d: Date, locale: string = "es-AR") =>
   d.toLocaleDateString(locale, { day: "numeric", month: "numeric" });
 
-/** Label mes+anio (ej: "ene 2025"). */
+/** Label mes+anio (ej: "ene 2026"). */
 export const toLabelMonthYear = (d: Date, locale: string = "es-AR", short = true) =>
   d
     .toLocaleDateString(locale, { month: short ? "short" : "long", year: "numeric" })

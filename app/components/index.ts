@@ -29,7 +29,6 @@ import InputForm from "./forms/formComponents/InputForm";
 import InputDateForm from "./forms/formComponents/InputDateForm";
 import SelectForm from "./forms/formComponents/SelectForm";
 import CalendarioContainer from "./ui/calendario/CalendarioContainer";
-import EstadoReservaSelector from "./ui/calendario/EstadoReservaSelector";
 import ButtonForm from "./forms/formComponents/ButtonForm";
 
 export {
@@ -64,6 +63,5 @@ export {
 	InputDateForm,
 	SelectForm,
 	CalendarioContainer,
-	EstadoReservaSelector,
 	ButtonForm
 };

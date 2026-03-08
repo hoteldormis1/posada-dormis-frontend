@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import {
   Chart as ChartJS,
@@ -15,6 +17,7 @@ type GraficoPieProps = {
   data: number[];
   title?: string;
   backgroundColors?: string[];
+  height?: number;
 };
 
 export default function GraficoPie({
@@ -23,6 +26,9 @@ export default function GraficoPie({
   title = 'Chart.js Pie Chart',
   backgroundColors,
 }: GraficoPieProps) {
+  const labelColor = "rgba(236, 253, 245, 0.85)";
+  const borderColor = "rgba(255, 255, 255, 0.16)";
+
   const pieData = {
     labels,
     datasets: [
@@ -47,10 +53,48 @@ export default function GraficoPie({
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          color: labelColor,
+          boxWidth: 10,
+          boxHeight: 10,
+          font: {
+            size: 11,
+            family: "Poppins, Segoe UI, sans-serif",
+            weight: "600",
+          },
+        },
       },
       title: {
         display: true,
         text: title,
+        color: labelColor,
+        font: {
+          size: 12,
+          family: "Poppins, Segoe UI, sans-serif",
+          weight: "700",
+        },
+      },
+      tooltip: {
+        titleColor: labelColor,
+        bodyColor: labelColor,
+        backgroundColor: "rgba(7, 27, 18, 0.95)",
+        borderColor,
+        borderWidth: 1,
+        bodyFont: {
+          size: 11,
+          family: "Poppins, Segoe UI, sans-serif",
+        },
+        titleFont: {
+          size: 11,
+          family: "Poppins, Segoe UI, sans-serif",
+          weight: "700",
+        },
+      },
+    },
+    elements: {
+      arc: {
+        borderColor: "rgba(255,255,255,0.15)",
+        borderWidth: 1,
       },
     },
   };

@@ -29,6 +29,7 @@ export interface ContableResumen {
   range: { from: string; to: string };
   estados: EstadoContable[];
   totalGeneral: TotalGeneral;
+  serieReservasPorFecha: { fecha: string; cantidad: number }[];
   lastUpdated: string;
 }
 
@@ -56,22 +57,40 @@ export interface ExportarResponse {
   reservas: ReservaExportable[];
 }
 
+export interface OcupacionDia {
+  fecha: string;
+  ocupadas: number;
+  total: number;
+  porcentaje: number;
+}
+
+export interface OcupacionResponse {
+  range: { from: string; to: string };
+  serie: OcupacionDia[];
+}
+
 export interface ContableState {
   resumen: ContableResumen | null;
   exportData: ExportarResponse | null;
+  ocupacion: OcupacionResponse | null;
   statusResumen: StateStatus;
   statusExport: StateStatus;
+  statusOcupacion: StateStatus;
   errorResumen: string | null;
   errorExport: string | null;
+  errorOcupacion: string | null;
 }
 
 const initialState: ContableState = {
   resumen: null,
   exportData: null,
+  ocupacion: null,
   statusResumen: StateStatus.idle,
   statusExport: StateStatus.idle,
+  statusOcupacion: StateStatus.idle,
   errorResumen: null,
   errorExport: null,
+  errorOcupacion: null,
 };
 
 // ─────────────────────────── Thunks ───────────────────────────
@@ -127,6 +146,31 @@ export const fetchContableExportar = createAsyncThunk<
   }
 });
 
+type OcupacionParams = { from?: string; to?: string } | void;
+
+export const fetchContableOcupacion = createAsyncThunk<
+  OcupacionResponse,
+  OcupacionParams,
+  { rejectValue: string }
+>("contable/fetchOcupacion", async (params, { rejectWithValue }) => {
+  try {
+    const qs = new URLSearchParams();
+    if (params?.from) qs.set("from", params.from);
+    if (params?.to) qs.set("to", params.to);
+
+    const url = qs.toString()
+      ? `/contable/ocupacion?${qs.toString()}`
+      : `/contable/ocupacion`;
+
+    const { data } = await api.get(url);
+    return data as OcupacionResponse;
+  } catch (err) {
+    return rejectWithValue(
+      extractErrorMessage(err as AxiosError, "No se pudo obtener la ocupación")
+    );
+  }
+});
+
 // ─────────────────────────── Slice ───────────────────────────
 
 const contableSlice = createSlice({
@@ -162,6 +206,19 @@ const contableSlice = createSlice({
       .addCase(fetchContableExportar.rejected, (state, action) => {
         state.statusExport = StateStatus.failed;
         state.errorExport = action.payload ?? "Error al obtener datos para exportar";
+      })
+      // Ocupación
+      .addCase(fetchContableOcupacion.pending, (state) => {
+        state.statusOcupacion = StateStatus.loading;
+        state.errorOcupacion = null;
+      })
+      .addCase(fetchContableOcupacion.fulfilled, (state, action) => {
+        state.statusOcupacion = StateStatus.succeeded;
+        state.ocupacion = action.payload;
+      })
+      .addCase(fetchContableOcupacion.rejected, (state, action) => {
+        state.statusOcupacion = StateStatus.failed;
+        state.errorOcupacion = action.payload ?? "Error al obtener ocupación";
       });
   },
 });
@@ -182,3 +239,6 @@ export const selectContableStatusResumen = (state: RootState) =>
 
 export const selectContableStatusExport = (state: RootState) =>
   state.contable?.statusExport ?? StateStatus.idle;
+
+export const selectContableOcupacion = (state: RootState) =>
+  state.contable?.ocupacion ?? null;

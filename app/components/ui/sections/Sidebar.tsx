@@ -132,15 +132,15 @@ export default function Sidebar() {
 	const sidebarContent = (
 		<>
 			{/* Logo */}
-			<div className="px-5 py-5 border-b border-gray-100 flex items-center justify-between">
+			<div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
 				<div>
-					<h1 className="text-xl font-bold text-main leading-tight">Posada Dormi&apos;s</h1>
-					<p className="text-xs text-muted">Mina Clavero — Córdoba</p>
+					<h1 className="text-lg font-bold text-white leading-tight">Posada Dormi&apos;s</h1>
+					<p className="text-xs text-emerald-100/65">Mina Clavero — Córdoba</p>
 				</div>
 				{/* Close button — mobile only */}
 				<button
 					onClick={toggleMobile}
-					className="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 cursor-pointer"
+					className="md:hidden p-2 rounded-lg text-emerald-100/60 hover:bg-white/10 cursor-pointer"
 					aria-label="Cerrar menú"
 				>
 					<FaTimes size={18} />
@@ -151,7 +151,7 @@ export default function Sidebar() {
 			<nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
 				{visibleSections.map((section) => (
 					<div key={section.title}>
-						<p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+						<p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-100/55">
 							{section.title}
 						</p>
 						<ul className="space-y-1">
@@ -162,11 +162,11 @@ export default function Sidebar() {
 									<li key={name}>
 										<Link
 											href={link}
-											className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
+											className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[15px] font-medium transition-all duration-150 border
 												${
 													isActive
-														? "bg-main text-white shadow-sm"
-														: "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+														? "bg-emerald-400/15 border-emerald-300/30 text-emerald-300 shadow-[0_8px_20px_rgba(16,185,129,0.18)]"
+														: "border-transparent text-emerald-100/78 hover:bg-white/6 hover:border-white/10 hover:text-white"
 												}`}
 										>
 											<span className="shrink-0">{icon}</span>
@@ -181,10 +181,10 @@ export default function Sidebar() {
 			</nav>
 
 			{/* Logout */}
-			<div className="px-3 py-4 border-t border-gray-100">
+			<div className="px-3 py-4 border-t border-white/10">
 				<button
 					onClick={handleLogout}
-					className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-150 cursor-pointer"
+					className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[15px] font-medium text-emerald-100/75 hover:bg-red-500/10 hover:text-red-300 transition-all duration-150 cursor-pointer border border-transparent hover:border-red-400/20"
 				>
 					<FaSignOutAlt size={18} />
 					Cerrar sesión
@@ -198,7 +198,7 @@ export default function Sidebar() {
 			{/* Mobile: hamburger button */}
 			<button
 				onClick={toggleMobile}
-				className="fixed top-4 left-4 z-50 md:hidden p-2.5 bg-white rounded-lg shadow-md border border-gray-200 text-gray-700 hover:bg-gray-50 cursor-pointer"
+				className="fixed top-4 left-4 z-50 md:hidden p-2.5 bg-[#0a2318]/90 rounded-lg shadow-md border border-white/10 text-white hover:bg-[#0f2e20] cursor-pointer"
 				aria-label="Abrir menú"
 			>
 				<FaBars size={20} />
@@ -207,21 +207,21 @@ export default function Sidebar() {
 			{/* Mobile: overlay */}
 			{mobileOpen && (
 				<div
-					className="fixed inset-0 bg-black/40 z-40 md:hidden"
+					className="fixed inset-0 bg-black/55 z-40 md:hidden"
 					onClick={toggleMobile}
 				/>
 			)}
 
 			{/* Mobile: drawer */}
 			<aside
-				className={`fixed top-0 left-0 bottom-0 w-[75vw] max-w-[280px] bg-white border-r border-gray-200 flex flex-col z-50 transition-transform duration-300 ease-in-out md:hidden
+				className={`fixed top-0 left-0 bottom-0 w-[75vw] max-w-[280px] bg-[#061a11]/95 border-r border-white/10 flex flex-col z-50 transition-transform duration-300 ease-in-out md:hidden backdrop-blur-xl
 					${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
 			>
 				{sidebarContent}
 			</aside>
 
 			{/* Desktop/Tablet: always visible sidebar */}
-			<aside className="layout-sidebar bg-white border-r border-gray-200 hidden md:flex flex-col">
+			<aside className="layout-sidebar bg-[#05140d]/95 border-r border-white/8 hidden md:flex flex-col backdrop-blur-xl">
 				{sidebarContent}
 			</aside>
 		</>
