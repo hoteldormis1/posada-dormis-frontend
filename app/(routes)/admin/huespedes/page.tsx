@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { pantallaPrincipalEstilos } from "@/styles/global-styles";
+import { labelBaseEstilos, pantallaPrincipalEstilos } from "@/styles/global-styles";
 import { LoadingSpinner, TableComponent } from "@/components";
 import { AppDispatch, RootState } from "@/lib/store/store";
 import {
@@ -23,6 +23,42 @@ import { useSweetAlert } from "@/hooks/useSweetAlert";
 import { hasPermission } from "@/utils/helpers/permissions";
 import { Huesped } from "@/models/types/huesped";
 import { FaUsers, FaBan } from "react-icons/fa";
+import OrigenField from "@/components/reservas/OrigenField";
+import { getCountryName } from "@/utils/helpers/format";
+
+const COUNTRY_NAME_TO_CODE: Record<string, string> = {
+	argentina: "AR",
+	uruguay: "UY",
+	paraguay: "PY",
+	bolivia: "BO",
+	chile: "CL",
+	brasil: "BR",
+	peru: "PE",
+	colombia: "CO",
+	venezuela: "VE",
+	ecuador: "EC",
+	mexico: "MX",
+	"estados unidos": "US",
+	canada: "CA",
+	espana: "ES",
+	italia: "IT",
+	alemania: "DE",
+	francia: "FR",
+};
+
+const normalizeText = (value: string) =>
+	value
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.trim()
+		.toLowerCase();
+
+const toCountryCode = (value?: string) => {
+	const raw = String(value ?? "").trim();
+	if (!raw) return "AR";
+	if (/^[A-Za-z]{2}$/.test(raw)) return raw.toUpperCase();
+	return COUNTRY_NAME_TO_CODE[normalizeText(raw)] ?? "AR";
+};
 
 const HuespedesPage = () => {
 	const dispatch: AppDispatch = useAppDispatch();
@@ -74,10 +110,25 @@ const HuespedesPage = () => {
 		{ key: "nombre", type: "text", label: "Nombre", editable: true },
 		{ key: "apellido", type: "text", label: "Apellido", editable: true },
 		{ key: "dni", type: "text", label: "DNI", editable: true },
-		{ key: "telefono", type: "text", label: "Teléfono", editable: true },
-		{ key: "origen", type: "text", label: "País de origen", editable: true },
+		{ key: "telefono", type: "phone", label: "Teléfono", editable: true },
+		{ key: "origen", type: "custom", label: "País de origen", editable: true },
 		{ key: "direccion", type: "text", label: "Dirección (opcional)", editable: true },
 	];
+
+	const customFields = useMemo(
+		() => ({
+			origen: (value: string, onChange: (nextValue: string) => void, ctx?: { disabled?: boolean }) => (
+				<OrigenField
+					value={toCountryCode(value)}
+					onChange={(code) => onChange(code)}
+					disabled={ctx?.disabled}
+					labelClass={labelBaseEstilos}
+					label="País de origen"
+				/>
+			),
+		}),
+		[]
+	);
 
 	const columns = useMemo(() => [
 		{ header: "Nombre", key: "nombre" },
@@ -97,10 +148,19 @@ const HuespedesPage = () => {
 			apellido: h.apellido,
 			dni: h.dni,
 			telefono: h.telefono,
-			origen: h.origen,
+			origen: getCountryName(String(h.origen || "AR"), "es"),
 			direccion: h.direccion || "-",
 		}));
 	}, [huespedes]);
+
+	const mapRowToFormDataHuespedes = (row: any) => ({
+		nombre: String(row?.nombre ?? ""),
+		apellido: String(row?.apellido ?? ""),
+		dni: String(row?.dni ?? ""),
+		telefono: String(row?.telefono ?? ""),
+		origen: toCountryCode(String(row?.origen ?? "AR")),
+		direccion: row?.direccion && row.direccion !== "-" ? String(row.direccion) : "",
+	});
 
 	const onSaveEdit = async (formData: Record<string, unknown>, selectedRow: any) => {
 		if (!selectedRow || !("idHuesped" in selectedRow)) {
@@ -119,7 +179,7 @@ const HuespedesPage = () => {
 			apellido: String(apellido).trim(),
 			dni: String(dni).trim(),
 			telefono: String(telefono).trim(),
-			origen: String(origen).trim(),
+			origen: String(origen).trim().toUpperCase(),
 			direccion: direccion ? String(direccion).trim() : undefined,
 		};
 		try {
@@ -141,7 +201,7 @@ const HuespedesPage = () => {
 			apellido: String(apellido).trim(),
 			dni: String(dni).trim(),
 			telefono: String(telefono).trim(),
-			origen: String(origen).trim(),
+			origen: String(origen).trim().toUpperCase(),
 			direccion: direccion ? String(direccion).trim() : undefined,
 		};
 		try {
@@ -320,6 +380,8 @@ const HuespedesPage = () => {
 								onSaveDelete={onSaveDelete}
 								onSaveDeleteMany={onSaveDeleteMany}
 								inputOptions={inputOptions}
+								customFields={customFields}
+								mapRowToFormData={mapRowToFormDataHuespedes}
 								showActions={{
 									create: puedeAgregar,
 									delete: puedeBorrar,

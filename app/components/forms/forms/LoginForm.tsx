@@ -9,6 +9,14 @@ import { useToastAlert } from "@/hooks/useToastAlert";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { loginSchema } from "@/utils/validations/authSchema";
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function validateEmailInline(val: string): string | undefined {
+	if (!val) return undefined; // sin mensaje mientras está vacío
+	if (!EMAIL_RE.test(val)) return "Ingresá un correo válido (ej: usuario@dominio.com)";
+	return undefined;
+}
+
 const LoginForm = () => {
 	const dispatch: AppDispatch = useAppDispatch();
 	const router = useRouter();
@@ -19,6 +27,7 @@ const LoginForm = () => {
 	const [clave, setClave] = useState("");
 	const [showPass, setShowPass] = useState(false);
 	const [errors, setErrors] = useState<{ email?: string; clave?: string }>({});
+	const [emailTouched, setEmailTouched] = useState(false);
 
 	const { loading } = useAppSelector((state: RootState) => state.user);
 
@@ -59,19 +68,26 @@ const LoginForm = () => {
 		<form onSubmit={handleSubmit} className="w-full space-y-4">
 			<div>
 				<label htmlFor="email" className="login-field-label">Correo electrónico</label>
-				<input
-					id="email"
-					name="email"
-					type="email"
-					placeholder="usuario@ejemplo.com"
-					value={email}
-					onChange={(e) => {
-						setEmail(e.target.value);
-						if (errors.email) setErrors({ ...errors, email: undefined });
-					}}
-					className="login-field-input"
-				/>
-				{errors.email && <p className="text-red-300 text-xs mt-1.5">{errors.email}</p>}
+			<input
+				id="email"
+				name="email"
+				type="email"
+				placeholder="usuario@ejemplo.com"
+				value={email}
+				onChange={(e) => {
+					setEmail(e.target.value);
+					if (emailTouched) {
+						const inlineErr = validateEmailInline(e.target.value);
+						setErrors((prev) => ({ ...prev, email: inlineErr }));
+					}
+				}}
+				onBlur={() => {
+					setEmailTouched(true);
+					setErrors((prev) => ({ ...prev, email: validateEmailInline(email) }));
+				}}
+				className={`login-field-input${errors.email ? " !border-red-400/60" : ""}`}
+			/>
+			{errors.email && <p className="text-red-300 text-xs mt-1.5">{errors.email}</p>}
 			</div>
 
 			<div>

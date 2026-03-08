@@ -1,6 +1,7 @@
 import React from "react";
 import OrigenField from "./OrigenField";
 import MontoPagadoField from "./MontoPagadoField";
+import EstadoSlider from "@/components/ui/calendario/EstadoSlider";
 
 // Tipo de renderer esperado por tu TableComponent
 export type CustomFieldRenderer = (
@@ -13,10 +14,12 @@ const makeCustomFields = ({
   labelBaseEstilos,
   inputBaseEstilos,
   habitaciones,
+  estadosReserva,
 }: {
   labelBaseEstilos: string;
   inputBaseEstilos: string;
   habitaciones: any;
+  estadosReserva: Array<{ idEstadoReserva: number; nombre: string; descripcion?: string; prioridad?: number }>;
 }) => {
   const origen: CustomFieldRenderer = (value, onChange, ctx) => (
     <OrigenField
@@ -39,7 +42,25 @@ const makeCustomFields = ({
     />
   );
 
-  return { origen, montoPagado } as const;
+  const idEstadoReserva: CustomFieldRenderer = (value, onChange, ctx) => {
+    const currentId = Number(value || 0);
+    const currentName = estadosReserva.find((e) => e.idEstadoReserva === currentId)?.nombre || "";
+
+    return (
+      <EstadoSlider
+        estadoActual={currentName}
+        estados={estadosReserva}
+        onChange={(estadoNombre) => {
+          const target = estadosReserva.find(
+            (e) => e.nombre.toLowerCase() === estadoNombre.toLowerCase()
+          );
+          if (target) onChange(String(target.idEstadoReserva));
+        }}
+      />
+    );
+  };
+
+  return { origen, montoPagado, idEstadoReserva } as const;
 };
 
 export default makeCustomFields;

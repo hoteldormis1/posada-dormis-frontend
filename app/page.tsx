@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { FaCalendarAlt, FaBed, FaUsers, FaCheckCircle, FaWifi, FaParking, FaCoffee, FaSignInAlt, FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
-import { InputForm } from "@/components";
+import PhoneInput, { isValidPhoneNumber } from "@/components/forms/formComponents/PhoneInput";
 
 
 interface Habitacion {
@@ -36,6 +36,7 @@ type DniLookupEstado = "idle" | "buscando" | "encontrado" | "confirmando" | "ver
 
 const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const DAYS = ["Lu","Ma","Mi","Ju","Vi","Sa","Do"];
+const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
@@ -312,18 +313,15 @@ const ReservasPublicasPage = () => {
       }
 
       case "telefono": {
-        const digits = valor.replace(/\D/g, "");
         if (!valor.trim()) return "El teléfono es obligatorio";
-        if (digits.length < 8 || digits.length > 15)
-          return "El teléfono debe tener entre 8 y 15 dígitos";
-        if (!/^[\d\s\-\+\(\)]{6,20}$/.test(valor.trim()))
-          return "Solo se permiten dígitos, espacios, +, -, (, )";
+        if (!isValidPhoneNumber(valor.trim()))
+          return "Ingresá un teléfono válido con prefijo de país";
         return undefined;
       }
 
       case "email":
         if (!valor.trim()) return "El email es obligatorio";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor.trim()))
+        if (!EMAIL_RE.test(valor.trim()) || /\.\./.test(valor.trim()))
           return "Ingresá un email válido (ej: juan@gmail.com)";
         return undefined;
 
@@ -837,18 +835,15 @@ const ReservasPublicasPage = () => {
                           )}
                           <div className="flex gap-2">
                             <div className="flex-1">
-                              <input
-                                type="tel"
-                                placeholder="Teléfono registrado (ej: 3511234567)"
+                              <PhoneInput
+                                inputKey="telefonoConfirmar"
+                                label="Teléfono registrado"
                                 value={telefonoConfirmar}
                                 onChange={(e) => {
                                   setTelefonoConfirmar(e.target.value);
                                   setDniLookupError(null);
                                   if (dniLookupEstado === "error") setDniLookupEstado("encontrado");
                                 }}
-                                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), confirmarTelefono())}
-                                className="w-full bg-white/8 border border-white/15 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/35 focus:outline-none focus:border-emerald-400/60 focus:bg-white/10 transition-all"
-                                autoFocus
                               />
                             </div>
                             <button
@@ -963,23 +958,13 @@ const ReservasPublicasPage = () => {
 
                         {!huespedPreloaded && (
                           <div>
-                            <label className="block text-xs font-semibold text-white mb-1.5 uppercase tracking-wide">
-                              Teléfono *
-                            </label>
-                            <input
-                              type="tel"
-                              placeholder="Ej: +54 351 123-4567"
+                            <PhoneInput
+                              inputKey="telefono"
+                              label="Teléfono *"
                               value={formulario.telefono}
                               onChange={(e) => handleCampoChange("telefono", e.target.value)}
-                              className={`w-full bg-white/8 border rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/35 transition-all focus:outline-none ${
-                                erroresFormulario.telefono
-                                  ? "border-red-400/60 focus:border-red-400"
-                                  : "border-white/15 focus:border-emerald-400/60 focus:bg-white/10"
-                              }`}
+                              error={erroresFormulario.telefono}
                             />
-                            {erroresFormulario.telefono && (
-                              <p className="text-xs text-red-300 mt-1">{erroresFormulario.telefono}</p>
-                            )}
                           </div>
                         )}
 
@@ -1043,7 +1028,7 @@ const ReservasPublicasPage = () => {
                         <button
                           type="submit"
                           disabled={loading}
-                          className="flex-1 bg-emerald-400 hover:bg-emerald-300 text-[#0a2318] font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_6px_20px_rgba(52,211,153,0.22)]"
+                          className={loading ? "cursor-pointer flex-1 bg-emerald-400 hover:bg-emerald-300 text-[#0a2318] font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_6px_20px_rgba(52,211,153,0.22)]" : "cursor-pointer flex-1 bg-emerald-400 hover:bg-emerald-300 text-[#0a2318] font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_6px_20px_rgba(52,211,153,0.22)]"}
                         >
                           {loading ? "Procesando..." : "Confirmar reserva"}
                         </button>

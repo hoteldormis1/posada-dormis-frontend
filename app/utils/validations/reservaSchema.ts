@@ -115,7 +115,9 @@ export const reservaEditSchema = z
 		idHabitacion: z.coerce.number().int().positive("Seleccione una habitación"),
 		fechaDesde: z.string().min(1, "Ingrese la fecha").regex(/^\d{2}\/\d{2}\/\d{4}$/, "Formato: dd/mm/yyyy"),
 		fechaHasta: z.string().min(1, "Ingrese la fecha").regex(/^\d{2}\/\d{2}\/\d{4}$/, "Formato: dd/mm/yyyy"),*/
-		montoPagado: z.coerce.number().positive("Campo requerido"),
+		montoPagado: z.coerce
+			.number()
+			.min(0, "El monto pagado debe ser mayor o igual a 0"),
 	})
 
 export type ReservaAddForm = z.infer<typeof reservaAddSchema>;

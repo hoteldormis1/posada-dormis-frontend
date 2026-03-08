@@ -95,7 +95,7 @@ const initialState: ContableState = {
 
 // ─────────────────────────── Thunks ───────────────────────────
 
-type ResumenParams = { from?: string; to?: string } | void;
+type ResumenParams = { from?: string; to?: string; estados?: string[] } | void;
 
 export const fetchContableResumen = createAsyncThunk<
   ContableResumen,
@@ -106,6 +106,7 @@ export const fetchContableResumen = createAsyncThunk<
     const qs = new URLSearchParams();
     if (params?.from) qs.set("from", params.from);
     if (params?.to) qs.set("to", params.to);
+    if (params?.estados?.length) qs.set("estados", params.estados.join(","));
 
     const url = qs.toString()
       ? `/contable/resumen?${qs.toString()}`
@@ -120,7 +121,7 @@ export const fetchContableResumen = createAsyncThunk<
   }
 });
 
-type ExportarParams = { from?: string; to?: string; estado?: string } | void;
+type ExportarParams = { from?: string; to?: string; estado?: string; estados?: string[] } | void;
 
 export const fetchContableExportar = createAsyncThunk<
   ExportarResponse,
@@ -132,6 +133,7 @@ export const fetchContableExportar = createAsyncThunk<
     if (params?.from) qs.set("from", params.from);
     if (params?.to) qs.set("to", params.to);
     if (params?.estado) qs.set("estado", params.estado);
+    if (params?.estados?.length) qs.set("estados", params.estados.join(","));
 
     const url = qs.toString()
       ? `/contable/exportar?${qs.toString()}`

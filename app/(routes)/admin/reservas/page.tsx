@@ -21,6 +21,7 @@ import { hasPermission } from "@/utils/helpers/permissions";
 import { Huesped } from "@/models/types/huesped";
 import { buildReservaFields } from "@/components/reservas/buildReservaFields";
 import { Option } from "@/components/reservas/types";
+import { normalizeEstadoReserva } from "@/utils/helpers/reservaEstado";
 
 const Reservas: React.FC = () => {
   const dispatch = useAppDispatch<AppDispatch>();
@@ -87,26 +88,27 @@ const Reservas: React.FC = () => {
 
   // ✅ custom fields (Origen, MontoPagado)
   const customFields = useMemo(() => {
-    const { origen, montoPagado } = makeCustomFields({
+    const { origen, montoPagado, idEstadoReserva } = makeCustomFields({
       labelBaseEstilos,
       inputBaseEstilos,
       habitaciones,
+      estadosReserva: (EstadoReservas ?? []) as EstadoReserva[],
     });
-    return { origen, montoPagado } as const;
-  }, [habitaciones]);
+    return { origen, montoPagado, idEstadoReserva } as const;
+  }, [habitaciones, EstadoReservas]);
 
   const onSaveEdit = async (updatedRow: any) => {
     try {
-      const estadoOrigen = String(updatedRow?.estadoDeReserva || "").toLowerCase();
-      const estadoDestino = String(
+      const estadoOrigen = normalizeEstadoReserva(String(updatedRow?.estadoDeReserva || ""));
+      const estadoDestino = normalizeEstadoReserva(String(
         (EstadoReservas ?? []).find(
           (e: any) => Number(e?.idEstadoReserva) === Number(updatedRow?.idEstadoReserva)
         )?.nombre || ""
-      ).toLowerCase();
+      ));
       const origenBloqueado = ["confirmada", "checkin", "checkout"].includes(estadoOrigen);
-      const destinoBloqueado = ["pendiente", "rechazada"].includes(estadoDestino);
+      const destinoBloqueado = ["pendiente"].includes(estadoDestino);
       if (origenBloqueado && destinoBloqueado) {
-        errorToast("No se puede volver a pendiente o rechazada si la reserva ya fue confirmada.");
+        errorToast("No se puede volver a pendiente si la reserva ya fue confirmada.");
         return;
       }
 

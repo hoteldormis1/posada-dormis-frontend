@@ -396,3 +396,49 @@ input[type="checkbox"] {
     backdrop-filter: none;
   }
 }
+
+/* OrigenField (react-flags-select) - dark/glass theme */
+.origen-flags-select .ReactFlagsSelect-module_selectBtn__19wW7,
+.origen-flags-select button[class*="selectBtn"] {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  min-height: 42px !important;
+}
+
+.origen-flags-select .ReactFlagsSelect-module_selectBtn__19wW7 span,
+.origen-flags-select button[class*="selectBtn"] span {
+  color: rgba(236, 253, 245, 0.9) !important;
+}
+
+.origen-flags-select ul[class*="selectOptions"],
+.origen-flags-select .ReactFlagsSelect-module_selectOptions__3LNBJ {
+  background: #0d271b !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35) !important;
+}
+
+.origen-flags-select li[class*="selectOption"],
+.origen-flags-select .ReactFlagsSelect-module_selectOption__3pcgW {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+.origen-flags-select li[class*="selectOption"]:hover,
+.origen-flags-select .ReactFlagsSelect-module_selectOption__3pcgW:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.origen-flags-select input[class*="searchBox"],
+.origen-flags-select .ReactFlagsSelect-module_filterBox__3m8EU input {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+}
+
+.origen-flags-select input[class*="searchBox"]::placeholder,
+.origen-flags-select .ReactFlagsSelect-module_filterBox__3m8EU input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}

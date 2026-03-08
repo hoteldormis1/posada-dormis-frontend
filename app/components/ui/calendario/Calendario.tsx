@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useCallback, useState, useEffect } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import {
   getEstadoReservaTheme,
   getEstadoReservaLabel,
@@ -91,7 +91,6 @@ export default function Calendario({
   const [selectionStart, setSelectionStart] = useState<{ date: Date; roomId: string | number } | null>(null);
   const [selectionEnd, setSelectionEnd] = useState<{ date: Date; roomId: string | number } | null>(null);
   const [lastScrollTime, setLastScrollTime] = useState(0);
-  const [selectedEstadoKeys, setSelectedEstadoKeys] = useState<EstadoReservaKey[]>([]);
 
   // Fecha de anclaje para el rango visible
   const [anchor, setAnchor] = useState<Date>(
@@ -299,7 +298,12 @@ export default function Calendario({
           nombre: estado.nombre,
           estadoKey: normalizeEstadoReserva(estado.nombre),
         }))
-        .filter((estado) => estado.estadoKey !== "rechazada")
+        .filter(
+          (estado) =>
+            estado.estadoKey !== "rechazada" &&
+            estado.estadoKey !== "cancelada" &&
+            estado.estadoKey !== "pendiente"
+        )
         .filter(
           (estado, index, arr) =>
             arr.findIndex((x) => x.estadoKey === estado.estadoKey) === index
@@ -320,44 +324,13 @@ export default function Calendario({
         nombre,
         estadoKey: normalizeEstadoReserva(nombre),
       }))
-      .filter((estado) => estado.estadoKey !== "rechazada");
+      .filter(
+        (estado) =>
+          estado.estadoKey !== "rechazada" &&
+          estado.estadoKey !== "cancelada" &&
+          estado.estadoKey !== "pendiente"
+      );
   }, [estadosReserva, bookings]);
-
-  useEffect(() => {
-    const availableKeys = legendStates.map((estado) => estado.estadoKey);
-    const defaultInactiveKeys: EstadoReservaKey[] = ["cancelada", "pendiente"];
-    const defaultActiveKeys = availableKeys.filter(
-      (key) => !defaultInactiveKeys.includes(key)
-    );
-    if (availableKeys.length === 0) {
-      setSelectedEstadoKeys([]);
-      return;
-    }
-
-    setSelectedEstadoKeys((prev) => {
-      if (prev.length === 0) {
-        return defaultActiveKeys.length > 0 ? defaultActiveKeys : availableKeys;
-      }
-      const kept = prev.filter((key) => availableKeys.includes(key));
-      return kept.length > 0
-        ? kept
-        : defaultActiveKeys.length > 0
-        ? defaultActiveKeys
-        : availableKeys;
-    });
-  }, [legendStates]);
-
-  const toggleEstadoFilter = useCallback((estadoKey: EstadoReservaKey) => {
-    setSelectedEstadoKeys((prev) =>
-      prev.includes(estadoKey)
-        ? prev.filter((key) => key !== estadoKey)
-        : [...prev, estadoKey]
-    );
-  }, []);
-
-  const activarTodosEstados = useCallback(() => {
-    setSelectedEstadoKeys(legendStates.map((estado) => estado.estadoKey));
-  }, [legendStates]);
 
   return (
     <div className={`w-full font-[var(--font-sans)] text-[15px] ${className}`}>
@@ -487,10 +460,7 @@ export default function Calendario({
                   {(layoutByRoom.get(Number(r.id)) || [])
                     .filter((booking) => {
                       if (normalizeEstadoReserva(booking.status) === "rechazada") return false;
-                      if (selectedEstadoKeys.length === 0) return true;
-                      return selectedEstadoKeys.includes(
-                        normalizeEstadoReserva(booking.status)
-                      );
+                      return true;
                     })
                     .map((b) => {
                     const s = parseD(b.start);
@@ -554,34 +524,19 @@ export default function Calendario({
 
       {/* Legend */}
       <div className="flex flex-wrap gap-x-4 gap-y-2 px-4 py-3 border-t border-white/8 bg-black/15">
-        <button
-          type="button"
-          onClick={activarTodosEstados}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors bg-white/6 border-white/14 text-white/85 hover:bg-white/12"
-        >
-          Todos
-        </button>
         {legendStates.map((estado) => {
           const theme = getEstadoReservaTheme(estado.nombre);
-          const isActive = selectedEstadoKeys.includes(estado.estadoKey);
           return (
-            <button
-              type="button"
+            <div
               key={estado.key}
-              onClick={() => toggleEstadoFilter(estado.estadoKey)}
-              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                isActive
-                  ? "bg-white/10 border-white/30 text-white"
-                  : "bg-transparent border-white/14 text-white/60 hover:bg-white/6 hover:text-white/80"
-              }`}
-              title={`Filtrar por ${getEstadoReservaLabel(estado.nombre)}`}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border bg-white/10 border-white/30 text-white"
             >
               <span
                 className="inline-block h-2.5 w-2.5 rounded-[3px]"
                 style={{ backgroundColor: theme.hex.color }}
               />
               {getEstadoReservaLabel(estado.nombre)}
-            </button>
+            </div>
           );
         })}
       </div>

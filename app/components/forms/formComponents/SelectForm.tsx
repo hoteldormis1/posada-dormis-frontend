@@ -46,10 +46,18 @@ const SelectForm: React.FC<SelectFormProps> = ({
         onChange={onChange}
         disabled={disabled}
         className={baseClass}
+        style={{ colorScheme: "dark" }}
       >
-        <option value="" className="bg-[#0d271b] text-white">{placeholderOption}</option>
+        <option value="" className="bg-[#0d271b] text-white" style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>
+          {placeholderOption}
+        </option>
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value} className="bg-[#0d271b] text-white">
+          <option
+            key={opt.value}
+            value={opt.value}
+            className="bg-[#0d271b] text-white"
+            style={{ backgroundColor: "#0d271b", color: "#ffffff" }}
+          >
             {opt.label}
           </option>
         ))}

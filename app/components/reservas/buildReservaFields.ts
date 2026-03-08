@@ -47,7 +47,7 @@ export function buildReservaFields(
     },
     { 
       key: "telefono", 
-      type: "text",  
+      type: "phone",  
       label: "Teléfono", 
       editable: ({ formData }: any) => formData.huespedMode !== "existente",
     },
@@ -75,12 +75,22 @@ export function buildReservaFields(
         label: `Número ${h.numero}`,
       })),
     },
-    { key: "fechaDesde", type: "date", label: "Fecha desde", editable: true },
-    { key: "fechaHasta", type: "date", label: "Fecha hasta", editable: true },
+    {
+      key: "fechaDesde",
+      type: "date",
+      label: "Fecha desde",
+      editable: ({ mode }: any) => mode === "add",
+    },
+    {
+      key: "fechaHasta",
+      type: "date",
+      label: "Fecha hasta",
+      editable: ({ mode }: any) => mode === "add",
+    },
 
     {
       key: "idEstadoReserva",
-      type: "select",
+      type: "custom",
       label: "Estado de Reserva",
       editable: true,
       options: estados.map((e) => ({

@@ -23,7 +23,11 @@ import {
 } from "@/utils/helpers/date";
 import InputDateForm from "@/components/forms/formComponents/InputDateForm";
 import { exportarCSV, exportarPDF, ColumnaExport } from "@/utils/helpers/exportar";
-import { ESTADOS_RESERVA_OPCIONES, getEstadoReservaTheme } from "@/utils/helpers/reservaEstado";
+import {
+  getEstadoReservaTheme,
+  getEstadoReservaLabel,
+  type EstadoReservaKey,
+} from "@/utils/helpers/reservaEstado";
 import {
   FaFileCsv,
   FaFilePdf,
@@ -67,6 +71,12 @@ const fmtDate = (iso: string) => {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 };
+
+const REPORTES_LEGEND: EstadoReservaKey[] = [
+  "confirmada",
+  "checkin",
+  "checkout",
+];
 
 /** Calcula from/to en ISO y dd/mm/yyyy a partir de un preset. */
 const getRangeFromPreset = (preset: Preset) => {
@@ -121,15 +131,20 @@ const ReportesPage: React.FC = () => {
   // Rango de fechas en dd/mm/yyyy (para UI) — se inicializa con "Este mes"
   const [fromUI, setFromUI] = useState(() => getRangeFromPreset("MES").fromUI);
   const [toUI, setToUI] = useState(() => getRangeFromPreset("MES").toUI);
-  const [estado, setEstado] = useState("");
+  const [selectedEstadoKeys, setSelectedEstadoKeys] = useState<EstadoReservaKey[]>([
+    "confirmada",
+    "checkin",
+    "checkout",
+    "rechazada",
+  ]);
 
   // Helpers para obtener ISO del state actual
   const currentFromISO = ddmmToISO(fromUI) || getRangeFromPreset("MES").fromISO;
   const currentToISO = ddmmToISO(toUI) || getRangeFromPreset("MES").toISO;
 
   /** Despacha los tres fetches en simultáneo */
-  const fetchTodos = (fromISO: string, toISO: string, estadoFiltro?: string) => {
-    dispatch(fetchContableExportar({ from: fromISO, to: toISO, ...(estadoFiltro ? { estado: estadoFiltro } : {}) }));
+  const fetchTodos = (fromISO: string, toISO: string, estados: EstadoReservaKey[] = selectedEstadoKeys) => {
+    dispatch(fetchContableExportar({ from: fromISO, to: toISO, estados }));
     dispatch(fetchDashboardSummary({ from: fromISO, to: toISO, agruparPor: "day" }));
     dispatch(fetchContableOcupacion({ from: fromISO, to: toISO }));
   };
@@ -137,7 +152,7 @@ const ReportesPage: React.FC = () => {
   // Fetch inicial con rango del mes actual
   useEffect(() => {
     const { fromISO, toISO } = getRangeFromPreset("MES");
-    fetchTodos(fromISO, toISO);
+    fetchTodos(fromISO, toISO, selectedEstadoKeys);
   }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Siempre apunta al refetch con los filtros actuales (evita stale closure)
@@ -145,7 +160,7 @@ const ReportesPage: React.FC = () => {
   useEffect(() => {
     const fromISO = ddmmToISO(fromUI) || getRangeFromPreset("MES").fromISO;
     const toISO = ddmmToISO(toUI) || getRangeFromPreset("MES").toISO;
-    refreshRef.current = () => fetchTodos(fromISO, toISO, estado || undefined);
+    refreshRef.current = () => fetchTodos(fromISO, toISO, selectedEstadoKeys);
   });
 
   // Socket: actualiza los reportes en tiempo real
@@ -166,7 +181,7 @@ const ReportesPage: React.FC = () => {
     const { fromISO, toISO, fromUI: fUI, toUI: tUI } = getRangeFromPreset(p);
     setFromUI(fUI);
     setToUI(tUI);
-    fetchTodos(fromISO, toISO, estado || undefined);
+    fetchTodos(fromISO, toISO, selectedEstadoKeys);
   };
 
   // Handler del input dd/mm/yyyy
@@ -180,7 +195,21 @@ const ReportesPage: React.FC = () => {
     const fromISO = ddmmToISO(fromUI);
     const toISO = ddmmToISO(toUI);
     if (!fromISO || !toISO) return;
-    fetchTodos(fromISO, toISO, estado || undefined);
+    fetchTodos(fromISO, toISO, selectedEstadoKeys);
+  };
+
+  const toggleEstadoFilter = (key: EstadoReservaKey) => {
+    const next = selectedEstadoKeys.includes(key)
+      ? selectedEstadoKeys.filter((k) => k !== key)
+      : [...selectedEstadoKeys, key];
+    const safeNext = next.length > 0 ? next : selectedEstadoKeys;
+    setSelectedEstadoKeys(safeNext);
+    fetchTodos(currentFromISO, currentToISO, safeNext);
+  };
+
+  const activarTodosEstados = () => {
+    setSelectedEstadoKeys(REPORTES_LEGEND);
+    fetchTodos(currentFromISO, currentToISO, REPORTES_LEGEND);
   };
 
   // Preparar datos con formatos de texto para export
@@ -233,12 +262,14 @@ const ReportesPage: React.FC = () => {
   );
 
   // Handlers de exportación
-  const estadoLabel = estado ? ESTADOS_RESERVA_OPCIONES.find((e) => e.value === estado)?.label : "Todos";
+  const estadoLabel = selectedEstadoKeys.length === REPORTES_LEGEND.length
+    ? "Todos"
+    : selectedEstadoKeys.map((k) => getEstadoReservaLabel(k)).join(", ");
   const rangoLabel =
     exportData?.range
       ? `${fmtDate(exportData.range.from)} al ${fmtDate(exportData.range.to)}`
       : "";
-  const filenameBase = `reservas_${estado || "todas"}_${currentFromISO}_${currentToISO}`;
+  const filenameBase = `reservas_${selectedEstadoKeys.join("-") || "todas"}_${currentFromISO}_${currentToISO}`;
 
   const handleExportCSV = () => {
     exportarCSV({
@@ -315,28 +346,37 @@ const ReportesPage: React.FC = () => {
             </div>
           )}
 
-          {/* Filtro por estado — siempre visible */}
-          <div className="flex flex-col sm:flex-row items-end gap-4">
-            <div className="sm:w-64">
-              <label className="block text-sm font-semibold text-emerald-100/80 mb-1.5">
-                Estado
-              </label>
-              <select
-                value={estado}
-                onChange={(e) => {
-                  const nuevoEstado = e.target.value;
-                  setEstado(nuevoEstado);
-                  fetchTodos(currentFromISO, currentToISO, nuevoEstado || undefined);
-                }}
-                className="admin-input block w-full text-sm rounded-lg border-2 px-4 py-2.5 transition-all"
-              >
-                {ESTADOS_RESERVA_OPCIONES.map((opt) => (
-                  <option key={opt.value} value={opt.value} className="bg-[#0d271b] text-white">
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* Filtro por estados (leyenda interactiva) */}
+          <div className="flex flex-wrap gap-x-3 gap-y-2">
+            <button
+              type="button"
+              onClick={activarTodosEstados}
+              className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors bg-white/6 border-white/14 text-white/85 hover:bg-white/12"
+            >
+              Todos
+            </button>
+            {REPORTES_LEGEND.map((estadoKey) => {
+              const theme = getEstadoReservaTheme(estadoKey);
+              const isActive = selectedEstadoKeys.includes(estadoKey);
+              return (
+                <button
+                  type="button"
+                  key={estadoKey}
+                  onClick={() => toggleEstadoFilter(estadoKey)}
+                  className={`cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                    isActive
+                      ? "bg-white/10 border-white/30 text-white"
+                      : "bg-transparent border-white/14 text-white/60 hover:bg-white/6 hover:text-white/80"
+                  }`}
+                >
+                  <span
+                    className="inline-block h-2.5 w-2.5 rounded-[3px]"
+                    style={{ backgroundColor: theme.hex.color }}
+                  />
+                  {getEstadoReservaLabel(estadoKey)}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -464,7 +504,7 @@ const ReportesPage: React.FC = () => {
                 <p className="text-xs text-emerald-100/65 mt-3">
                   <FaDownload className="inline mr-1" size={10} />
                   Período: {fmtDate(exportData.range.from)} al {fmtDate(exportData.range.to)}
-                  {estado ? ` — Estado: ${estadoLabel}` : ""}
+                  {` — Estado(s): ${estadoLabel}`}
                 </p>
               )}
             </div>
