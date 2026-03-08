@@ -3,6 +3,7 @@
 import React from 'react';
 import {
   Chart as ChartJS,
+  type ChartOptions,
   ArcElement,
   Tooltip,
   Legend,
@@ -48,7 +49,7 @@ export default function GraficoPie({
     ],
   };
 
-  const options = {
+  const options: ChartOptions<"pie"> = {
     responsive: true,
     plugins: {
       legend: {
@@ -60,7 +61,7 @@ export default function GraficoPie({
           font: {
             size: 11,
             family: "Poppins, Segoe UI, sans-serif",
-            weight: "600",
+            weight: "bold",
           },
         },
       },
@@ -71,7 +72,7 @@ export default function GraficoPie({
         font: {
           size: 12,
           family: "Poppins, Segoe UI, sans-serif",
-          weight: "700",
+          weight: "bold",
         },
       },
       tooltip: {
@@ -87,7 +88,7 @@ export default function GraficoPie({
         titleFont: {
           size: 11,
           family: "Poppins, Segoe UI, sans-serif",
-          weight: "700",
+          weight: "bold",
         },
       },
     },
