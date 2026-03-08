@@ -362,46 +362,50 @@ const ContablePage: React.FC = () => {
             </div>
 
             {/* Tarjetas por estado */}
-            <h2 className="text-lg font-bold text-white mb-4">Desglose por Estado</h2>
+            <h2 className="text-lg font-bold text-white mb-4">Resumen por Estado</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
               {estados.map((estado) => {
                 const cfg = getEstadoConfig(estado.nombre);
+                const theme = getEstadoReservaTheme(estado.nombre).hex;
                 return (
                   <div
                     key={estado.idEstadoReserva}
-                    className={`rounded-xl shadow-sm border ${cfg.border} ${cfg.bg} p-5 transition-all hover:shadow-md`}
+                    className="rounded-xl p-5 transition-all"
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: `1px solid ${theme.color}33`,
+                      boxShadow: `0 8px 24px ${theme.color}14, inset 0 1px 0 rgba(255,255,255,0.05)`,
+                    }}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div className={`${cfg.color}`}>{cfg.icon}</div>
                         <div>
                           <h3 className="font-bold text-white capitalize text-base">
-                            {estado.nombre}
+                            {getEstadoReservaLabel(estado.nombre)}
                           </h3>
-                          <p className="text-xs text-emerald-100/50">{estado.descripcion}</p>
+                          <p className="text-xs text-white/45">{estado.descripcion}</p>
                         </div>
                       </div>
-                      <span
-                        className={`text-2xl font-bold ${cfg.color}`}
-                      >
+                      <span className="text-2xl font-bold" style={{ color: theme.color }}>
                         {estado.cantidad}
                       </span>
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-emerald-100/65">Monto Total</span>
+                        <span className="text-white/60">Monto Total</span>
                         <span className="font-semibold text-white">
                           {fmtMoney(estado.montoTotal)}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-emerald-100/65">Monto Pagado</span>
-                        <span className="font-semibold text-emerald-300">
+                        <span className="text-white/60">Monto Pagado</span>
+                        <span className="font-semibold" style={{ color: theme.accent }}>
                           {fmtMoney(estado.montoPagado)}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm border-t border-white/12 pt-2 mt-2">
-                        <span className="text-emerald-100/65 font-medium">Saldo Pendiente</span>
+                        <span className="text-white/60 font-medium">Saldo Pendiente</span>
                         <span className="font-bold text-amber-300">
                           {fmtMoney(estado.saldoPendiente)}
                         </span>

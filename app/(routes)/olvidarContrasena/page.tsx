@@ -77,14 +77,14 @@ const OlvidarContrasena = () => {
 
                 <div className="flex-1 flex items-center">
                     <div>
-                        <p className="text-sm font-semibold text-emerald-300 tracking-[0.16em] uppercase mb-6">
+                        <p className="text-sm md:text-base font-semibold text-emerald-300 tracking-[0.16em] uppercase mb-6">
                             Recuperar acceso
                         </p>
-                        <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight max-w-[520px]">
+                        <h1 className="text-5xl md:text-6xl font-semibold leading-[1.05] tracking-tight max-w-[520px]">
                             Volvé a entrar <br />
                             de forma <span className="italic text-emerald-300">segura</span>
                         </h1>
-                        <p className="mt-6 text-white/70 max-w-[420px] text-[15px] leading-7">
+                        <p className="mt-6 text-white/70 max-w-[420px] text-[15px] md:text-[17px] leading-7">
                             Ingresá tu email y te enviaremos un enlace para restablecer tu contraseña.
                         </p>
                     </div>
@@ -94,7 +94,7 @@ const OlvidarContrasena = () => {
 
             <section className="login-right">
                 <div className="w-full max-w-[360px]">
-                    <h2 className="login-panel-title">¿Olvidaste tu contraseña?</h2>
+                    <h2 className="login-panel-title md:text-[2rem]">¿Olvidaste tu contraseña?</h2>
                     <p className="login-panel-subtitle mb-8">
                         Te enviaremos un enlace para restablecerla
                     </p>
@@ -137,7 +137,7 @@ const OlvidarContrasena = () => {
                         <span className="h-px flex-1 bg-white/10" />
                     </div>
                     <p className="text-center text-[11px] text-white/20 tracking-wide">
-                        POSADA DORMI&apos;S · v2.0
+                        POSADA DORMI&apos;S
                     </p>
                 </div>
             </section>

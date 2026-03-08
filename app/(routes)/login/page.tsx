@@ -34,16 +34,16 @@ const Login: React.FC = () => {
 
         <div className="flex-1 flex items-center">
           <div>
-            <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight max-w-[520px]">
+            <h1 className="text-5xl md:text-6xl font-semibold leading-[1.05] tracking-tight max-w-[520px]">
               Posada Dormi&apos;s
             </h1>
-            <p className="mt-4 text-xl font-semibold text-white/95">
+            <p className="mt-4 text-xl md:text-2xl font-semibold text-white/95">
               ¡Bienvenido a la Posada Dormi&apos;s!
             </p>
-            <p className="mt-6 text-white/70 max-w-[420px] text-[15px] leading-7">
+            <p className="mt-6 text-white/70 max-w-[420px] text-[15px] md:text-[17px] leading-7">
               Ubicada en Mina Clavero, Córdoba, te ofrecemos una estancia inolvidable.
             </p>
-            <ul className="mt-10 space-y-3 text-sm text-white/80">
+            <ul className="mt-10 space-y-3 text-sm md:text-[15px] text-white/80">
               {[
                 { icon: "🥐", text: "Desayuno incluido: Comienza tu día con un delicioso desayuno." },
                 { icon: "✨", text: "Servicios exclusivos: Comodidades diseñadas para tu confort." },
@@ -63,7 +63,7 @@ const Login: React.FC = () => {
 
       <section className="login-right">
         <div className="w-full max-w-[360px]">
-          <h2 className="login-panel-title">Bienvenido de vuelta</h2>
+          <h2 className="login-panel-title md:text-[2rem]">Bienvenido de vuelta</h2>
           <p className="login-panel-subtitle mb-8">
             Ingresá tus credenciales para continuar
           </p>
@@ -74,7 +74,7 @@ const Login: React.FC = () => {
             <span className="h-px flex-1 bg-white/10" />
           </div>
           <p className="text-center text-[11px] text-white/20 tracking-wide">
-            POSADA DORMI&apos;S · v2.0
+            POSADA DORMI&apos;S
           </p>
         </div>
       </section>

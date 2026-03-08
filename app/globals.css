@@ -305,6 +305,16 @@ input[type="checkbox"] {
   color: rgba(255,255,255,0.45);
 }
 
+@media (min-width: 1024px) {
+  .login-panel-title {
+    font-size: 32px;
+  }
+
+  .login-panel-subtitle {
+    font-size: 15px;
+  }
+}
+
 .login-field-label {
   font-size: 12px;
   font-weight: 600;

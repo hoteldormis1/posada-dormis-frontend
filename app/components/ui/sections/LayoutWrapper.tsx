@@ -25,6 +25,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     '/olvidarContrasena',
     '/resetPassword',
     '/reservas-publicas',
+    '/confirmar-reserva',
   ];
 
   const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'));

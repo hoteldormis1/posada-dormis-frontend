@@ -80,7 +80,7 @@ const LoginForm = () => {
 					<button
 						type="button"
 						onClick={() => router.push("/olvidarContrasena")}
-						className="text-[11.5px] text-emerald-300 hover:opacity-80 transition"
+						className="cursor-pointer text-[11.5px] text-emerald-300 hover:opacity-80 transition"
 					>
 						¿Olvidaste tu contraseña?
 					</button>
@@ -112,6 +112,13 @@ const LoginForm = () => {
 
 			<button type="submit" disabled={loading} className="login-cta mt-2">
 				{loading ? "Accediendo..." : "Acceder al sistema →"}
+			</button>
+			<button
+				type="button"
+				onClick={() => router.push("/")}
+				className="cursor-pointer w-full rounded-xl border border-white/18 text-white/80 hover:bg-white/8 py-3 transition font-semibold"
+			>
+				Hacer una reserva
 			</button>
 		</form>
 	);
