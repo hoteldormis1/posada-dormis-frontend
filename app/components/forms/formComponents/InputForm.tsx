@@ -71,7 +71,7 @@ const InputTypeComponent = (
           <button
             type="button"
             onClick={() => setShow((s) => !s)}
-            className="absolute inset-y-0 right-3 flex items-center justify-center top-1/2 -translate-y-1/2 text-white/45 hover:text-white"
+            className="absolute inset-y-0 right-3 flex items-center justify-center top-1/2 -translate-y-1/2 text-admin-dim hover:text-admin-primary"
             tabIndex={-1}
             aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
           >

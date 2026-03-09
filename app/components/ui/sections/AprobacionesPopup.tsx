@@ -247,8 +247,8 @@ export default function AprobacionesPopup() {
                 <div className="w-10 h-10 rounded-full bg-emerald-400/10 border border-emerald-400/15 flex items-center justify-center mx-auto mb-3">
                   <FaCheck className="text-emerald-400/50" size={16} />
                 </div>
-                <p className="text-sm font-medium text-white/30">Sin reservas pendientes</p>
-                <p className="text-xs text-white/15 mt-1">Todo al día ✓</p>
+                <p className="text-sm font-medium text-white/60">Sin reservas pendientes</p>
+                <p className="text-xs text-white/60 mt-1">Todo al día ✓</p>
               </div>
             )}
 
