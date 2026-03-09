@@ -14,6 +14,13 @@ import { useSweetAlert } from "@/hooks/useSweetAlert";
 import { TableBody, TableHeader, TableButtons } from "../../../index";
 import { z } from "zod";
 
+const actionIconButtonBase =
+  "cursor-pointer h-7 w-7 rounded-md border transition-colors inline-flex items-center justify-center";
+const actionIconButtonEdit =
+  `${actionIconButtonBase} border-white/15 bg-white/6 text-emerald-300 hover:bg-white/12 hover:text-emerald-200`;
+const actionIconButtonDelete =
+  `${actionIconButtonBase} border-white/15 bg-white/6 text-red-300 hover:bg-red-500/20 hover:text-red-200 hover:border-red-400/30`;
+
 interface TableComponentProps<T> {
   columns: { header: string; key: string }[];
   data: T[];
@@ -298,7 +305,7 @@ const TableComponent = <T extends { id: string }>({
             {showActions?.edit && (
               <button
                 onClick={() => handleEditClick(row.original.id, data)}
-                className="cursor-pointer h-7 w-7 rounded-md border border-white/15 bg-white/6 text-emerald-300 hover:bg-white/12 hover:text-emerald-200 transition-colors inline-flex items-center justify-center"
+                className={actionIconButtonEdit}
                 aria-label="Editar"
               >
                 <FaEdit className="text-xs cursor-pointer" />
@@ -307,7 +314,7 @@ const TableComponent = <T extends { id: string }>({
             {showActions?.delete && (!canDeleteRow || canDeleteRow(row.original)) && (
               <button
                 onClick={() => handleDelete(row.original.id)}
-                className="cursor-pointer  h-7 w-7 rounded-md border border-white/15 bg-white/6 text-red-300 hover:bg-red-500/20 hover:text-red-200 hover:border-red-400/30 transition-colors inline-flex items-center justify-center"
+                className={actionIconButtonDelete}
                 aria-label="Eliminar"
               >
                 <FaTrash className="text-xs cursor-pointer" />

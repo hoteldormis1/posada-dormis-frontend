@@ -159,7 +159,7 @@ const ResetPassword = () => {
                             </p>
                         </div>
                     </div>
-                    <p className="text-xs text-white/30">© 2026 Posada Dormi&apos;s</p>
+                    <p className="text-xs text-white/60">© 2026 Posada Dormi&apos;s</p>
                 </section>
 
                 <section className="login-right">
@@ -209,7 +209,7 @@ const ResetPassword = () => {
                             </p>
                         </div>
                     </div>
-                    <p className="text-xs text-white/30">© 2026 Posada Dormi&apos;s</p>
+                    <p className="text-xs text-white/60">© 2026 Posada Dormi&apos;s</p>
                 </section>
 
                 <section className="login-right">
@@ -269,7 +269,7 @@ const ResetPassword = () => {
                         </p>
                     </div>
                 </div>
-                <p className="text-xs text-white/30">© 2026 Posada Dormi&apos;s</p>
+                <p className="text-xs text-white/60">© 2026 Posada Dormi&apos;s</p>
             </section>
 
             <section className="login-right">
@@ -372,7 +372,7 @@ const ResetPassword = () => {
 
                     <div className="flex items-center gap-3 my-6">
                         <span className="h-px flex-1 bg-white/10" />
-                        <span className="text-[11px] text-white/30">Sistema interno</span>
+                        <span className="text-[11px] text-white/60">Sistema interno</span>
                         <span className="h-px flex-1 bg-white/10" />
                     </div>
                     <p className="text-center text-[11px] text-white/20 tracking-wide">

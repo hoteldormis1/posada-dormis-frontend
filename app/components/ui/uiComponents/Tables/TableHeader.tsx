@@ -51,7 +51,7 @@ const TableHeader = ({
 							type="button"
 							onClick={onSearchSubmit}
 							aria-label="Buscar"
-							className="absolute right-3 top-3/5 -translate-y-1/2 text-white/40 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1 rounded"
+							className="absolute right-3 top-3/5 -translate-y-1/2 text-admin-dim hover:text-admin-accent focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1 rounded"
 						>
 							<FaSearch className="w-4 h-4 cursor-pointer" />
 						</button>

@@ -64,7 +64,7 @@ const Paginator = ({
 	return (
 		<div className="flex flex-col sm:flex-row justify-between items-center border-t border-white/10 bg-white/4 px-4 py-3 sm:px-6 rounded-b-2xl">
 			{/* Selector de filas */}
-			<div className="mb-2 sm:mb-0 flex items-center gap-2 text-[15px] text-emerald-100/78">
+			<div className="mb-2 sm:mb-0 flex items-center gap-2 text-[15px] text-admin-muted">
 				<label htmlFor="pageSizeSelect" className="whitespace-nowrap">
 					Filas por página:
 				</label>
@@ -72,15 +72,14 @@ const Paginator = ({
 					id="pageSizeSelect"
 					value={pageSize}
 					onChange={(e) => onPageSizeChange(Number(e.target.value))}
-					className="rounded-md border border-white/20 bg-white/5 text-white px-3 py-1.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-emerald-400/45 focus:border-emerald-400/55"
-					style={{ colorScheme: "dark" }}
+					className="admin-select rounded-md border border-white/20 bg-white/5 text-admin-primary px-3 py-1.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-emerald-400/45 focus:border-emerald-400/55"
 				>
-					<option value={1} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>1</option>
-					<option value={5} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>5</option>
-					<option value={10} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>10</option>
-					<option value={20} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>20</option>
-					<option value={50} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>50</option>
-					<option value={100} style={{ backgroundColor: "#0d271b", color: "#ffffff" }}>100</option>
+					<option value={1} className="admin-native-option-dark">1</option>
+					<option value={5} className="admin-native-option-dark">5</option>
+					<option value={10} className="admin-native-option-dark">10</option>
+					<option value={20} className="admin-native-option-dark">20</option>
+					<option value={50} className="admin-native-option-dark">50</option>
+					<option value={100} className="admin-native-option-dark">100</option>
 				</select>
 			</div>
 
@@ -92,7 +91,7 @@ const Paginator = ({
 				<button
 					onClick={() => onPageChange(currentPage - 1)}
 					disabled={currentPage === 1}
-					className="relative inline-flex items-center rounded-l-md px-3 py-2.5 text-white/70 ring-1 ring-inset ring-white/20 disabled:opacity-40"
+					className="relative inline-flex items-center rounded-l-md px-3 py-2.5 text-admin-muted ring-1 ring-inset ring-white/20 disabled:opacity-40"
 				>
 					<span className="sr-only">Anterior</span>
 					<BiLeftArrow className="h-5 w-5" aria-hidden="true" />
@@ -102,7 +101,7 @@ const Paginator = ({
 					page === "..." ? (
 						<span
 							key={`ellipsis-${index}`}
-							className="px-3 py-2.5 text-[15px] text-white/55 select-none"
+							className="px-3 py-2.5 text-[15px] text-admin-dim select-none"
 						>
 							...
 						</span>
@@ -115,7 +114,7 @@ const Paginator = ({
 								${
 									currentPage === page
 										? "z-10 bg-emerald-400 text-[#062317]"
-										: "text-white/80 ring-1 ring-inset ring-white/20 hover:bg-white/10"
+										: "text-admin-primary ring-1 ring-inset ring-white/20 hover:bg-white/10"
 								}`}
 						>
 							{page}
@@ -126,7 +125,7 @@ const Paginator = ({
 				<button
 					onClick={() => onPageChange(currentPage + 1)}
 					disabled={currentPage === totalPages}
-					className="relative inline-flex items-center rounded-r-md px-3 py-2.5 text-white/70 ring-1 ring-inset ring-white/20 disabled:opacity-40"
+					className="relative inline-flex items-center rounded-r-md px-3 py-2.5 text-admin-muted ring-1 ring-inset ring-white/20 disabled:opacity-40"
 				>
 					<span className="sr-only">Siguiente</span>
 					<BiRightArrow className="h-5 w-5" aria-hidden="true" />

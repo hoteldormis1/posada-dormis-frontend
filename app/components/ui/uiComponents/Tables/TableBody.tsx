@@ -24,8 +24,8 @@ const TableBody = <T,>({
 }: TableBodyProps<T>) => {
 	return (
 		<div className="overflow-x-auto h-80 md:h-114 border border-white/12 bg-white/3 rounded-2xl">
-			<table className="min-w-full text-left text-sm bg-transparent">
-				<thead className="bg-black/20 text-emerald-100/75">
+			<table className="min-w-full text-left text-sm bg-transparent text-admin-primary">
+				<thead className="bg-black/20 text-admin-muted">
 					{table.getHeaderGroups().map((headerGroup) => (
 						<tr key={headerGroup.id}>
 							{headerGroup.headers.map((header) => {
@@ -51,7 +51,7 @@ const TableBody = <T,>({
 				<tbody>
 					{table.getRowModel().rows.length > 0 ? (
 						table.getRowModel().rows.map((row) => (
-							<tr key={row.id} className="hover:bg-white/6 text-white/88 h-[20px] border-b border-white/6">
+							<tr key={row.id} className="hover:bg-white/6 text-admin-primary h-[20px] border-b border-white/6">
 								{row.getVisibleCells().map((cell) => (
 									<td key={cell.id} className="px-4 py-3 text-center text-[15px]">
 										{flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -63,7 +63,7 @@ const TableBody = <T,>({
 						<tr>
 							<td
 								colSpan={columnsLength + (showFormActions ? 1 : 0)}
-								className="px-4 py-5 text-center text-[15px] text-emerald-100/70 italic"
+								className="px-4 py-5 text-center text-[15px] text-admin-muted italic"
 							>
 								No hay resultados para mostrar
 							</td>

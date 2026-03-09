@@ -145,7 +145,7 @@ function MiniCalendar({ selected, onSelect, minDate, label }: MiniCalendarProps)
 
         <div className="grid grid-cols-7 mb-1.5">
           {DAYS.map((d) => (
-            <div key={d} className="text-center text-[10px] font-semibold text-white/30 tracking-[0.4px] py-0.5">
+            <div key={d} className="text-center text-[10px] font-semibold text-white/60 tracking-[0.4px] py-0.5">
               {d}
             </div>
           ))}
@@ -1078,7 +1078,7 @@ const ReservasPublicasPage = () => {
                 ))}
               </div>
 
-              <p className="text-xs text-white/30 mb-6">
+              <p className="text-xs text-white/60 mb-6">
                 El enlace del email expira en 4 horas. Confirmalo cuanto antes: la disponibilidad no está garantizada hasta que confirmes. Si no ves el email, revisá spam.
               </p>
 
