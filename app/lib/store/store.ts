@@ -25,7 +25,8 @@ export const store = configureStore({
     dashboards: dashboardSlice,
     huespedNoDeseado: huespedNoDeseadoSlice,
     contable: contableSlice,
-  }
+  },
+  devTools: process.env.NODE_ENV !== "production",
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -4,6 +4,7 @@ import React from 'react';
 import {
   Chart as ChartJS,
   type ChartOptions,
+  type FontSpec,
   ArcElement,
   Tooltip,
   Legend,
@@ -29,6 +30,21 @@ export default function GraficoPie({
 }: GraficoPieProps) {
   const labelColor = "rgba(236, 253, 245, 0.85)";
   const borderColor = "rgba(255, 255, 255, 0.16)";
+  const legendFont: Partial<FontSpec> = {
+    size: 11,
+    family: "Poppins, Segoe UI, sans-serif",
+    weight: "bold",
+  };
+  const titleFont: Partial<FontSpec> = {
+    size: 12,
+    family: "Poppins, Segoe UI, sans-serif",
+    weight: "bold",
+  };
+  const tooltipTitleFont: Partial<FontSpec> = {
+    size: 11,
+    family: "Poppins, Segoe UI, sans-serif",
+    weight: "bold",
+  };
 
   const pieData = {
     labels,
@@ -58,22 +74,14 @@ export default function GraficoPie({
           color: labelColor,
           boxWidth: 10,
           boxHeight: 10,
-          font: {
-            size: 11,
-            family: "Poppins, Segoe UI, sans-serif",
-            weight: "bold",
-          },
+          font: legendFont,
         },
       },
       title: {
         display: true,
         text: title,
         color: labelColor,
-        font: {
-          size: 12,
-          family: "Poppins, Segoe UI, sans-serif",
-          weight: "bold",
-        },
+        font: titleFont,
       },
       tooltip: {
         titleColor: labelColor,
@@ -86,9 +94,7 @@ export default function GraficoPie({
           family: "Poppins, Segoe UI, sans-serif",
         },
         titleFont: {
-          size: 11,
-          family: "Poppins, Segoe UI, sans-serif",
-          weight: "bold",
+          ...tooltipTitleFont,
         },
       },
     },
