@@ -15,6 +15,8 @@ type DashboardDatos = {
   range: { from: string; to: string };
   totals: {
     reservas?: number;
+    huespedes?: number;
+    nochesPromedioEstadia?: number;
     ventas?: number;
     montoPagado?: number;
     montoTotal?: number;
@@ -54,6 +56,16 @@ const HotelEstadisticas = () => {
       ? datos!.totals.reservas.toLocaleString("es-AR")
       : "-";
 
+  const huespedes =
+    typeof datos?.totals?.huespedes === "number"
+      ? datos!.totals.huespedes.toLocaleString("es-AR")
+      : "-";
+
+  const nochesPromedioEstadia =
+    typeof datos?.totals?.nochesPromedioEstadia === "number"
+      ? `${Number(datos.totals.nochesPromedioEstadia).toFixed(2)} noches`
+      : "-";
+
   const ventas =
     typeof datos?.totals?.ventas === "number"
       ? datos!.totals.ventas.toLocaleString("es-AR")
@@ -67,7 +79,8 @@ const HotelEstadisticas = () => {
     const taseDeOcupacionPct = datos?.totals?.taseDeOcupacionPct;
 
   const cards = [
-    { titulo: "Reservas", valor: reservas, icon: <MdArticle size={24} className="text-main" /> },
+    { titulo: "Reservas / Estadía prom.", valor: `${reservas} / ${nochesPromedioEstadia}`, icon: <MdArticle size={24} className="text-main" /> },
+    { titulo: "Huéspedes", valor: huespedes, icon: <HiUserGroup size={24} className="text-main" /> },
     //{ titulo: "Ventas", valor: ventas, icon: <HiUserGroup size={24} className="text-main" /> },
     { titulo: "Ingresos ($)", valor: `${montoPagado} / ${montoTotal}`, icon: <MdLocalAtm size={24} className="text-main" /> },
     { titulo: "Habitaciones actualmente ocupadas", valor: `${habitacionesOcupadas}/${totalHabitaciones}`, icon: <MdFreeCancellation size={24} className="text-main" /> },
@@ -76,7 +89,7 @@ const HotelEstadisticas = () => {
 
   return (
     <div className="pt-2 w-full">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full rounded-xl p-6 border border-gray-300 shadow-md bg-white/70">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 w-full rounded-xl p-6 border border-gray-300 shadow-md bg-white/70">
         {status === StateStatus.loading
           ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
           : cards.map((item, index) => (

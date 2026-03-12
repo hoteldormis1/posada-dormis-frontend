@@ -1,6 +1,13 @@
-# Frontend - Sistema de Reservas
+# Frontend - Posada Dormis
 
-Aplicacion web administrativa y publica para gestion de reservas.
+Cliente web para operacion administrativa y flujo publico de reservas.
+
+## Responsabilidad del modulo
+
+- Renderizar vistas administrativas y publicas.
+- Consumir endpoints del backend.
+- Gestionar estado de UI y datos en cliente.
+- Ofrecer validaciones y feedback de usuario.
 
 ## Stack
 
@@ -12,8 +19,8 @@ Aplicacion web administrativa y publica para gestion de reservas.
 
 ## Requisitos
 
-- Node.js 18+
-- Backend en ejecucion
+- Node.js 18 o superior
+- Backend activo y accesible
 
 ## Variables de entorno
 
@@ -23,7 +30,7 @@ Crear `frontend/.env.local`:
 NEXT_PUBLIC_API_URL=http://localhost:4000/api
 ```
 
-## Instalacion y ejecucion
+## Ejecucion
 
 ```bash
 cd frontend
@@ -31,31 +38,34 @@ npm install
 npm run dev
 ```
 
-App disponible en `http://localhost:3000`.
+Aplicacion en `http://localhost:3000`.
 
 ## Scripts
 
-- `npm run dev`: modo desarrollo.
+- `npm run dev`: desarrollo.
 - `npm run build`: build de produccion.
 - `npm run start`: ejecutar build.
-- `npm run lint`: analisis estatico.
+- `npm run lint`: chequeo estatico.
 
-## Estructura
+## Estructura del codigo
 
-- `app/(routes)`: paginas por modulo.
-- `app/components`: componentes UI y formularios.
-- `app/lib/store`: slices y estado global.
+- `app/(routes)`: paginas por dominio funcional.
+- `app/components`: componentes reutilizables.
+- `app/lib/store`: redux store y slices.
+- `app/hooks`: hooks personalizados.
+- `app/models/types`: contratos de tipos.
 - `app/utils`: validaciones y helpers.
 
-## Funcionalidades
+## Funcionalidades destacadas
 
-- Login y manejo de sesion.
-- ABM de habitaciones, tipos, huespedes y reservas.
-- Calendario de ocupacion.
-- Flujo publico de solicitud de reserva.
+- Autenticacion y control de sesion.
+- Gestion CRUD de habitaciones, tipos, huespedes y reservas.
+- Vista de calendario y estados operativos.
+- Flujo publico de solicitud con confirmacion por email.
 
-## Enfoque para tesis
+## Consideraciones para tesis
 
-- Frontend desacoplado del backend mediante API REST.
-- Estado compartido para consistencia entre vistas.
-- Validacion de formularios y feedback de usuario en acciones criticas.
+- Interfaz desacoplada de la API.
+- Estado global para consistencia entre modulos.
+- Validaciones de formularios y mensajes de error en acciones criticas.
+- Base de componentes reutilizable para escalabilidad.

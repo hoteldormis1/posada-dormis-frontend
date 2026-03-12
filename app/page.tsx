@@ -208,6 +208,7 @@ const ReservasPublicasPage = () => {
   const [telefonoConfirmar, setTelefonoConfirmar] = useState("");
   const [dniLookupError, setDniLookupError] = useState<string | null>(null);
   const [huespedPreloaded, setHuespedPreloaded] = useState(false);
+  const [idHuespedPreloaded, setIdHuespedPreloaded] = useState<number | null>(null);
 
   // Convertir dd/MM/yyyy a yyyy-mm-dd para la API
   const convertirAFormatoAPI = (fechaDDMMYYYY: string): string => {
@@ -244,6 +245,12 @@ const ReservasPublicasPage = () => {
 
     if (fin <= inicio) {
       setError("La fecha de salida debe ser posterior a la fecha de entrada");
+      return;
+    }
+
+    const nochesCalc = Math.round((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
+    if (nochesCalc < 2) {
+      setError("La estadía mínima es de 2 noches");
       return;
     }
 
@@ -374,6 +381,11 @@ const ReservasPublicasPage = () => {
         body: JSON.stringify({ dni }),
       });
       const data = await res.json();
+      if (res.status === 403 && data.code === "DNI_BLACKLISTED") {
+        setDniLookupEstado("idle");
+        setDniLookupError("Este DNI tiene restricciones de ingreso en esta posada. No es posible realizar una reserva.");
+        return;
+      }
       if (data.encontrado) {
         setDniLookupEstado("encontrado");
         setFormulario((f) => ({ ...f, dni }));
@@ -382,7 +394,7 @@ const ReservasPublicasPage = () => {
         setFormulario((f) => ({ ...f, dni }));
       }
     } catch {
-      setDniLookupEstado("error");
+      setDniLookupEstado("idle");
       setDniLookupError("No se pudo conectar con el servidor. Intentá de nuevo.");
     }
   };
@@ -417,6 +429,7 @@ const ReservasPublicasPage = () => {
         direccion: data.direccion ?? "",
       });
       setHuespedPreloaded(true);
+      setIdHuespedPreloaded(data.idHuesped ?? null);
       setDniLookupEstado("verificado");
       setErroresFormulario({});
     } catch {
@@ -429,6 +442,7 @@ const ReservasPublicasPage = () => {
     setDniLookupEstado("no_encontrado");
     setDniLookupError(null);
     setHuespedPreloaded(false);
+    setIdHuespedPreloaded(null);
     setFormulario({ nombre: "", apellido: "", dni: dniLookupInput.replace(/\D/g, ""), telefono: "", email: "", direccion: "" });
     setErroresFormulario({});
   };
@@ -439,6 +453,7 @@ const ReservasPublicasPage = () => {
     setTelefonoConfirmar("");
     setDniLookupError(null);
     setHuespedPreloaded(false);
+    setIdHuespedPreloaded(null);
     setFormulario({ nombre: "", apellido: "", dni: "", telefono: "", email: "", direccion: "" });
     setErroresFormulario({});
   };
@@ -470,6 +485,7 @@ const ReservasPublicasPage = () => {
             ...formulario,
             dni: formulario.dni.replace(/\D/g, ""),
             origen: "Argentina",
+            ...(idHuespedPreloaded ? { idHuesped: idHuespedPreloaded } : {}),
           },
           idHabitacion: habitacionSeleccionada.idHabitacion,
           fechaDesde: fechaInicioAPI,
@@ -480,15 +496,28 @@ const ReservasPublicasPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Error al crear la reserva");
+        const errMsg =
+          response.status === 403 && data.code === "DNI_BLACKLISTED"
+            ? "Este DNI tiene restricciones de ingreso en esta posada. No es posible completar la reserva."
+            : (data.error || "Error al crear la reserva");
+        throw new Error(errMsg);
       }
 
       setEmailConfirmacion(data.email ?? formulario.email);
       setReservaExitosa(true);
       setPaso(4);
     } catch (err: any) {
-      setError(err.message || "Error al procesar la reserva. Por favor intenta nuevamente.");
-      console.error(err);
+      const msg: string = err.message || "";
+      // Si el back devuelve error de mínimo de noches, volver al paso 1 limpiamente
+      if (msg.includes("mínima") || msg.includes("2 noches")) {
+        setFechaInicio("");
+        setFechaFin("");
+        setHabitacionSeleccionada(null);
+        setHabitacionesDisponibles([]);
+        setPaso(1);
+      } else {
+        setError(msg || "Error al procesar la reserva. Por favor intenta nuevamente.");
+      }
     } finally {
       setLoading(false);
     }
@@ -606,20 +635,26 @@ const ReservasPublicasPage = () => {
                     selected={fechaInicio}
                     onSelect={(d) => {
                       setFechaInicio(formatDDMMYYYY(d));
+                      setError(null);
+                      // Limpiar salida si queda a menos de 2 noches de la nueva entrada
                       const salidaActual = parseDDMMYYYY(fechaFin);
-                      if (salidaActual && d >= salidaActual) {
-                        setFechaFin("");
+                      if (salidaActual) {
+                        const minSalida = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 2);
+                        if (salidaActual < minSalida) {
+                          setFechaFin("");
+                        }
                       }
                     }}
                   />
                   <MiniCalendar
                     label="Fecha de salida"
                     selected={fechaFin}
-                    onSelect={(d) => setFechaFin(formatDDMMYYYY(d))}
+                    onSelect={(d) => { setFechaFin(formatDDMMYYYY(d)); setError(null); }}
                     minDate={fechaInicio ? (() => {
                       const entrada = parseDDMMYYYY(fechaInicio);
                       if (!entrada) return new Date();
-                      return new Date(entrada.getFullYear(), entrada.getMonth(), entrada.getDate() + 1);
+                      // Mínimo 2 noches: la salida más temprana posible es entrada + 2 días
+                      return new Date(entrada.getFullYear(), entrada.getMonth(), entrada.getDate() + 2);
                     })() : undefined}
                   />
                 </div>
@@ -956,17 +991,15 @@ const ReservasPublicasPage = () => {
                           </div>
                         )}
 
-                        {!huespedPreloaded && (
-                          <div>
-                            <PhoneInput
-                              inputKey="telefono"
-                              label="Teléfono *"
-                              value={formulario.telefono}
-                              onChange={(e) => handleCampoChange("telefono", e.target.value)}
-                              error={erroresFormulario.telefono}
-                            />
-                          </div>
-                        )}
+                        <div>
+                          <PhoneInput
+                            inputKey="telefono"
+                            label="Teléfono *"
+                            value={formulario.telefono}
+                            onChange={(e) => handleCampoChange("telefono", e.target.value)}
+                            error={erroresFormulario.telefono}
+                          />
+                        </div>
 
                         <div>
                           <label className="block text-xs font-semibold text-white mb-1.5 uppercase tracking-wide">
