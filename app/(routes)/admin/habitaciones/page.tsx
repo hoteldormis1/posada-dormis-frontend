@@ -71,7 +71,6 @@ const Habitaciones = () => {
 		setSearch,
 		handleSearch,
 		tipoHabitaciones,
-		EstadoReservas,
 		fetchData,
 	} = useEntityTable({
 		fetchAction: fetchHabitaciones,
@@ -80,7 +79,6 @@ const Habitaciones = () => {
 		selector: (state: RootState) => ({
 			...state.habitaciones,
 			tipoHabitaciones: state.habitaciones.tipoHabitaciones,
-			EstadoReservas: state.habitaciones.estadosDeReserva,
 		}),
 		defaultSortField: "numero",
 		defaultSortOrder: SortOrder.asc,
@@ -103,6 +101,12 @@ const Habitaciones = () => {
 			})),
 			editable: true
 		},
+		{
+			key: "fueraDeServicio",
+			type: "checkbox",
+			label: "Fuera de servicio (opcional)",
+			editable: true,
+		},
 	];
 
 	const columns = useMemo(
@@ -110,6 +114,7 @@ const Habitaciones = () => {
 			{ header: "Número", key: "numero" },
 			{ header: "Tipo", key: "tipo" },
 			{ header: "Precio", key: "precio" },
+			{ header: "Fuera de servicio", key: "fueraDeServicioLabel" },
 		],
 		[]
 	);
@@ -122,15 +127,34 @@ const Habitaciones = () => {
 			tipo: h.tipo,
 			precio: h.precio,
 			estado: h.estado,
+			fueraDeServicio: Boolean(h.fueraDeServicio),
+			fueraDeServicioLabel: h.fueraDeServicio ? "Sí" : "No",
 			idHabitacion: h.idHabitacion,
 		}));
 	}, [datos]);
+
+	type HabitacionRow = {
+		id: string;
+		numero: number;
+		tipo: string;
+		precio: number;
+		estado?: string;
+		fueraDeServicio: boolean;
+		fueraDeServicioLabel: string;
+		idHabitacion: number;
+	};
+
+	const mapRowToFormData = (row: HabitacionRow): Record<string, string> => ({
+		numero: String(row.numero ?? ""),
+		tipo: row.tipo ?? "",
+		fueraDeServicio: row.fueraDeServicio ? "true" : "false",
+	});
 
 	const onSaveEdit = async (
 		formData: Record<string, unknown>,
 		selectedRow: Habitacion | null
 	) => {
-		const { tipo, estado } = formData;
+		const { tipo, fueraDeServicio } = formData;
 
 		if (!selectedRow || !("idHabitacion" in selectedRow)) {
 			errorToast("Error: No se pudo identificar la habitación seleccionada.");
@@ -139,28 +163,25 @@ const Habitaciones = () => {
 
 		const { idHabitacion } = selectedRow;
 
-		const tipoSeleccionado = tipoHabitaciones.find((t) => t.nombre === estado);
-		const estadoSeleccionado = EstadoReservas.find(
-			(e) => e.nombre === tipo
-		);
-
-		if (!tipoSeleccionado || !estadoSeleccionado) {
-			errorToast(
-				"Tipo o nombre inválido. Verificá los datos e intentá nuevamente."
-			);
+		const tipoSeleccionado = tipoHabitaciones.find((t) => t.nombre === tipo);
+		if (!tipoSeleccionado) {
+			errorToast("Tipo de habitación inválido. Verificá los datos e intentá nuevamente.");
 			return;
 		}
 
 		type PayloadHabitacionEditar = {
 			idTipoHabitacion: number;
-			idEstadoReserva: number;
 			idHabitacion: number;
+			fueraDeServicio?: boolean;
 		};
 
 		const payload: PayloadHabitacionEditar = {
 			idTipoHabitacion: tipoSeleccionado.idTipoHabitacion,
-			idEstadoReserva: estadoSeleccionado.idEstadoReserva,
 			idHabitacion: Number(idHabitacion),
+			fueraDeServicio:
+				typeof fueraDeServicio === "string"
+					? fueraDeServicio === "true"
+					: Boolean(fueraDeServicio),
 		};
 
 		try {
@@ -175,7 +196,7 @@ const Habitaciones = () => {
 	};
 
 	const onSaveAdd = async (formData: Record<string, unknown>): Promise<void> => {
-		const { tipo, numero } = formData;
+		const { tipo, numero, fueraDeServicio } = formData;
 
 		const tipoSeleccionado = tipoHabitaciones.find((t) => t.nombre === String(tipo || ""));
 		if (!tipoSeleccionado) {
@@ -192,11 +213,16 @@ const Habitaciones = () => {
 		type PayloadHabitacionAgregar = {
 			idTipoHabitacion: number;
 			numero: number;
+			fueraDeServicio?: boolean;
 		};
 
 		const payload: PayloadHabitacionAgregar = {
 			idTipoHabitacion: tipoSeleccionado.idTipoHabitacion,
 			numero: numeroNum,
+			fueraDeServicio:
+				typeof fueraDeServicio === "string"
+					? fueraDeServicio === "true"
+					: Boolean(fueraDeServicio),
 		};
 
 		try {
@@ -447,6 +473,7 @@ const Habitaciones = () => {
 								onSaveDelete={onSaveDelete}
 								onSaveDeleteMany={onSaveDeleteMany}
 								inputOptions={inputOptions}
+							mapRowToFormData={mapRowToFormData}
 								showActions={{ create: puedeAgregar, delete: puedeBorrar, edit: puedeEditar }}
 							/>
 						);

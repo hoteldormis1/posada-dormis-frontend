@@ -1,4 +1,4 @@
-export type FieldInputType = "text" | "number" | "date" | "select" | "custom" | "range" | "phone";
+export type FieldInputType = "text" | "number" | "date" | "select" | "custom" | "range" | "phone" | "checkbox";
 
 export type Option = { value: string | number; label: string };
 

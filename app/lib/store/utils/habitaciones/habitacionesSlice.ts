@@ -84,20 +84,19 @@ export const editHabitacion = createAsyncThunk<
 	{
 		idHabitacion: number;
 		idTipoHabitacion: number;
-		idEstadoReserva: number;
-		// numero: number;
+		fueraDeServicio?: boolean;
 	},
 	{ rejectValue: string }
 >(
 	"habitaciones/editHabitacion",
 	async (
-		{ idHabitacion, idTipoHabitacion, idEstadoReserva },
+		{ idHabitacion, idTipoHabitacion, fueraDeServicio },
 		{ rejectWithValue }
 	) => {
 		try {
 			await api.put(`/habitaciones/${idHabitacion}`, {
 				idTipoHabitacion,
-				idEstadoReserva,
+				...(typeof fueraDeServicio === "boolean" ? { fueraDeServicio } : {}),
 			});
 		} catch (err) {
 			const axiosError = err as AxiosError;
@@ -113,15 +112,17 @@ export const addHabitacion = createAsyncThunk<
 	{
 		idTipoHabitacion: number;
 		numero: number;
+		fueraDeServicio?: boolean;
 	},
 	{ rejectValue: string }
 >(
 	"habitaciones/addHabitacion",
-	async ({ idTipoHabitacion, numero }, { rejectWithValue }) => {
+	async ({ idTipoHabitacion, numero, fueraDeServicio }, { rejectWithValue }) => {
 		try {
 			await api.post("/habitaciones", {
 				idTipoHabitacion,
 				numero,
+				...(typeof fueraDeServicio === "boolean" ? { fueraDeServicio } : {}),
 			});
 		} catch (err) {
 			const axiosError = err as AxiosError;
