@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend - Posada Dormis
 
-## Getting Started
+Cliente web para operacion administrativa y flujo publico de reservas.
 
-First, run the development server:
+## Responsabilidad del modulo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Renderizar vistas administrativas y publicas.
+- Consumir endpoints del backend.
+- Gestionar estado de UI y datos en cliente.
+- Ofrecer validaciones y feedback de usuario.
+
+## Stack
+
+- Next.js 15 (App Router)
+- React 19
+- Redux Toolkit
+- Axios
+- Tailwind CSS
+
+## Requisitos
+
+- Node.js 18 o superior
+- Backend activo y accesible
+
+## Variables de entorno
+
+Crear `frontend/.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Ejecucion
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Aplicacion en `http://localhost:3000`.
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+- `npm run dev`: desarrollo.
+- `npm run build`: build de produccion.
+- `npm run start`: ejecutar build.
+- `npm run lint`: chequeo estatico.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Estructura del codigo
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `app/(routes)`: paginas por dominio funcional.
+- `app/components`: componentes reutilizables.
+- `app/lib/store`: redux store y slices.
+- `app/hooks`: hooks personalizados.
+- `app/models/types`: contratos de tipos.
+- `app/utils`: validaciones y helpers.
 
-## Deploy on Vercel
+## Funcionalidades destacadas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Autenticacion y control de sesion.
+- Gestion CRUD de habitaciones, tipos, huespedes y reservas.
+- Vista de calendario y estados operativos.
+- Flujo publico de solicitud con confirmacion por email.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Consideraciones para tesis
+
+- Interfaz desacoplada de la API.
+- Estado global para consistencia entre modulos.
+- Validaciones de formularios y mensajes de error en acciones criticas.
+- Base de componentes reutilizable para escalabilidad.

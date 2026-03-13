@@ -139,15 +139,16 @@ const GraficoLinea: React.FC<Props> = ({
           borderWidth: 1,
           bodyFont: { size: 10, family: "Poppins, Segoe UI, sans-serif" },
           titleFont: { size: 10, family: "Poppins, Segoe UI, sans-serif", weight: "bold" },
-          callbacks: yType === "money"
-            ? {
-                label: (ctx) => {
-                  const v = Number(ctx.parsed.y ?? 0);
-                  const lbl = ctx.dataset.label || "Valor";
-                  return ` ${lbl}: ${formatMoney(v, currency)}`;
-                },
-              }
-            : undefined,
+          callbacks: {
+            title: () => labels[0] || "Fecha",
+            label: (ctx) => {
+              const v = Number(ctx.parsed.y ?? 0);
+              const lbl = ctx.dataset.label || "Valor";
+              return yType === "money"
+                ? ` ${lbl}: ${formatMoney(v, currency)}`
+                : ` ${lbl}: ${v}`;
+            },
+          },
         },
       },
       scales: {

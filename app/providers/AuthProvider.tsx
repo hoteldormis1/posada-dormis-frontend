@@ -8,6 +8,7 @@ import { AppDispatch } from "@/lib/store/store";
 import { getAuthToken } from "@/lib/store/useAuthToken";
 import { LoadingSpinner } from "@/components";
 import toast from "react-hot-toast";
+import { useToastAlert } from "@/hooks/useToastAlert";
 
 const PUBLIC_ROUTES = [
   "/login",
@@ -32,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isReady, setIsReady] = useState(false);
+  const { successToast, errorToast } = useToastAlert();
 
   useLayoutEffect(() => {
     let isMounted = true;
@@ -66,12 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (isMounted) setIsReady(true);
 
       } catch (error: any) {
-        console.error("[AuthProvider] ✗ Auth failed:", error.message || error);
-
-        toast.error("Usuario no logueado. Por favor iniciá sesión.", {
-          id: "auth-error",
-          duration: 3000,
-        });
+        errorToast("Usuario no logueado. Por favor iniciá sesión.");
 
         router.push("/login");
         

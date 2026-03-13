@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { labelBaseEstilos, pantallaPrincipalEstilos } from "@/styles/global-styles";
 import { LoadingSpinner, TableComponent } from "@/components";
 import { AppDispatch, RootState } from "@/lib/store/store";
@@ -25,6 +26,7 @@ import { Huesped } from "@/models/types/huesped";
 import { FaUsers, FaBan } from "react-icons/fa";
 import OrigenField from "@/components/reservas/OrigenField";
 import { getCountryName } from "@/utils/helpers/format";
+import { isValidPhoneNumber } from "@/components/forms/formComponents/PhoneInput";
 
 const COUNTRY_NAME_TO_CODE: Record<string, string> = {
 	argentina: "AR",
@@ -56,9 +58,56 @@ const normalizeText = (value: string) =>
 const toCountryCode = (value?: string) => {
 	const raw = String(value ?? "").trim();
 	if (!raw) return "AR";
-	if (/^[A-Za-z]{2}$/.test(raw)) return raw.toUpperCase();
+	if (/^[A-Za-z]{2}$/.test(raw)) {
+		const code = raw.toUpperCase();
+		try {
+			const isKnownCountry = Boolean(
+				new Intl.DisplayNames(["es"], { type: "region" }).of(code)
+			);
+			return isKnownCountry ? code : "AR";
+		} catch {
+			return "AR";
+		}
+	}
 	return COUNTRY_NAME_TO_CODE[normalizeText(raw)] ?? "AR";
 };
+
+const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+const isTelefonoValido = (phone: string) => {
+	const value = phone.trim();
+	if (!value) return false;
+	if (value.startsWith("+")) {
+		try {
+			return isValidPhoneNumber(value);
+		} catch {
+			return false;
+		}
+	}
+	const digits = value.replace(/\D/g, "");
+	return digits.length >= 8 && digits.length <= 15;
+};
+
+const huespedFormSchema = z.object({
+	nombre: z.string().trim().min(1, "El nombre es obligatorio"),
+	apellido: z.string().trim().min(1, "El apellido es obligatorio"),
+	dni: z
+		.string()
+		.trim()
+		.regex(/^\d{7,8}$/, "El DNI debe tener 7 u 8 dígitos"),
+	telefono: z
+		.string()
+		.trim()
+		.refine(isTelefonoValido, "Ingresá un teléfono válido"),
+	origen: z.string().trim().min(2, "El país de origen es obligatorio"),
+	email: z
+		.string()
+		.trim()
+		.optional()
+		.refine((v) => !v || (EMAIL_RE.test(v) && !/\.\./.test(v)), {
+			message: "Ingresá un email válido",
+		}),
+	direccion: z.string().optional(),
+});
 
 const HuespedesPage = () => {
 	const dispatch: AppDispatch = useAppDispatch();
@@ -66,6 +115,8 @@ const HuespedesPage = () => {
 	const { confirm } = useSweetAlert();
 
 	const [activeTab, setActiveTab] = useState<"huespedes" | "listaNegra">("huespedes");
+	const [searchHuespedes, setSearchHuespedes] = useState("");
+	const [searchListaNegra, setSearchListaNegra] = useState("");
 	const tabBase =
 		"inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border transition-colors cursor-pointer";
 	const tabActive = "bg-emerald-400/20 text-emerald-200 border-emerald-300/30 shadow";
@@ -112,6 +163,7 @@ const HuespedesPage = () => {
 		{ key: "dni", type: "text", label: "DNI", editable: true },
 		{ key: "telefono", type: "phone", label: "Teléfono", editable: true },
 		{ key: "origen", type: "custom", label: "País de origen", editable: true },
+		{ key: "email", type: "text", label: "Email (opcional)", editable: true },
 		{ key: "direccion", type: "text", label: "Dirección (opcional)", editable: true },
 	];
 
@@ -136,29 +188,49 @@ const HuespedesPage = () => {
 		{ header: "DNI", key: "dni" },
 		{ header: "Teléfono", key: "telefono" },
 		{ header: "Origen", key: "origen" },
+		{ header: "Email", key: "email" },
 		{ header: "Dirección", key: "direccion" },
 	], []);
 
 	const data = useMemo(() => {
 		if (!huespedes || !Array.isArray(huespedes)) return [];
-		return huespedes.map((h) => ({
+		return huespedes.map((h) => {
+			const origenCode = toCountryCode(String(h.origen || "AR"));
+			return {
 			id: String(h.idHuesped),
 			idHuesped: h.idHuesped,
 			nombre: h.nombre,
 			apellido: h.apellido,
 			dni: h.dni,
 			telefono: h.telefono,
-			origen: getCountryName(String(h.origen || "AR"), "es"),
+			origenCode,
+			origen: getCountryName(origenCode, "es"),
+			email: h.email || "-",
 			direccion: h.direccion || "-",
-		}));
+		};
+		});
 	}, [huespedes]);
 
-	const mapRowToFormDataHuespedes = (row: any) => ({
+	type HuespedRow = {
+		id: string;
+		idHuesped: number;
+		nombre: string;
+		apellido: string;
+		dni: string;
+		telefono: string;
+		origen: string;
+		origenCode: string;
+		email: string;
+		direccion: string;
+	};
+
+	const mapRowToFormDataHuespedes = (row: HuespedRow) => ({
 		nombre: String(row?.nombre ?? ""),
 		apellido: String(row?.apellido ?? ""),
 		dni: String(row?.dni ?? ""),
 		telefono: String(row?.telefono ?? ""),
-		origen: toCountryCode(String(row?.origen ?? "AR")),
+		origen: toCountryCode(String(row?.origenCode ?? row?.origen ?? "AR")),
+		email: row?.email && row.email !== "-" ? String(row.email) : "",
 		direccion: row?.direccion && row.direccion !== "-" ? String(row.direccion) : "",
 	});
 
@@ -168,18 +240,20 @@ const HuespedesPage = () => {
 			return;
 		}
 		const { idHuesped } = selectedRow;
-		const { nombre, apellido, dni, telefono, origen, direccion } = formData;
-		if (!nombre || !apellido || !dni || !telefono || !origen) {
-			errorToast("Los campos nombre, apellido, DNI, teléfono y origen son obligatorios.");
+		const parsed = huespedFormSchema.safeParse(formData);
+		if (!parsed.success) {
+			errorToast(parsed.error.issues[0]?.message || "Revisá los campos del formulario.");
 			return;
 		}
+		const { nombre, apellido, dni, telefono, origen, email, direccion } = parsed.data;
 		const payload: Partial<Huesped> & { idHuesped: number } = {
 			idHuesped: Number(idHuesped),
-			nombre: String(nombre).trim(),
-			apellido: String(apellido).trim(),
-			dni: String(dni).trim(),
-			telefono: String(telefono).trim(),
-			origen: String(origen).trim().toUpperCase(),
+			nombre,
+			apellido,
+			dni,
+			telefono,
+			origen: toCountryCode(origen),
+			email: email ? email.toLowerCase() : undefined,
 			direccion: direccion ? String(direccion).trim() : undefined,
 		};
 		try {
@@ -191,17 +265,19 @@ const HuespedesPage = () => {
 	};
 
 	const onSaveAdd = async (formData: Record<string, unknown>): Promise<void> => {
-		const { nombre, apellido, dni, telefono, origen, direccion } = formData;
-		if (!nombre || !apellido || !dni || !telefono || !origen) {
-			errorToast("Los campos nombre, apellido, DNI, teléfono y origen son obligatorios.");
+		const parsed = huespedFormSchema.safeParse(formData);
+		if (!parsed.success) {
+			errorToast(parsed.error.issues[0]?.message || "Revisá los campos del formulario.");
 			return;
 		}
+		const { nombre, apellido, dni, telefono, origen, email, direccion } = parsed.data;
 		const payload: Partial<Huesped> = {
-			nombre: String(nombre).trim(),
-			apellido: String(apellido).trim(),
-			dni: String(dni).trim(),
-			telefono: String(telefono).trim(),
-			origen: String(origen).trim().toUpperCase(),
+			nombre,
+			apellido,
+			dni,
+			telefono,
+			origen: toCountryCode(origen),
+			email: email ? email.toLowerCase() : undefined,
 			direccion: direccion ? String(direccion).trim() : undefined,
 		};
 		try {
@@ -262,6 +338,41 @@ const HuespedesPage = () => {
 			fechaAlta: h.createdAt ? new Date(h.createdAt).toLocaleDateString("es-AR") : "-",
 		}));
 	}, [listaNegra]);
+
+	const filteredData = useMemo(() => {
+		const query = normalizeText(searchHuespedes);
+		if (!query) return data;
+		return data.filter((row) => {
+			const searchableValues = [
+				row.nombre,
+				row.apellido,
+				row.dni,
+				row.telefono,
+				row.origen,
+				row.email,
+				row.direccion,
+			];
+			return searchableValues.some((value) =>
+				normalizeText(String(value ?? "")).includes(query)
+			);
+		});
+	}, [data, searchHuespedes]);
+
+	const filteredDataLN = useMemo(() => {
+		const query = normalizeText(searchListaNegra);
+		if (!query) return dataLN;
+		return dataLN.filter((row) => {
+			const searchableValues = [
+				row.dni,
+				row.motivo,
+				row.observaciones,
+				row.fechaAlta,
+			];
+			return searchableValues.some((value) =>
+				normalizeText(String(value ?? "")).includes(query)
+			);
+		});
+	}, [dataLN, searchListaNegra]);
 
 	const onSaveEditLN = async (formData: Record<string, unknown>, selectedRow: any) => {
 		if (!selectedRow || !("idHuespedNoDeseado" in selectedRow)) {
@@ -372,9 +483,12 @@ const HuespedesPage = () => {
 							<TableComponent
 								title="Huéspedes"
 								columns={columns}
-								data={data}
+								data={filteredData}
 								showFormActions={true}
 								showPagination={true}
+								search={searchHuespedes}
+								onSearchChange={setSearchHuespedes}
+								onSearchSubmit={() => undefined}
 								onSaveEdit={onSaveEdit}
 								onSaveAdd={onSaveAdd}
 								onSaveDelete={onSaveDelete}
@@ -382,6 +496,8 @@ const HuespedesPage = () => {
 								inputOptions={inputOptions}
 								customFields={customFields}
 								mapRowToFormData={mapRowToFormDataHuespedes}
+								validationSchemaEdit={huespedFormSchema}
+								validationSchemaAdd={huespedFormSchema}
 								showActions={{
 									create: puedeAgregar,
 									delete: puedeBorrar,
@@ -395,9 +511,12 @@ const HuespedesPage = () => {
 						<TableComponent
 							title="Huéspedes Bloqueados"
 							columns={columnsLN}
-							data={dataLN}
+							data={filteredDataLN}
 							showFormActions={true}
 							showPagination={true}
+							search={searchListaNegra}
+							onSearchChange={setSearchListaNegra}
+							onSearchSubmit={() => undefined}
 							onSaveEdit={onSaveEditLN}
 							onSaveAdd={onSaveAddLN}
 							onSaveDelete={onSaveDeleteLN}

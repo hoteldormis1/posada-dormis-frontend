@@ -21,32 +21,53 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Redirige a login sin mostrar ningún error ni popup
+const redirectToLogin = async (doLogout = false) => {
+  if (isRedirecting) return;
+  isRedirecting = true;
+  if (doLogout) {
+    try { await plainAxios.post("/auth/logout"); } catch { /* silencioso */ }
+  }
+  setAuthToken(null);
+  window.location.href = "/login";
+};
+
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const originalRequest = error.config;
     const accessToken = getAuthToken();
 
-    if (
-      error?.response?.status === 401 &&
-      accessToken &&
-      window.location.pathname !== "/login" &&
-      !isRedirecting
-    ) {
-      originalRequest._retry = true;
-      isRedirecting = true;
-
-      try {
-        await plainAxios.post("/auth/logout");
-      } catch (e) {
-        console.error("Logout error", e);
-      }
-
-      setAuthToken("");
-      window.location.href = "/login";
+    // Ya estamos yendo a login o ya se inició el redirect: no hacer nada
+    if (isRedirecting || (typeof window !== "undefined" && window.location.pathname === "/login")) {
       return Promise.reject(error);
     }
 
+    // 401: el servidor no recibió token (o lo rechazó explícitamente)
+    if (error?.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      if (accessToken) {
+        // Había token en memoria pero el servidor lo rechazó → sesión inválida
+        await redirectToLogin(true);
+        return Promise.reject(error);
+      }
+
+      // Sin token en memoria/sessionStorage (caso mobile: tab suspendido por iOS Safari)
+      // Intentar un refresh silencioso usando la cookie httpOnly antes de rendirse
+      try {
+        const { data } = await plainAxios.post("/auth/refresh");
+        setAuthToken(data.accessToken);
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        return api(originalRequest);
+      } catch {
+        // Cookie de refresh expirada o inválida → redirigir a login sin ningún error
+        await redirectToLogin(false);
+        return Promise.reject(error);
+      }
+    }
+
+    // 403: token presente pero expirado → intentar refresh
     if (error?.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
@@ -54,13 +75,8 @@ api.interceptors.response.use(
         setAuthToken(data.accessToken);
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(originalRequest);
-      } catch (refreshErr) {
-        console.error("Token refresh failed", refreshErr);
-        if (!isRedirecting) {
-          isRedirecting = true;
-          setAuthToken("");
-          window.location.href = "/login";
-        }
+      } catch {
+        await redirectToLogin(false);
       }
     }
 

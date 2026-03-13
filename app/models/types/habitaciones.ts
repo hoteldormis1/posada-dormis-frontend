@@ -8,6 +8,7 @@ export interface Habitacion {
 	precio: number;
 	tipo: string;
 	estado: string;
+	fueraDeServicio?: boolean;
 }
 
 export interface TipoHabitacion {
