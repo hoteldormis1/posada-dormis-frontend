@@ -115,6 +115,8 @@ const HuespedesPage = () => {
 	const { confirm } = useSweetAlert();
 
 	const [activeTab, setActiveTab] = useState<"huespedes" | "listaNegra">("huespedes");
+	const [searchHuespedes, setSearchHuespedes] = useState("");
+	const [searchListaNegra, setSearchListaNegra] = useState("");
 	const tabBase =
 		"inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border transition-colors cursor-pointer";
 	const tabActive = "bg-emerald-400/20 text-emerald-200 border-emerald-300/30 shadow";
@@ -232,7 +234,7 @@ const HuespedesPage = () => {
 		direccion: row?.direccion && row.direccion !== "-" ? String(row.direccion) : "",
 	});
 
-	const onSaveEdit = async (formData: Record<string, unknown>, selectedRow: HuespedRow | null) => {
+	const onSaveEdit = async (formData: Record<string, unknown>, selectedRow: any) => {
 		if (!selectedRow || !("idHuesped" in selectedRow)) {
 			errorToast("Error: No se pudo identificar el huésped seleccionado.");
 			return;
@@ -336,6 +338,41 @@ const HuespedesPage = () => {
 			fechaAlta: h.createdAt ? new Date(h.createdAt).toLocaleDateString("es-AR") : "-",
 		}));
 	}, [listaNegra]);
+
+	const filteredData = useMemo(() => {
+		const query = normalizeText(searchHuespedes);
+		if (!query) return data;
+		return data.filter((row) => {
+			const searchableValues = [
+				row.nombre,
+				row.apellido,
+				row.dni,
+				row.telefono,
+				row.origen,
+				row.email,
+				row.direccion,
+			];
+			return searchableValues.some((value) =>
+				normalizeText(String(value ?? "")).includes(query)
+			);
+		});
+	}, [data, searchHuespedes]);
+
+	const filteredDataLN = useMemo(() => {
+		const query = normalizeText(searchListaNegra);
+		if (!query) return dataLN;
+		return dataLN.filter((row) => {
+			const searchableValues = [
+				row.dni,
+				row.motivo,
+				row.observaciones,
+				row.fechaAlta,
+			];
+			return searchableValues.some((value) =>
+				normalizeText(String(value ?? "")).includes(query)
+			);
+		});
+	}, [dataLN, searchListaNegra]);
 
 	const onSaveEditLN = async (formData: Record<string, unknown>, selectedRow: any) => {
 		if (!selectedRow || !("idHuespedNoDeseado" in selectedRow)) {
@@ -446,9 +483,12 @@ const HuespedesPage = () => {
 							<TableComponent
 								title="Huéspedes"
 								columns={columns}
-								data={data}
+								data={filteredData}
 								showFormActions={true}
 								showPagination={true}
+								search={searchHuespedes}
+								onSearchChange={setSearchHuespedes}
+								onSearchSubmit={() => undefined}
 								onSaveEdit={onSaveEdit}
 								onSaveAdd={onSaveAdd}
 								onSaveDelete={onSaveDelete}
@@ -471,9 +511,12 @@ const HuespedesPage = () => {
 						<TableComponent
 							title="Huéspedes Bloqueados"
 							columns={columnsLN}
-							data={dataLN}
+							data={filteredDataLN}
 							showFormActions={true}
 							showPagination={true}
+							search={searchListaNegra}
+							onSearchChange={setSearchListaNegra}
+							onSearchSubmit={() => undefined}
 							onSaveEdit={onSaveEditLN}
 							onSaveAdd={onSaveAddLN}
 							onSaveDelete={onSaveDeleteLN}

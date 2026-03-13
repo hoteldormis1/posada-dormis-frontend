@@ -104,7 +104,7 @@ const Habitaciones = () => {
 		{
 			key: "fueraDeServicio",
 			type: "checkbox",
-			label: "Fuera de servicio (opcional)",
+			label: "Fuera de servicio",
 			editable: true,
 		},
 	];
