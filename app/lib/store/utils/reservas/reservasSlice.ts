@@ -1,8 +1,7 @@
 // src/lib/store/features/reservas/reservasSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { AxiosError } from "axios";
 import api from "@/lib/store/axiosConfig";
-import { extractErrorMessage } from "@/lib/store/utils/extractErrorMessage";
+import { getFriendlyErrorMessage } from "@/lib/store/utils/extractErrorMessage";
 import { AddReservaPayload, Reserva, StateStatus } from "@/models/types";
 
 export interface ReservasState {
@@ -26,10 +25,7 @@ export const fetchReservas = createAsyncThunk<
     const { data } = await api.get("/reservas");
     return data as Reserva[];
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudieron obtener las reservas")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudieron obtener las reservas"));
   }
 });
 
@@ -42,10 +38,7 @@ export const addReserva = createAsyncThunk<
     const { data } = await api.post("/reservas", payload);
     return data as Reserva;
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudo crear la reserva")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo crear la reserva"));
   }
 });
 
@@ -58,10 +51,7 @@ export const editReserva = createAsyncThunk<
     const { data } = await api.put(`/reservas/${id}`, updateData);
     return data as Reserva;
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudo editar la reserva")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo editar la reserva"));
   }
 });
 
@@ -74,10 +64,7 @@ export const setEstadoReserva = createAsyncThunk<
     const { data } = await api.put(`/reservas/${id}/estado`, { nombre });
     return data as { id: number; estado: string };
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudo cambiar el estado")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo cambiar el estado"));
   }
 });
 
@@ -90,10 +77,7 @@ export const deleteReserva = createAsyncThunk<
     await api.delete(`/reservas/${id}`);
     return id;
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudo eliminar la reserva")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo eliminar la reserva"));
   }
 });
 
@@ -106,10 +90,7 @@ export const checkinReserva = createAsyncThunk<
     const { data } = await api.put(`/reservas/${id}/checkin`);
     return data;
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudo registrar el check-in")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo registrar el check-in"));
   }
 });
 
@@ -122,10 +103,7 @@ export const checkoutReserva = createAsyncThunk<
     const { data } = await api.put(`/reservas/${id}/checkout`);
     return data;
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudo registrar el check-out")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo registrar el check-out"));
   }
 });
 
@@ -138,10 +116,7 @@ export const confirmarReserva = createAsyncThunk<
     const { data } = await api.put(`/reservas/${id}/confirmar`);
     return data;
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudo confirmar la reserva")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo confirmar la reserva"));
   }
 });
 
@@ -154,10 +129,7 @@ export const cancelarReserva = createAsyncThunk<
     const { data } = await api.put(`/reservas/${id}/cancelar`);
     return data;
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudo cancelar la reserva")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo cancelar la reserva"));
   }
 });
 

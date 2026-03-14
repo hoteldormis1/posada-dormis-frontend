@@ -1,9 +1,8 @@
 // src/lib/store/utils/habitaciones/habitacionesSlice.ts
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { AxiosError } from "axios";
 import api from "../../axiosConfig";
-import { extractErrorMessage } from "../extractErrorMessage";
+import { extractErrorMessage, getFriendlyErrorMessage } from "../extractErrorMessage";
 import {
 	FetchHabitacionesResponse,
 	FetchParams,
@@ -125,15 +124,7 @@ export const addHabitacion = createAsyncThunk<
 				...(typeof fueraDeServicio === "boolean" ? { fueraDeServicio } : {}),
 			});
 		} catch (err) {
-			const axiosError = err as AxiosError;
-
-			if (axiosError.response?.status === 409) {
-				return rejectWithValue("Ya existe una habitación con ese número.");
-			}
-
-			return rejectWithValue(
-				extractErrorMessage(axiosError, "No se pudo agregar la habitación")
-			);
+			return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo agregar la habitación"));
 		}
 	}
 );
@@ -148,10 +139,7 @@ export const deleteHabitacion = createAsyncThunk<
 		try {
 			await api.delete(`/habitaciones/${idHabitacion}`);
 		} catch (err) {
-			const axiosError = err as AxiosError;
-			return rejectWithValue(
-				extractErrorMessage(axiosError, "No se pudo eliminar la habitación")
-			);
+			return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo eliminar la habitación"));
 		}
 	}
 );
