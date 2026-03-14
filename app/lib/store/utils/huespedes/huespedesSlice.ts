@@ -26,10 +26,7 @@ export const fetchHuespedes = createAsyncThunk<
     const { data } = await api.get("/huespedes");
     return data as Huesped[];
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudieron obtener los huéspedes")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudieron obtener los huéspedes"));
   }
 });
 
