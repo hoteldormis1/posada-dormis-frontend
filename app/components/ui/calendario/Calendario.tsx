@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useCallback, useState } from "react";
+import React, { useMemo, useCallback, useState, useEffect } from "react";
 import {
   getEstadoReservaTheme,
   getEstadoReservaLabel,
@@ -17,13 +17,14 @@ export type Room = {
   id: string | number;
   name: string;
   numero?: number;
+  fueraDeServicio?: boolean;
 };
 
 export type Booking = {
   id: string | number;
   roomId: string | number;
-  start: string | Date; // inclusive
-  end: string | Date;   // exclusive
+  start: string | Date; 
+  end: string | Date;   
   guest?: string;
   price?: number;
   montoPagado?: number;
@@ -92,6 +93,24 @@ export default function Calendario({
   const [selectionEnd, setSelectionEnd] = useState<{ date: Date; roomId: string | number } | null>(null);
   const [lastScrollTime, setLastScrollTime] = useState(0);
 
+  // Toggle columna de habitaciones
+  const [showRoomCol, setShowRoomCol] = useState(true);
+
+
+  // Adaptación responsive: menos días y columnas más angostas en mobile
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const effectiveDays = isMobile ? Math.min(days, 7) : days;
+  const dayW = isMobile ? 48 : 64;
+  const roomColW = isMobile ? 110 : 220;
+
   // Fecha de anclaje para el rango visible
   const [anchor, setAnchor] = useState<Date>(
     startDate ? parseD(startDate) : new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
@@ -100,9 +119,9 @@ export default function Calendario({
   // Calcular el rango visible
   const range = useMemo(() => {
     const start = parseD(anchor);
-    const end = addDays(start, days);
-    return { start, end, days };
-  }, [anchor, days]);
+    const end = addDays(start, effectiveDays);
+    return { start, end, days: effectiveDays };
+  }, [anchor, effectiveDays]);
 
   // Lista de días
   const dayList = useMemo(() =>
@@ -110,8 +129,6 @@ export default function Calendario({
     [range]
   );
 
-  // Layout
-  const dayW = 64;
   const gridStyle: React.CSSProperties = {
     gridTemplateColumns: `repeat(${range.days}, ${dayW}px)`
   };
@@ -180,6 +197,15 @@ export default function Calendario({
   const getDateFromMouseEvent = useCallback((e: React.MouseEvent, roomId: string | number) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
+    const dayIndex = Math.floor(x / dayW);
+    const date = addDays(range.start, dayIndex);
+    return { date, roomId };
+  }, [range.start, dayW]);
+
+  const getDateFromTouchEvent = useCallback((e: React.TouchEvent, roomId: string | number) => {
+    const touch = e.touches[0] ?? e.changedTouches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
     const dayIndex = Math.floor(x / dayW);
     const date = addDays(range.start, dayIndex);
     return { date, roomId };
@@ -354,34 +380,58 @@ export default function Calendario({
         <div className="text-base sm:text-lg font-bold text-white select-none tracking-tight capitalize">
           {range.start.toLocaleDateString("es-AR", { month: "short", year: "numeric" })}
         </div>
-        <button
-          onClick={() => {
-            const today = new Date();
-            setAnchor(today);
-            onRangeChange?.(parseD(today), addDays(parseD(today), days));
-          }}
-          className="px-3 py-1.5 rounded-lg border border-emerald-400/30 bg-emerald-400/12 text-emerald-300 text-sm font-semibold hover:bg-emerald-400/20 transition-colors"
-        >
-          HOY
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowRoomCol((v) => !v)}
+            title={showRoomCol ? "Ocultar habitaciones" : "Mostrar habitaciones"}
+            className="h-9 px-2.5 rounded-lg border border-white/12 bg-white/5 text-white/75 hover:bg-emerald-400/15 hover:border-emerald-300/30 hover:text-emerald-300 transition-colors text-[13px] font-medium"
+          >
+            {showRoomCol ? "⊟ Hab." : "⊞ Hab."}
+          </button>
+          <button
+            onClick={() => {
+              const today = new Date();
+              setAnchor(today);
+              onRangeChange?.(parseD(today), addDays(parseD(today), days));
+            }}
+            className="px-3 py-1.5 rounded-lg border border-emerald-400/30 bg-emerald-400/12 text-emerald-300 text-sm font-semibold hover:bg-emerald-400/20 transition-colors"
+          >
+            HOY
+          </button>
+        </div>
       </div>
 
-      <div className="flex h-[620px] overflow-auto">
-        {/* Columna fija: Habitación */}
-        <div className="min-w-[220px] flex-shrink-0 border-r border-white/10 bg-[#081f14] sticky left-0 z-10">
-          <div className="h-11 border-b border-white/8 bg-black/20 text-[12px] font-semibold text-emerald-100/75 uppercase tracking-[0.08em]">
-            <div className="flex items-center pl-4 h-full">Habitación</div>
-          </div>
-
-          {rooms.map((r) => (
-            <div key={String(r.id)} className="h-12 border-b border-white/8 text-[15px]">
-              <div className="flex items-center gap-2 pl-3">
-                <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="font-medium text-white/92 truncate">{r.name}</span>
-              </div>
+      <div className="flex overflow-auto" style={{ height: isMobile ? "auto" : "620px", maxHeight: isMobile ? "70svh" : "620px" }}>
+        {/* Columna fija: Habitación (ocultable) */}
+        {showRoomCol && (
+          <div
+            className="flex-shrink-0 border-r border-white/10 bg-[#081f14] sticky left-0 z-10"
+            style={{ minWidth: roomColW }}
+          >
+            <div className="h-11 border-b border-white/8 bg-black/20 text-[12px] font-semibold text-emerald-100/75 uppercase tracking-[0.08em]">
+              <div className="flex items-center pl-3 h-full">Hab.</div>
             </div>
-          ))}
-        </div>
+
+            {rooms.map((r) => (
+              <div key={String(r.id)} className="h-12 border-b border-white/8 text-[13px] sm:text-[15px]">
+                <div className="flex items-center gap-1.5 pl-2 sm:pl-3 h-full">
+                  <span
+                    className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${
+                      r.fueraDeServicio ? "bg-red-400" : "bg-emerald-400"
+                    }`}
+                  />
+                  <span
+                    className={`font-medium truncate ${
+                      r.fueraDeServicio ? "text-white/40 line-through" : "text-white/92"
+                    }`}
+                  >
+                    {r.name}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Cabecera días + grilla */}
         <div className="relative flex-1">
@@ -451,6 +501,35 @@ export default function Calendario({
                     }}
                     onMouseUp={(e) => handleMouseUp(e, r.id)}
                     onMouseLeave={handleMouseLeave}
+                    onTouchStart={(e) => {
+                      if (!onDateRangeSelect) return;
+                      e.preventDefault();
+                      const info = getDateFromTouchEvent(e, r.id);
+                      if (isDateOccupied(info.date, r.id)) return;
+                      setSelectionStart(info);
+                      setSelectionEnd(info);
+                      setIsSelecting(true);
+                    }}
+                    onTouchMove={(e) => {
+                      if (!isSelecting) return;
+                      e.preventDefault();
+                      const info = getDateFromTouchEvent(e, r.id);
+                      setSelectionEnd(info);
+                    }}
+                    onTouchEnd={(e) => {
+                      if (!isSelecting || !onDateRangeSelect) return;
+                      e.preventDefault();
+                      setIsSelecting(false);
+                      if (selectionStart && selectionEnd) {
+                        const start = selectionStart.date < selectionEnd.date ? selectionStart.date : selectionEnd.date;
+                        const end = selectionStart.date < selectionEnd.date ? selectionEnd.date : selectionStart.date;
+                        if (start.getTime() !== end.getTime()) {
+                          onDateRangeSelect({ start, end: addDays(end, 1), roomId: selectionStart.roomId });
+                        }
+                      }
+                      setSelectionStart(null);
+                      setSelectionEnd(null);
+                    }}
                     title="Arrastra para seleccionar un rango de fechas y crear una reserva."
                   />
                 )}

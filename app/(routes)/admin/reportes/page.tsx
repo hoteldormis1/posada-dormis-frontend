@@ -116,6 +116,17 @@ const getRangeFromPreset = (preset: Preset) => {
 
 // ─────────────────────────── Componente ───────────────────────────
 
+const SectionToggle = ({ label, open, onToggle }: { label: string; open: boolean; onToggle: () => void }) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-300/80 hover:text-emerald-200 transition-colors cursor-pointer"
+  >
+    <span className="text-[10px]">{open ? "▲" : "▼"}</span>
+    {open ? `Ocultar ${label}` : `Mostrar ${label}`}
+  </button>
+);
+
 const ReportesPage: React.FC = () => {
   const dispatch = useAppDispatch<AppDispatch>();
   const { exportData, statusExport, errorExport, ocupacion } = useAppSelector(
@@ -124,6 +135,9 @@ const ReportesPage: React.FC = () => {
   const teleReservas = useAppSelector(
     (state: RootState) => state.dashboards?.datos?.totals?.telemetria?.reservas ?? []
   );
+
+  const [showFiltros, setShowFiltros] = useState(true);
+  const [showGraficos, setShowGraficos] = useState(true);
 
   // Preset activo — default "MES"
   const [preset, setPreset] = useState<Preset>("MES");
@@ -304,15 +318,17 @@ const ReportesPage: React.FC = () => {
 
         {/* Filtros */}
         <div className="admin-glass-card p-4 sm:p-5 mb-6 space-y-4">
-          <div className="flex items-center gap-2">
-            <FaFilter className="text-emerald-100/55" size={14} />
-            <h2 className="text-sm font-semibold text-emerald-100/75 uppercase tracking-wider">
-              Filtros
-            </h2>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FaFilter className="text-emerald-100/55" size={14} />
+              <h2 className="text-sm font-semibold text-emerald-100/75 uppercase tracking-wider">
+                Filtros
+              </h2>
+            </div>
+            <SectionToggle label="filtros" open={showFiltros} onToggle={() => setShowFiltros(v => !v)} />
           </div>
 
-          {/* Preset tabs */}
-          <PresetTabs preset={preset} onSelect={handlePreset} />
+          {showFiltros && <><PresetTabs preset={preset} onSelect={handlePreset} />
 
           {/* Inputs manuales — solo en modo personalizado */}
           {preset === "PERSONALIZADO" && (
@@ -378,58 +394,70 @@ const ReportesPage: React.FC = () => {
               );
             })}
           </div>
+          </>}
         </div>
 
         {/* Gráficos */}
         {(reservasPorFechaData.length > 0 || ocupacionPorFechaData.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {/* Reservas por fecha */}
-            <div className="admin-glass-card p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <FaChartBar className="text-emerald-300" size={16} />
-                <h2 className="text-sm font-semibold text-emerald-100/75 uppercase tracking-wider">
-                  Reservas por fecha
-                </h2>
+          <div className="admin-glass-card p-4 sm:p-5 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <FaChartBar className="text-emerald-300" size={14} />
+                <span className="text-xs font-semibold text-emerald-100/60 uppercase tracking-wider">Gráficos</span>
               </div>
-              <div className="h-[260px]">
-                {reservasPorFechaData.length > 0 ? (
-                  <GraficoCantidadDeReservas
-                    data={reservasPorFechaData}
-                    className="h-full"
-                    color="#3b82f6"
-                    datasetLabel="Reservas"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-sm text-emerald-100/65">
-                    Sin datos en el rango seleccionado
-                  </div>
-                )}
-              </div>
+              <SectionToggle label="gráficos" open={showGraficos} onToggle={() => setShowGraficos(v => !v)} />
             </div>
+            {showGraficos && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Reservas por fecha */}
+                <div className="p-4 border border-white/10 rounded-xl bg-white/4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FaChartBar className="text-emerald-300" size={14} />
+                    <h2 className="text-xs sm:text-sm font-semibold text-emerald-100/75 uppercase tracking-wider">
+                      Reservas por fecha
+                    </h2>
+                  </div>
+                  <div className="h-[200px] sm:h-[260px]">
+                    {reservasPorFechaData.length > 0 ? (
+                      <GraficoCantidadDeReservas
+                        data={reservasPorFechaData}
+                        className="h-full"
+                        color="#3b82f6"
+                        datasetLabel="Reservas"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-sm text-emerald-100/65">
+                        Sin datos en el rango seleccionado
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-            {/* Ocupación por fecha */}
-            <div className="admin-glass-card p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <FaChartBar className="text-cyan-300" size={16} />
-                <h2 className="text-sm font-semibold text-emerald-100/75 uppercase tracking-wider">
-                  Ocupación de habitaciones (%)
-                </h2>
-              </div>
-              <div className="h-[260px]">
-                {ocupacionPorFechaData.length > 0 ? (
-                  <GraficoCantidadDeReservas
-                    data={ocupacionPorFechaData}
-                    className="h-full"
-                    color="#8b5cf6"
-                    datasetLabel="Ocupación %"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-sm text-emerald-100/65">
-                    Sin datos en el rango seleccionado
+                {/* Ocupación por fecha */}
+                <div className="p-4 border border-white/10 rounded-xl bg-white/4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FaChartBar className="text-cyan-300" size={14} />
+                    <h2 className="text-xs sm:text-sm font-semibold text-emerald-100/75 uppercase tracking-wider">
+                      Ocupación de habitaciones (%)
+                    </h2>
                   </div>
-                )}
+                  <div className="h-[200px] sm:h-[260px]">
+                    {ocupacionPorFechaData.length > 0 ? (
+                      <GraficoCantidadDeReservas
+                        data={ocupacionPorFechaData}
+                        className="h-full"
+                        color="#8b5cf6"
+                        datasetLabel="Ocupación %"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-sm text-emerald-100/65">
+                        Sin datos en el rango seleccionado
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 

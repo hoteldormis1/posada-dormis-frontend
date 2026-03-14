@@ -112,9 +112,9 @@ const Habitaciones = () => {
 	const columns = useMemo(
 		() => [
 			{ header: "Número", key: "numero" },
-			{ header: "Tipo", key: "tipo" },
+			{ header: "Tipo", key: "tipo", sortable: false },
 			{ header: "Precio", key: "precio" },
-			{ header: "Fuera de servicio", key: "fueraDeServicioLabel" },
+			{ header: "Fuera de servicio", key: "fueraDeServicioLabel", sortable: false },
 		],
 		[]
 	);

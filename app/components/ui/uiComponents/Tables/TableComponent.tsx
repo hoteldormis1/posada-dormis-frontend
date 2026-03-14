@@ -22,7 +22,7 @@ const actionIconButtonDelete =
   `${actionIconButtonBase} border-white/15 bg-white/6 text-red-300 hover:bg-red-500/20 hover:text-red-200 hover:border-red-400/30`;
 
 interface TableComponentProps<T> {
-  columns: { header: string; key: string }[];
+  columns: { header: string; key: string; sortable?: boolean }[];
   data: T[];
   onEdit?: (id: string) => void;
   title?: string;
@@ -291,6 +291,7 @@ const TableComponent = <T extends { id: string }>({
       ...columns.map((col) => ({
         accessorKey: col.key,
         header: col.header,
+        enableSorting: col.sortable !== false,
       }))
     );
 

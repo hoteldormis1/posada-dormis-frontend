@@ -192,9 +192,10 @@ export default function CalendarioPage() {
   const rooms: Room[] = useMemo(
     () => {
       const mappedRooms = (habitaciones as any[]).map((h) => ({
-        id: h.numero ?? h.idHabitacion ?? h.id ?? h.ID ?? String(h.nombre ?? h.name), // Usar numero como id principal
+        id: h.numero ?? h.idHabitacion ?? h.id ?? h.ID ?? String(h.nombre ?? h.name),
         name: h.nombre ?? h.name ?? `Habitación ${h.numero ?? h.id}`,
-        numero: h.numero, // Guardar el número para ordenar
+        numero: h.numero,
+        fueraDeServicio: Boolean(h.fueraDeServicio),
       }));
       
       // Ordenar por número de habitación (menor a mayor)
@@ -501,7 +502,7 @@ export default function CalendarioPage() {
                       setShowAddPopup(false);
                       setSelectedRange(null);
                     }}
-                    className="px-4 py-2 admin-button-ghost rounded-md"
+                    className="px-4 py-2 admin-button-ghost rounded-md cursor-pointer"
                   >
                     Cancelar
                   </button>
@@ -516,7 +517,7 @@ export default function CalendarioPage() {
                     className={`px-4 py-2 rounded-md ${
                       Object.keys(errors).length > 0
                         ? 'bg-white/20 text-white/55 cursor-not-allowed'
-                        : 'admin-button-primary'
+                        : 'admin-button-primary cursor-pointer'
                     }`}
                   >
                     Agregar
