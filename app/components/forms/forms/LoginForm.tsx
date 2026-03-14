@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { loginUser, refreshSession } from "@/lib/store/utils/user/userSlice";
+import { loginUser, refreshSession, fetchCurrentUser } from "@/lib/store/utils/user/userSlice";
 import type { AppDispatch, RootState } from "@/lib/store/store";
 import { useToastAlert } from "@/hooks/useToastAlert";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -52,15 +52,19 @@ const LoginForm = () => {
 	  
 		try {
 		  await dispatch(loginUser({ email, clave })).unwrap();
-	  
-		  await dispatch(refreshSession()).unwrap();
-	  
+
+		  // Cargar perfil del usuario actual tras obtener el token
+		  try {
+		    await dispatch(fetchCurrentUser()).unwrap();
+		  } catch {
+		    // No bloquear el login si falla la carga del perfil
+		  }
+
 		  successToast("Inicio de sesión exitoso");
 		  router.replace(returnTo);
 		} catch (err) {
 		  const msg = typeof err === "string" ? err : "Error desconocido al iniciar sesión";
 		  errorToast(msg);
-		} finally {
 		}
 	  };
 
