@@ -5,16 +5,18 @@ let accessToken: string | null = null;
 export const setAuthToken = (token: string | null) => {
 	accessToken = token;
 
+	if (typeof window === "undefined") return;
+
 	if (token) {
-		sessionStorage.setItem(TOKEN_KEY, token);
+		localStorage.setItem(TOKEN_KEY, token);
 	} else {
-		sessionStorage.removeItem(TOKEN_KEY);
+		localStorage.removeItem(TOKEN_KEY);
 	}
 };
 
 export const getAuthToken = () => {
 	if (!accessToken && typeof window !== "undefined") {
-		accessToken = sessionStorage.getItem(TOKEN_KEY);
+		accessToken = localStorage.getItem(TOKEN_KEY);
 	}
 	return accessToken;
 };
