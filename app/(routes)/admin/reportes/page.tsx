@@ -42,6 +42,7 @@ import type { ReservaExportable } from "@/lib/store/utils/contable/contableSlice
 
 const columnasExport: ColumnaExport[] = [
   { header: "ID", key: "idReserva" },
+  { header: "Fecha Creación", key: "createdAtStr" },
   { header: "Huésped", key: "huesped" },
   { header: "DNI", key: "dni" },
   { header: "Teléfono", key: "telefono" },
@@ -231,6 +232,7 @@ const ReportesPage: React.FC = () => {
     if (!exportData?.reservas) return [];
     return exportData.reservas.map((r: ReservaExportable) => ({
       ...r,
+      createdAtStr: r.createdAt ? fmtDateShort(r.createdAt) : "-",
       fechaDesdeStr: fmtDateShort(r.fechaDesde),
       fechaHastaStr: fmtDateShort(r.fechaHasta),
       montoTotalStr: fmtMoney(r.montoTotal),
@@ -558,6 +560,7 @@ const ReportesPage: React.FC = () => {
                     <thead className="bg-black/20 text-emerald-100/80 text-[12px] uppercase tracking-wider">
                       <tr>
                         <th className="px-4 py-3 text-left font-semibold">ID</th>
+                        <th className="px-4 py-3 text-left font-semibold">Creación</th>
                         <th className="px-4 py-3 text-left font-semibold">Huésped</th>
                         <th className="px-4 py-3 text-left font-semibold">DNI</th>
                         <th className="px-4 py-3 text-left font-semibold">Hab.</th>
@@ -578,6 +581,7 @@ const ReportesPage: React.FC = () => {
                             <td className="px-4 py-3 font-medium text-white">
                               #{r.idReserva as number}
                             </td>
+                            <td className="px-4 py-3 text-emerald-100/55 whitespace-nowrap">{r.createdAtStr as string}</td>
                             <td className="px-4 py-3">{r.huesped as string}</td>
                             <td className="px-4 py-3 text-emerald-100/55">{r.dni as string}</td>
                             <td className="px-4 py-3 font-medium">{r.habitacion as string}</td>

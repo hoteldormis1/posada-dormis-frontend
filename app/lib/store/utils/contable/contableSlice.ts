@@ -35,6 +35,7 @@ export interface ContableResumen {
 
 export interface ReservaExportable {
   idReserva: number;
+  createdAt: string | null;
   huesped: string;
   dni: string;
   telefono: string;

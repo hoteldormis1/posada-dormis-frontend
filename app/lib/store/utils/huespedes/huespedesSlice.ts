@@ -1,8 +1,7 @@
 // src/lib/store/features/huespedes/huespedesSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { AxiosError } from "axios";
 import api from "@/lib/store/axiosConfig";
-import { extractErrorMessage } from "@/lib/store/utils/extractErrorMessage";
+import { getFriendlyErrorMessage } from "@/lib/store/utils/extractErrorMessage";
 import { Huesped } from "@/models/types/huesped";
 import { StateStatus } from "@/models/types";
 
@@ -43,10 +42,7 @@ export const addHuesped = createAsyncThunk<
     const { data } = await api.post("/huespedes", payload);
     return data as Huesped;
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudo crear el huésped")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo crear el huésped"));
   }
 });
 
@@ -60,10 +56,7 @@ export const editHuesped = createAsyncThunk<
     const response = await api.put(`/huespedes/${idHuesped}`, data);
     return response.data as Huesped;
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudo actualizar el huésped")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo actualizar el huésped"));
   }
 });
 
@@ -76,10 +69,7 @@ export const deleteHuesped = createAsyncThunk<
     await api.delete(`/huespedes/${idHuesped}`);
     return idHuesped;
   } catch (err) {
-    const axiosError = err as AxiosError;
-    return rejectWithValue(
-      extractErrorMessage(axiosError, "No se pudo eliminar el huésped")
-    );
+    return rejectWithValue(getFriendlyErrorMessage(err, "No se pudo eliminar el huésped"));
   }
 });
 

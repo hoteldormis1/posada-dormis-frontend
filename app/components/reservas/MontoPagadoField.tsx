@@ -16,36 +16,28 @@ type Props = {
   habitaciones: any;
   labelClass: string;
   inputClass: string;
-  mainColorVar?: string; // ej: var(--color-main)
+  mainColorVar?: string;
 };
 
 const MontoPagadoField: React.FC<Props> = ({ value, onChange, ctx, habitaciones, labelClass, inputClass, mainColorVar = "var(--color-main)" }) => {
   const mode = ctx?.mode || "add";
 
-  const { precio, noches, montoCalculado, totalDeReserva, maxValue, currentValue, step, isDisabled } = useMemo(() => {
-    // Datos del form (para ADD) y de la fila (para EDIT)
+  const { precio, noches, montoCalculado, maxValue, currentValue, step, isDisabled } = useMemo(() => {
     const idHabitacionSel = ctx?.formData?.idHabitacion;
     const fechaDesdeSel = ctx?.formData?.fechaDesde;
     const fechaHastaSel = ctx?.formData?.fechaHasta;
 
-    // Cálculo "normal" (ADD): precio * noches
     const precio = getPrecioHabitacion(habitaciones, idHabitacionSel);
     const noches = diffNoches(String(fechaDesdeSel || ""), String(fechaHastaSel || ""));
     const montoCalculado = precio * noches;
 
-    // En EDIT, el tope debe ser el total de la reserva
     const totalDeReserva = typeof ctx?.row?.total === "number" ? ctx.row.total : Number(ctx?.row?.total || 0);
 
-    // MAX según modo
+    // En ADD el tope es precio×noches; en EDIT es el total de la reserva
     const maxValue = mode === "edit" ? Math.max(totalDeReserva, 1) || 1 : Math.max(montoCalculado, 1) || 1;
 
-    // Valor actual (inicializaciones)
+    // En ADD arranca en 0; en EDIT toma el monto ya pagado
     let currentValue = Number(value || 0);
-
-    if (mode === "add" && currentValue === 0 && montoCalculado > 0) {
-      currentValue = montoCalculado;
-      setTimeout(() => onChange(String(currentValue)), 0);
-    }
 
     if (mode === "edit" && currentValue === 0) {
       const rowMontoPagado = Number(ctx?.row?.montoPagado || 0);
@@ -53,13 +45,12 @@ const MontoPagadoField: React.FC<Props> = ({ value, onChange, ctx, habitaciones,
       setTimeout(() => onChange(String(currentValue)), 0);
     }
 
-    // Siempre capear al máximo definido para el modo actual
     currentValue = Math.min(currentValue, maxValue);
 
     const isDisabled = ctx?.disabled || false;
-    const step = Math.max(Math.round(maxValue / 100), 1); // ~100 posiciones
+    const step = Math.max(Math.round(maxValue / 100), 1);
 
-    return { precio, noches, montoCalculado, totalDeReserva, maxValue, currentValue, step, isDisabled };
+    return { precio, noches, montoCalculado, maxValue, currentValue, step, isDisabled };
   }, [ctx?.formData?.idHabitacion, ctx?.formData?.fechaDesde, ctx?.formData?.fechaHasta, ctx?.mode, ctx?.row?.montoPagado, ctx?.row?.total, habitaciones, mode, onChange, value]);
 
   return (
@@ -85,7 +76,7 @@ const MontoPagadoField: React.FC<Props> = ({ value, onChange, ctx, habitaciones,
         aria-label="Control deslizante de monto pagado"
       />
 
-      {/* Input numérico para precisión */}
+      {/* Input numérico + botón Max */}
       <div className="flex items-center gap-2">
         <input
           type="number"
@@ -104,20 +95,15 @@ const MontoPagadoField: React.FC<Props> = ({ value, onChange, ctx, habitaciones,
           placeholder="Ingrese el monto"
         />
 
-        {/* Botón Auto */}
         <button
           type="button"
-          onClick={() => {
-            // En EDIT, “Auto” pone el total de la reserva; en ADD, recalcula por noches × precio
-            const auto = mode === "edit" ? maxValue : montoCalculado;
-            onChange(String(auto));
-          }}
+          onClick={() => onChange(String(maxValue))}
           disabled={isDisabled}
           className={`px-3 py-2 text-sm rounded-md text-white transition-colors ${isDisabled ? "opacity-60 cursor-not-allowed" : ""}`}
           style={{ background: `var(${mainColorVar})` }}
-          title={mode === "edit" ? "Usar total de la reserva" : "Calcular (precio × noches)"}
+          title="Establecer monto máximo"
         >
-          Auto
+          Max
         </button>
       </div>
 

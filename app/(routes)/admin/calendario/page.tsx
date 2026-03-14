@@ -148,14 +148,25 @@ export default function CalendarioPage() {
     return [...arr].sort((a, b) => Number(a.numero) - Number(b.numero));
   }, [habitaciones]);
 
+  const ESTADOS_EXCLUIDOS_CREACION = ["pendiente", "cancelada"];
+
   // ✅ campos del formulario con el builder reutilizable (modificado para calendario)
   const inputOptions = useMemo(() => {
     const fields = buildReservaFields(habitacionesOrdenadas, (EstadoReservas ?? []) as EstadoReserva[], huespedesOpts);
     
-    // Modificar campos para que no sean editables cuando vienen del calendario
     return fields.map(field => {
+      // Habitación y fechas no editables al venir del calendario
       if (field.key === 'idHabitacion' || field.key === 'fechaDesde' || field.key === 'fechaHasta') {
         return { ...field, editable: false };
+      }
+      // Excluir "pendiente" y "cancelada" del selector de estado al crear
+      if (field.key === 'idEstadoReserva' && Array.isArray(field.options)) {
+        return {
+          ...field,
+          options: field.options.filter(
+            (opt) => !ESTADOS_EXCLUIDOS_CREACION.includes(String(opt.label).toLowerCase())
+          ),
+        };
       }
       return field;
     });
@@ -335,6 +346,10 @@ export default function CalendarioPage() {
     try {
       await dispatch(addReserva(payload)).unwrap();
       await dispatch(fetchReservas());
+      // Si se creó un huésped nuevo, refrescar la lista para que aparezca disponible
+      if (huespedMode === "nuevo") {
+        dispatch(fetchHuespedes());
+      }
       // Refrescar calendario en el rango actualmente visible
       refreshCalendarInCurrentRange();
       
@@ -467,7 +482,9 @@ export default function CalendarioPage() {
                     <EstadoSlider
                       estadoActual={estadoActualNombre}
                       estados={(EstadoReservas ?? []).filter(
-                        (e: any) => String(e?.nombre || "").toLowerCase() !== "rechazada"
+                        (e: any) => !["rechazada", "pendiente", "cancelada"].includes(
+                          String(e?.nombre || "").toLowerCase()
+                        )
                       )}
                       onChange={(estadoNombre) => {
                         const estadoDestino = (EstadoReservas ?? []).find(
