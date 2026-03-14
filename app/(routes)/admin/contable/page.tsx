@@ -120,6 +120,17 @@ const getRangeFromPreset = (preset: Preset) => {
 
 // ─────────────────────────── Componente ───────────────────────────
 
+const SectionToggle = ({ label, open, onToggle }: { label: string; open: boolean; onToggle: () => void }) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-300/80 hover:text-emerald-200 transition-colors cursor-pointer"
+  >
+    <span className="text-[10px]">{open ? "▲" : "▼"}</span>
+    {open ? `Ocultar ${label}` : `Mostrar ${label}`}
+  </button>
+);
+
 const ContablePage: React.FC = () => {
   const dispatch = useAppDispatch<AppDispatch>();
   const { resumen, statusResumen, errorResumen } = useAppSelector(
@@ -129,6 +140,9 @@ const ContablePage: React.FC = () => {
   const teleVentas = useAppSelector(
     (state: RootState) => state.dashboards?.datos?.totals?.telemetria?.ventas ?? []
   );
+
+  const [showFiltros, setShowFiltros] = useState(true);
+  const [showGraficos, setShowGraficos] = useState(true);
 
   // Preset activo — default "MES"
   const [preset, setPreset] = useState<Preset>("MES");
@@ -256,8 +270,12 @@ const ContablePage: React.FC = () => {
 
         {/* Filtro de fechas */}
         <div className="admin-glass-card p-4 sm:p-5 mb-6 space-y-4">
-          {/* Preset tabs */}
-          <PresetTabs preset={preset} onSelect={handlePreset} />
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-emerald-100/60 uppercase tracking-wider">Filtros</span>
+            <SectionToggle label="filtros" open={showFiltros} onToggle={() => setShowFiltros(v => !v)} />
+          </div>
+
+          {showFiltros && <><PresetTabs preset={preset} onSelect={handlePreset} />
 
           {/* Inputs manuales — solo en modo personalizado */}
           {preset === "PERSONALIZADO" && (
@@ -327,6 +345,7 @@ const ContablePage: React.FC = () => {
               );
             })}
           </div>
+          </>}
         </div>
 
         {/* Loading / Error */}
@@ -350,75 +369,79 @@ const ContablePage: React.FC = () => {
                 <FaDollarSign className="text-emerald-300" size={20} />
                 Resumen General
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
-                  <p className="text-2xl sm:text-3xl font-bold text-emerald-200">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="text-center p-3 sm:p-4 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-xl sm:text-3xl font-bold text-emerald-200">
                     {totalGeneral?.cantidad ?? 0}
                   </p>
-                  <p className="text-xs text-emerald-100/55 font-medium mt-1">Total Reservas</p>
+                  <p className="text-[11px] sm:text-xs text-emerald-100/55 font-medium mt-1">Total Reservas</p>
                 </div>
-                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
-                  <p className="text-xl sm:text-2xl font-bold text-emerald-300">
+                <div className="text-center p-3 sm:p-4 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-sm sm:text-2xl font-bold text-emerald-300 break-all">
                     {fmtMoney(totalGeneral?.montoTotal ?? 0)}
                   </p>
-                  <p className="text-xs text-emerald-100/55 font-medium mt-1">Monto Total</p>
+                  <p className="text-[11px] sm:text-xs text-emerald-100/55 font-medium mt-1">Monto Total</p>
                 </div>
-                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
-                  <p className="text-xl sm:text-2xl font-bold text-cyan-300">
+                <div className="text-center p-3 sm:p-4 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-sm sm:text-2xl font-bold text-cyan-300 break-all">
                     {fmtMoney(totalGeneral?.montoPagado ?? 0)}
                   </p>
-                  <p className="text-xs text-emerald-100/55 font-medium mt-1">Monto Pagado</p>
+                  <p className="text-[11px] sm:text-xs text-emerald-100/55 font-medium mt-1">Monto Pagado</p>
                 </div>
-                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
-                  <p className="text-xl sm:text-2xl font-bold text-amber-300">
+                <div className="text-center p-3 sm:p-4 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-sm sm:text-2xl font-bold text-amber-300 break-all">
                     {fmtMoney(totalGeneral?.saldoPendiente ?? 0)}
                   </p>
-                  <p className="text-xs text-emerald-100/55 font-medium mt-1">Saldo Pendiente</p>
+                  <p className="text-[11px] sm:text-xs text-emerald-100/55 font-medium mt-1">Saldo Pendiente</p>
                 </div>
               </div>
             </div>
 
             
 
-            {/* Graficos contables */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 w-full admin-glass-card p-6 mb-8">
-              <div className="gap-8">
-                <div className="flex flex-col p-6 border border-white/10 shadow-md h-[400px] bg-white/4 rounded-xl">
-                  <label className="text-2xl font-semibold text-white">Reservas por estado</label>
-                  <div className="mt-4 flex-1 flex items-center justify-center">
-                    {estados.length > 0 ? (
-                      <div className="w-full max-w-xs">
-                        <GraficoPie
-                          labels={labelsEstados}
-                          data={cantidadPorEstado}
-                          title=""
-                          backgroundColors={coloresEstados}
-                        />
-                      </div>
-                    ) : (
-                      <div className="text-sm text-emerald-100/65">Sin datos en el rango seleccionado.</div>
-                    )}
-                  </div>
-                </div>
+            {/* Gráficos contables */}
+            <div className="admin-glass-card p-4 sm:p-6 mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-semibold text-emerald-100/60 uppercase tracking-wider">Gráficos</span>
+                <SectionToggle label="gráficos" open={showGraficos} onToggle={() => setShowGraficos(v => !v)} />
               </div>
-
-                <div className="flex flex-col p-6 border border-white/10 shadow-md h-[400px] bg-white/4 rounded-xl">
-                  <label className="text-2xl font-semibold text-white">Ingresos por fecha</label>
-                  <div className="mt-4 flex-1">
-                    {ingresosPorFechaData.length > 0 ? (
-                      <GraficoCantidadDeReservas
-                        data={ingresosPorFechaData}
-                        className="h-full"
-                        color="#10b981"
-                        datasetLabel="Ingresos"
-                        yType="money"
-                      />
-                    ) : (
-                      <div className="text-sm text-emerald-100/65">Sin datos en el rango seleccionado.</div>
-                    )}
+              {showGraficos && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col p-4 sm:p-6 border border-white/10 shadow-md h-[260px] sm:h-[400px] bg-white/4 rounded-xl">
+                    <label className="text-base sm:text-2xl font-semibold text-white">Reservas por estado</label>
+                    <div className="mt-3 flex-1 flex items-center justify-center">
+                      {estados.length > 0 ? (
+                        <div className="w-full max-w-xs">
+                          <GraficoPie
+                            labels={labelsEstados}
+                            data={cantidadPorEstado}
+                            title=""
+                            backgroundColors={coloresEstados}
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-sm text-emerald-100/65">Sin datos en el rango seleccionado.</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-col p-4 sm:p-6 border border-white/10 shadow-md h-[260px] sm:h-[400px] bg-white/4 rounded-xl">
+                    <label className="text-base sm:text-2xl font-semibold text-white">Ingresos por fecha</label>
+                    <div className="mt-3 flex-1">
+                      {ingresosPorFechaData.length > 0 ? (
+                        <GraficoCantidadDeReservas
+                          data={ingresosPorFechaData}
+                          className="h-full"
+                          color="#10b981"
+                          datasetLabel="Ingresos"
+                          yType="money"
+                        />
+                      ) : (
+                        <div className="text-sm text-emerald-100/65">Sin datos en el rango seleccionado.</div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              
+              )}
             </div>
 
             {/* Tarjetas por estado */}

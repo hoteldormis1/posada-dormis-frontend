@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import StoreProvider from "./providers/StoreProvider";
@@ -15,6 +15,12 @@ const poppins = Poppins({
 export const metadata: Metadata = {
 	title: "Posada Dormi's",
 	description: "Posada Dormi's - Mina Clavero, Córdoba",
+};
+
+export const viewport: Viewport = {
+	width: "device-width",
+	initialScale: 1,
+	maximumScale: 1,
 };
 
 export default function RootLayout({
