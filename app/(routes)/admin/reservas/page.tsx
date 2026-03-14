@@ -34,6 +34,7 @@ const Reservas: React.FC = () => {
   const { confirm } = useSweetAlert();
 
   const columns = [
+    { header: "Creación", key: "createdAtLocal", sortable: false },
     { header: "Habitación", key: "numeroHab" },
     { header: "Fecha de ingreso", key: "ingreso" },
     { header: "Fecha de salida", key: "egreso" },
@@ -62,7 +63,23 @@ const Reservas: React.FC = () => {
     onReservaActualizada: () => dispatch(fetchReservas()),
   });
 
-  const data = useMemo(() => reservas, [reservas]);
+  const data = useMemo(
+    () =>
+      reservas.map((r) => ({
+        ...r,
+        createdAtLocal: r.createdAt
+          ? new Date(r.createdAt).toLocaleString("es-AR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "America/Argentina/Buenos_Aires",
+            })
+          : "-",
+      })),
+    [reservas]
+  );
 
   // ✅ opciones de huéspedes para el builder
   const huespedesOpts: Option[] = useMemo(

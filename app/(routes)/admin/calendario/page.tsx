@@ -346,6 +346,10 @@ export default function CalendarioPage() {
     try {
       await dispatch(addReserva(payload)).unwrap();
       await dispatch(fetchReservas());
+      // Si se creó un huésped nuevo, refrescar la lista para que aparezca disponible
+      if (huespedMode === "nuevo") {
+        dispatch(fetchHuespedes());
+      }
       // Refrescar calendario en el rango actualmente visible
       refreshCalendarInCurrentRange();
       

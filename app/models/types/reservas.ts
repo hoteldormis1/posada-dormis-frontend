@@ -13,6 +13,7 @@ export type Reserva = {
   idReserva?: number;
   idHuesped?: number;
   idHabitacion?: number;
+  createdAt?: string | null; // fecha de creación ISO
   fechaDesde?: string | null;
   fechaHasta?: string | null;
   numeroHab: number; // número de la habitación
