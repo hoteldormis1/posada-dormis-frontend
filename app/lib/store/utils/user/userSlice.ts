@@ -33,11 +33,16 @@ const initialState: UserState = {
   tiposUsuarios: [],
 };
 
-export const loginUser = createAsyncThunk<void, LoginCredentials, { rejectValue: string }>(
+export const loginUser = createAsyncThunk<{ accessToken: string }, LoginCredentials, { rejectValue: string }>(
   "user/login",
   async ({ email, clave }, { rejectWithValue }) => {
     try {
-      await api.post("/auth/login", { email, clave }, { withCredentials: true });
+      const { data } = await api.post("/auth/login", { email, clave }, { withCredentials: true });
+      if (!data?.accessToken) {
+        return rejectWithValue("No se recibió el token de acceso del servidor");
+      }
+      setAuthToken(data.accessToken);
+      return { accessToken: data.accessToken };
     } catch (err) {
       const axiosError = err as AxiosError;
       if (axiosError.response?.status === 401) {
@@ -249,8 +254,9 @@ const userSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state) => {
+      .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
+        state.accessToken = action.payload.accessToken;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
