@@ -2,7 +2,7 @@
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../axiosConfig";
-import { extractErrorMessage, getFriendlyErrorMessage } from "../extractErrorMessage";
+import { getFriendlyErrorMessage } from "../extractErrorMessage";
 import {
 	FetchHabitacionesResponse,
 	FetchParams,
@@ -70,9 +70,8 @@ export const fetchHabitaciones = createAsyncThunk<
 				estadosDeReserva: estadosOrdenados,
 			};
 		} catch (err) {
-			const axiosError = err as AxiosError;
 			return rejectWithValue(
-				extractErrorMessage(axiosError, "No se pudieron obtener las habitaciones")
+				getFriendlyErrorMessage(err, "No se pudieron obtener las habitaciones")
 			);
 		}
 	}
@@ -98,9 +97,8 @@ export const editHabitacion = createAsyncThunk<
 				...(typeof fueraDeServicio === "boolean" ? { fueraDeServicio } : {}),
 			});
 		} catch (err) {
-			const axiosError = err as AxiosError;
 			return rejectWithValue(
-				extractErrorMessage(axiosError, "No se pudo editar la habitación")
+				getFriendlyErrorMessage(err, "No se pudo editar la habitación")
 			);
 		}
 	}
