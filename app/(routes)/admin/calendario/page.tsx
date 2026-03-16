@@ -175,11 +175,11 @@ export default function CalendarioPage() {
     () => inputOptions.filter((field) => field.key !== "idEstadoReserva"),
     [inputOptions]
   );
-  const estadoPendienteId = useMemo(() => {
-    const pendiente = (EstadoReservas ?? []).find(
-      (e: any) => String(e?.nombre || "").toLowerCase() === "pendiente"
+  const estadoConfirmadoId = useMemo(() => {
+    const confirmada = (EstadoReservas ?? []).find(
+      (e: any) => String(e?.nombre || "").toLowerCase() === "confirmada"
     );
-    return pendiente?.idEstadoReserva ?? "";
+    return confirmada?.idEstadoReserva ?? "";
   }, [EstadoReservas]);
   const estadoActualNombre = useMemo(() => {
     const estado = (EstadoReservas ?? []).find(
@@ -285,7 +285,7 @@ export default function CalendarioPage() {
       idHabitacion: habitacionSeleccionada?.idHabitacion || range.roomId,
       fechaDesde: formatToDDMMYYYY(range.start),
       fechaHasta: formatToDDMMYYYY(range.end),
-      idEstadoReserva: estadoPendienteId,
+      idEstadoReserva: estadoConfirmadoId,
       montoPagado: "",
       // Campos de huésped
       nombre: "",
@@ -301,7 +301,7 @@ export default function CalendarioPage() {
     setFormData(newFormData);
     setSelectedRange(range);
     setShowAddPopup(true);
-  }, [habitacionesOrdenadas, estadoPendienteId]);
+  }, [habitacionesOrdenadas, estadoConfirmadoId]);
 
   // 💾 Función para guardar nueva reserva
   const onSaveAdd = useCallback(async (formData: Record<string, unknown>) => {
@@ -313,7 +313,7 @@ export default function CalendarioPage() {
 
     const countryName = getCountryName(String(origen || "AR"), "es");
 
-    const precioPorDia = getPrecioHabitacion(habitaciones, idHabitacion);
+    const precioPorDia = getPrecioHabitacion({ datos: habitaciones }, idHabitacion);
     const noches = diffNoches(String(fechaDesde), String(fechaHasta));
     const montoTotal = precioPorDia * noches;
     const pagadoNum = Number(montoPagado) || 0;

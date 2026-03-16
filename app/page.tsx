@@ -1023,7 +1023,7 @@ const ReservasPublicasPage = () => {
 
                         <div className="md:col-span-2">
                           <label className="block text-xs font-semibold text-white mb-1.5 uppercase tracking-wide">
-                            Dirección
+                            Dirección <span className="normal-case text-white/40 font-normal">(opcional)</span>
                           </label>
                           <input
                             type="text"

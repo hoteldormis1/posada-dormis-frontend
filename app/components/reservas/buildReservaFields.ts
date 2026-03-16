@@ -52,6 +52,12 @@ export function buildReservaFields(
       editable: ({ formData }: any) => formData.huespedMode !== "existente",
     },
     { 
+      key: "email",   
+      type: "text",
+      label: "Email",   
+      editable: ({ formData }: any) => formData.huespedMode !== "existente",
+    },
+    { 
       key: "origen",   
       type: "custom",
       label: "Origen",   
@@ -60,7 +66,7 @@ export function buildReservaFields(
     { 
       key: "direccion",   
       type: "text",
-      label: "Dirección (opcional)",   
+      label: "Dirección (opcional)",
       editable: ({ formData }: any) => formData.huespedMode !== "existente",
     },
 
@@ -69,7 +75,7 @@ export function buildReservaFields(
       key: "idHabitacion",
       type: "select",
       label: "Habitación",
-      editable: true,
+      editable: ({ mode }: any) => mode === "add",
       options: (habitaciones ?? []).map((h) => ({
         value: h.idHabitacion,
         label: `Número ${h.numero}`,

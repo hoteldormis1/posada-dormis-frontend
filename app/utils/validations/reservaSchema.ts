@@ -6,7 +6,8 @@ import {
   origenSchema,
   fechaDDMMYYYYSchema,
   precioSchema,
-  validarFechaPosterior
+  validarFechaPosterior,
+  emailSchema,
 } from "./commonValidations";
 
 // Schema base para reserva que se adapta según el modo de huésped
@@ -24,6 +25,8 @@ export const reservaAddSchema = z
 		dni: z.coerce.string().optional(),
 		telefono: z.coerce.string().optional(),
 		origen: z.coerce.string().optional(),
+		email: emailSchema.optional().or(z.literal("")),
+		direccion: z.string().optional().or(z.literal("")),
 
 		// RESERVA (siempre requeridos)
 		idHabitacion: z.coerce.number().int().positive("Seleccione una habitación"),
@@ -98,6 +101,17 @@ export const reservaAddSchema = z
 					message: validarOrigen.error.issues[0]?.message || "Campo requerido",
 				});
 			}
+
+			// Email: requerido con validación de formato
+			const validarEmail = emailSchema.safeParse(data.email);
+			if (!validarEmail.success) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ["email"],
+					message: validarEmail.error.issues[0]?.message || "El email es obligatorio",
+				});
+			}
+			// dirección: completamente opcional, sin validación de formato
 		}
 	});
 

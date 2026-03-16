@@ -89,7 +89,7 @@ const Habitaciones = () => {
 			key: "numero",
 			type: "number",
 			label: "Número",
-			editable: true
+			editable: ({ mode }: any) => mode === "add",
 		},
 		{
 			key: "tipo",
