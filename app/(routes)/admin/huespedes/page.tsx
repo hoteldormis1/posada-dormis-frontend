@@ -102,8 +102,8 @@ const huespedFormSchema = z.object({
 	email: z
 		.string()
 		.trim()
-		.optional()
-		.refine((v) => !v || (EMAIL_RE.test(v) && !/\.\./.test(v)), {
+		.min(1, "El email es obligatorio")
+		.refine((v) => EMAIL_RE.test(v) && !/\.\./.test(v), {
 			message: "Ingresá un email válido",
 		}),
 	direccion: z.string().optional(),
@@ -163,7 +163,7 @@ const HuespedesPage = () => {
 		{ key: "dni", type: "text", label: "DNI", editable: true },
 		{ key: "telefono", type: "phone", label: "Teléfono", editable: true },
 		{ key: "origen", type: "custom", label: "País de origen", editable: true },
-		{ key: "email", type: "text", label: "Email (opcional)", editable: true },
+		{ key: "email", type: "text", label: "Email", editable: true },
 		{ key: "direccion", type: "text", label: "Dirección (opcional)", editable: true },
 	];
 
@@ -253,7 +253,7 @@ const HuespedesPage = () => {
 			dni,
 			telefono,
 			origen: toCountryCode(origen),
-			email: email ? email.toLowerCase() : undefined,
+			email: email.toLowerCase(),
 			direccion: direccion ? String(direccion).trim() : undefined,
 		};
 		try {
@@ -277,7 +277,7 @@ const HuespedesPage = () => {
 			dni,
 			telefono,
 			origen: toCountryCode(origen),
-			email: email ? email.toLowerCase() : undefined,
+			email: email.toLowerCase(),
 			direccion: direccion ? String(direccion).trim() : undefined,
 		};
 		try {
