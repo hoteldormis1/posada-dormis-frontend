@@ -150,7 +150,6 @@ const ReportesPage: React.FC = () => {
     "confirmada",
     "checkin",
     "checkout",
-    "rechazada",
   ]);
 
   // Helpers para obtener ISO del state actual
