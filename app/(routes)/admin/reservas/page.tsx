@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { inputBaseEstilos, labelBaseEstilos, pantallaPrincipalEstilos } from "@/styles/global-styles";
 import { LoadingSpinner, TableComponent } from "@/components";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
@@ -63,6 +63,11 @@ const Reservas: React.FC = () => {
     onReservaActualizada: () => dispatch(fetchReservas()),
   });
 
+  const [searchReservas, setSearchReservas] = useState("");
+
+  const normalizeText = (v: string) =>
+    v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+
   const data = useMemo(
     () =>
       reservas.map((r) => ({
@@ -80,6 +85,22 @@ const Reservas: React.FC = () => {
       })),
     [reservas]
   );
+
+  const filteredData = useMemo(() => {
+    const query = normalizeText(searchReservas);
+    if (!query) return data;
+    return data.filter((row) =>
+      [
+        row.huespedNombre,
+        row.dniHuesped,
+        row.telefonoHuesped,
+        String(row.numeroHab ?? ""),
+        row.estadoDeReserva,
+        row.ingreso,
+        row.egreso,
+      ].some((v) => normalizeText(String(v ?? "")).includes(query))
+    );
+  }, [data, searchReservas]);
 
   // ✅ opciones de huéspedes para el builder
   const huespedesOpts: Option[] = useMemo(
@@ -239,7 +260,10 @@ const Reservas: React.FC = () => {
             <TableComponent<Reserva>
               title="Reservas"
               columns={columns}
-              data={data}
+              data={filteredData}
+              search={searchReservas}
+              onSearchChange={setSearchReservas}
+              onSearchSubmit={() => undefined}
               showFormActions
               showPagination
               onSaveEdit={onSaveEdit}

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { FaSearch, FaTrash } from "react-icons/fa";
+import { FaSearch, FaTrash, FaTimes } from "react-icons/fa";
 import InputForm from "@/components/forms/formComponents/InputForm";
 import { fuenteDeTitulo } from "@/styles/global-styles";
 
@@ -39,23 +39,26 @@ const TableHeader = ({
 				{title && <h2 className={fuenteDeTitulo}>{title}</h2>}
 
 				<div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-					<div className="relative w-full sm:w-64">
-						<InputForm
-							InputForm="search"
-							placeholder="Buscar..."
-							value={search}
-							onChange={(e) => onSearchChange?.(e.target.value)}
-							onKeyDown={(e) => e.key === "Enter" && onSearchSubmit?.(e)}
-						/>
-						<button
-							type="button"
-							onClick={onSearchSubmit}
-							aria-label="Buscar"
-							className="absolute right-3 top-3/5 -translate-y-1/2 text-admin-dim hover:text-admin-accent focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1 rounded"
-						>
-							<FaSearch className="w-4 h-4 cursor-pointer" />
-						</button>
-					</div>
+				<div className="relative w-full sm:w-64">
+					<InputForm
+						InputForm="search"
+						placeholder="Buscar..."
+						value={search}
+						onChange={(e) => onSearchChange?.(e.target.value)}
+						onKeyDown={(e) => e.key === "Enter" && onSearchSubmit?.(e)}
+					/>
+					<button
+						type="button"
+						onClick={() => search ? onSearchChange?.("") : onSearchSubmit?.()}
+						aria-label={search ? "Limpiar búsqueda" : "Buscar"}
+						className="absolute right-3 bottom-3 text-admin-dim hover:text-admin-accent focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1 rounded"
+					>
+						{search
+							? <FaTimes className="w-4 h-4 cursor-pointer" />
+							: <FaSearch className="w-4 h-4 cursor-pointer" />
+						}
+					</button>
+				</div>
 
 					{showFormActions && showActions?.create && (
 						<button
